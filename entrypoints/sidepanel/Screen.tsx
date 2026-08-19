@@ -41,7 +41,7 @@ export function Screen({
   );
 }
 
-/** motion/react writes inline transforms, which the `data-flair` blanket cannot reach. */
+/** The one gate on flair for type; every screen's heading goes through it. */
 export function Reveal({
   text,
   as = 'h1',

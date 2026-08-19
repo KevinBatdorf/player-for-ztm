@@ -43,7 +43,7 @@ const label = (awaiting: boolean) => (awaiting ? 'Reopen the ZTM tab' : 'Open ZT
 
 function Card({ awaiting, send, recheck }: Props) {
   return (
-    <div className="flex h-full flex-col items-center justify-center bg-paper px-4">
+    <div className="flex h-full flex-col items-center justify-center px-4">
       <div className="rule flex w-full flex-col gap-3 rounded-panel bg-raised p-4 shadow-panel">
         <Reveal text={HEADING} className={HEADING_TYPE} />
         <p className="text-body leading-relaxed text-ink-soft">
@@ -63,7 +63,7 @@ function Steps({ awaiting, send, recheck }: Props) {
   const at = awaiting ? 1 : 0;
 
   return (
-    <div className="flex h-full flex-col bg-paper">
+    <div className="flex h-full flex-col">
       <header className="rule-b flex flex-col gap-1 px-4 py-3">
         <p className="font-mono text-caption tracking-[0.18em] text-ink-faint uppercase">
           Signed out

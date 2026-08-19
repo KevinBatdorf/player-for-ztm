@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'motion/react';
 import { useReducer, useState, type Dispatch } from 'react';
 import { Backdrop } from './Backdrop';
 import { DevPanel } from './DevPanel';
@@ -9,17 +10,35 @@ import { IndexingCourses } from './views/IndexingCourses';
 import { Playing } from './views/Playing';
 import { Search } from './views/Search';
 import { SignedOut } from './views/SignedOut';
+import { useFlair } from './settings';
 import { initialState, reduce, type Action, type AppState } from '@/lib/machine';
 
 export function App() {
   const [state, dispatch] = useReducer(reduce, initialState);
   // Boot holds its mark back until the field has drawn, so it needs to hear about it.
   const [fieldReady, setFieldReady] = useState(false);
+  const flair = useFlair();
+  // motion writes inline styles, which the `data-flair` blanket cannot reach.
+  const seconds = flair === 'none' ? 0 : 0.2;
 
   return (
     <div className="relative h-screen font-sans text-body text-ink">
       <Backdrop view={state.view.name} onReady={() => setFieldReady(true)} />
-      <div className="relative h-full">{renderView(state, dispatch, fieldReady)}</div>
+
+      {/* `wait` rather than overlap: the field underneath is what carries the gap. */}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={state.view.name}
+          className="relative h-full"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: seconds, ease: [0.4, 0, 0.2, 1] }}
+        >
+          {renderView(state, dispatch, fieldReady)}
+        </motion.div>
+      </AnimatePresence>
+
       {/* A literal false in a build, so DevPanel is tree-shaken out. */}
       {import.meta.env.DEV && <DevPanel state={state} dispatch={dispatch} />}
     </div>

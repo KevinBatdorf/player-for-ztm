@@ -206,7 +206,7 @@ function Mark() {
 
 function Wordmark() {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-4 bg-paper px-6">
+    <div className="flex h-full flex-col items-center justify-center gap-4 px-6">
       <Reveal text={WORDMARK} align="center" className={cn(TITLE, 'text-center')} />
 
       <div className="h-[max(2px,var(--t-line-w))] w-28 overflow-hidden bg-line">
@@ -220,7 +220,7 @@ function Wordmark() {
 
 function Bars() {
   return (
-    <div className="flex h-full flex-col justify-between bg-paper p-4">
+    <div className="flex h-full flex-col justify-between p-4">
       <p className="font-mono text-caption tracking-[0.18em] text-ink-faint uppercase">
         Zero To Mastery
       </p>
