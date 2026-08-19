@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 
 /* Auto-detection walks up from this file and misses these. */
 @source '../../components';
@@ -19,6 +20,8 @@
   --color-ink-faint: var(--t-ink-faint);
   --color-accent: var(--t-accent);
   --color-accent-ink: var(--t-accent-ink);
+  /* The accent is a fill; neobrutalism's yellow is invisible as text. */
+  --color-accent-text: var(--t-accent-text);
 
   --font-sans: var(--t-font-sans);
   --font-mono: var(--t-font-mono);
@@ -47,6 +50,21 @@
   border-bottom-color: var(--t-line);
 }
 
+@utility rule-t {
+  border-top-width: var(--t-line-w);
+  border-top-style: solid;
+  border-top-color: var(--t-line);
+}
+
+/* Blanket, because `none` has to reach vendored components that were never asked. */
+[data-flair='none'] *,
+[data-flair='none'] *::before,
+[data-flair='none'] *::after {
+  transition-duration: 0ms !important;
+  animation-duration: 0ms !important;
+  animation-iteration-count: 1 !important;
+}
+
 /* --rb-* is React Bits' own namespace; setting it re-themes vendored blocks unedited. */
 :root,
 [data-theme='clean'] {
@@ -63,6 +81,7 @@
   --t-ink-faint: #a3a3a3;
   --t-accent: #171717;
   --t-accent-ink: #ffffff;
+  --t-accent-text: #171717;
 
   --t-font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --t-font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
@@ -95,6 +114,7 @@
   --t-ink-faint: #999999;
   --t-accent: #e2231a;
   --t-accent-ink: #ffffff;
+  --t-accent-text: #e2231a;
 
   --t-font-sans: 'Helvetica Now', 'Neue Haas Grotesk', Inter, Helvetica, Arial, sans-serif;
   --t-font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
@@ -127,6 +147,7 @@
   --t-ink-faint: #6b6b6b;
   --t-accent: #ffd400;
   --t-accent-ink: #111111;
+  --t-accent-text: #7a5c00;
 
   --t-font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --t-font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
@@ -159,6 +180,7 @@
   --t-ink-faint: #6b7280;
   --t-accent: #c792ea;
   --t-accent-ink: #0a0b0d;
+  --t-accent-text: #c792ea;
 
   --t-font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
   --t-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
