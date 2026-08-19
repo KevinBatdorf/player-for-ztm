@@ -7,13 +7,12 @@ import {
   sampleView,
   variantsFor,
   VIEW_NAMES,
-  type FieldId,
   type FlairLevel,
   type HoldMode,
 } from '@/lib/dev';
 import type { Action, AppState, ViewName } from '@/lib/machine';
+import { cn } from '@/lib/utils';
 
-// Theme is a real user setting, hosted here only until there is a settings screen.
 export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispatch<Action> }) {
   const { settings, setFlair, setField, setHold, setVariant, setOpen } = useSettings();
   const name = state.view.name;
@@ -22,6 +21,25 @@ export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispa
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 rule-t bg-surface/90 backdrop-blur-sm">
+      <div className="flex gap-1 px-2 pt-2">
+        {FIELDS.map((f) => (
+          <button
+            key={f}
+            type="button"
+            onClick={() => setField(f)}
+            className={cn(
+              'rule min-w-0 flex-1 truncate rounded-panel px-1 py-1 font-mono text-caption transition-colors duration-150 ease-panel',
+              'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent',
+              f === settings.field
+                ? 'bg-accent text-accent-ink'
+                : 'bg-raised text-ink-faint hover:text-ink',
+            )}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
       <button
         type="button"
         onClick={() => setOpen(!settings.open)}
@@ -29,7 +47,7 @@ export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispa
       >
         <span>{settings.open ? '▾ dev' : '▸ dev'}</span>
         <span className="truncate">
-          {name} · {variant} · {settings.field} · {settings.flair}
+          {name} · {variant} · {settings.flair}
           {settings.hold === 'hold' && ' · held'}
         </span>
       </button>
@@ -68,17 +86,6 @@ export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispa
             ))}
           </Field>
 
-          <Field
-            label="field"
-            value={settings.field}
-            onChange={(next) => setField(next as FieldId)}
-          >
-            {FIELDS.map((f) => (
-              <option key={f} value={f}>
-                {f}
-              </option>
-            ))}
-          </Field>
 
           <Field
             label="transitions"
