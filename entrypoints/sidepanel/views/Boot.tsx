@@ -1,9 +1,13 @@
-import { useEffect, type Dispatch } from 'react';
+import { lazy, Suspense, useEffect, type Dispatch } from 'react';
 import { Reveal } from '../Screen';
 import { useFlair, useHold, useVariant } from '../settings';
+import { ZTM_GROUND, ZTM_MARK, ZTM_MARK_FONT, ZTM_PINK, ZTM_PURPLE } from '@/lib/brand';
 import type { Action } from '@/lib/machine';
 import { hasSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
+
+/** Split because it drags in three; only this variant pays, and only past `none`. */
+const Watercolor = lazy(() => import('@/components/react-bits/watercolor'));
 
 const WORDMARK = 'Player for ZTM';
 
@@ -34,7 +38,65 @@ export function Boot({ dispatch }: { dispatch: Dispatch<Action> }) {
     };
   }, [dispatch, flair, held]);
 
+  if (variant === 'brand') return <Brand quiet={flair === 'none'} />;
   return variant === 'bars' ? <Bars /> : <Wordmark />;
+}
+
+function Brand({ quiet }: { quiet: boolean }) {
+  return (
+    <div
+      className="relative flex h-full flex-col items-center justify-center overflow-hidden"
+      style={{ backgroundColor: ZTM_GROUND }}
+    >
+      {/* Its own rAF loop, which the `flair: none` blanket cannot stop. */}
+      {!quiet && (
+        <Suspense fallback={null}>
+          <div className="absolute inset-0">
+            {/* saturation defaults to 0, which collapses this shader to luminance. */}
+            <Watercolor
+              color1={ZTM_PURPLE}
+              color2={ZTM_PINK}
+              speed={0.25}
+              scale={0.8}
+              saturation={1.2}
+              brightness={0}
+              opacity={0.38}
+              cursorInteraction={false}
+            />
+          </div>
+        </Suspense>
+      )}
+
+      {/* The wash drifts, so the mark's contrast would otherwise vary with it. */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `radial-gradient(58% 38% at 50% 47%, ${ZTM_GROUND}c4, transparent 72%)`,
+        }}
+      />
+
+      {/* White rather than `--t-ink`, because the ground here does not follow the theme. */}
+      <div className="relative flex flex-col items-center text-white">
+        <p className="mb-1 text-caption tracking-[0.28em] uppercase opacity-70">Player for</p>
+
+        <div className="flex items-baseline" style={{ fontFamily: ZTM_MARK_FONT }}>
+          {ZTM_MARK.map(({ char, color }, i) => (
+            <span key={char} style={{ color }}>
+              <Reveal
+                as="span"
+                text={char}
+                blur={false}
+                duration={0.4 + i * 0.14}
+                className="text-[86px] leading-none font-black tracking-[-0.02em]"
+              />
+            </span>
+          ))}
+        </div>
+
+        <p className="mt-7 text-caption opacity-70">Checking your session…</p>
+      </div>
+    </div>
+  );
 }
 
 function Wordmark() {

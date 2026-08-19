@@ -9,7 +9,7 @@ export type FlairLevel = (typeof FLAIR_LEVELS)[number];
 
 // A record, not a list: the compiler then refuses a screen with no treatments.
 export const VIEW_VARIANTS = {
-  boot: ['wordmark', 'bars'],
+  boot: ['wordmark', 'bars', 'brand'],
   signedOut: ['card', 'steps'],
   indexingCourses: ['plain'],
   home: ['list', 'deck'],

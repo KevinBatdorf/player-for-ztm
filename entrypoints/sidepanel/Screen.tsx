@@ -45,11 +45,17 @@ export function Reveal({
   text,
   as = 'h1',
   align = 'start',
+  blur = true,
+  duration = 0.45,
   className,
 }: {
   text: string;
-  as?: 'h1' | 'h2' | 'p';
+  as?: 'h1' | 'h2' | 'p' | 'span';
   align?: 'start' | 'center';
+  /** A filter on the spans breaks any `background-clip: text` clipping through them. */
+  blur?: boolean;
+  /** Three one-letter instances land in sequence when each is given its own. */
+  duration?: number;
   className?: string;
 }) {
   const flair = useFlair();
@@ -67,8 +73,9 @@ export function Reveal({
         className={cn(align === 'center' ? 'justify-center' : 'justify-start', className)}
         segmentBy="chars"
         delay={34}
-        duration={0.45}
+        duration={duration}
         direction="bottom"
+        blur={blur}
       />
     </Suspense>
   );
