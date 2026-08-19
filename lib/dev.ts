@@ -53,6 +53,11 @@ export function sampleView(name: ViewName): View {
   }
 }
 
+/** The app's background. Swappable here because the backdrop is one instance. */
+export const FIELDS = ['snow', 'glitch', 'warp', 'landscape', 'rays'] as const;
+
+export type FieldId = (typeof FIELDS)[number];
+
 /** Freezes the automatic transitions, so a screen that leaves after 620ms can be read. */
 export const HOLD_MODES = ['auto', 'hold'] as const;
 
@@ -61,6 +66,7 @@ export type HoldMode = (typeof HOLD_MODES)[number];
 export type DevSettings = {
   open: boolean;
   flair: FlairLevel;
+  field: FieldId;
   hold: HoldMode;
   variants: { [N in ViewName]?: VariantOf<N> };
 };
@@ -68,6 +74,7 @@ export type DevSettings = {
 export const DEFAULT_DEV: DevSettings = {
   open: false,
   flair: 'subtle',
+  field: 'snow',
   hold: 'auto',
   variants: {},
 };

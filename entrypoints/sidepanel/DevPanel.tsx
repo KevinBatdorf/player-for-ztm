@@ -1,11 +1,13 @@
 import type { Dispatch, ReactNode } from 'react';
 import { useSettings } from './settings';
 import {
+  FIELDS,
   FLAIR_LEVELS,
   HOLD_MODES,
   sampleView,
   variantsFor,
   VIEW_NAMES,
+  type FieldId,
   type FlairLevel,
   type HoldMode,
 } from '@/lib/dev';
@@ -13,7 +15,7 @@ import type { Action, AppState, ViewName } from '@/lib/machine';
 
 // Theme is a real user setting, hosted here only until there is a settings screen.
 export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispatch<Action> }) {
-  const { settings, setFlair, setHold, setVariant, setOpen } = useSettings();
+  const { settings, setFlair, setField, setHold, setVariant, setOpen } = useSettings();
   const name = state.view.name;
   const variants = variantsFor(name);
   const variant = settings.variants[name] ?? variants[0] ?? '';
@@ -27,7 +29,7 @@ export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispa
       >
         <span>{settings.open ? '▾ dev' : '▸ dev'}</span>
         <span className="truncate">
-          {name} · {variant} · {settings.flair}
+          {name} · {variant} · {settings.field} · {settings.flair}
           {settings.hold === 'hold' && ' · held'}
         </span>
       </button>
@@ -60,6 +62,18 @@ export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispa
 
           <Field label="flair" value={settings.flair} onChange={(next) => setFlair(next as FlairLevel)}>
             {FLAIR_LEVELS.map((f) => (
+              <option key={f} value={f}>
+                {f}
+              </option>
+            ))}
+          </Field>
+
+          <Field
+            label="field"
+            value={settings.field}
+            onChange={(next) => setField(next as FieldId)}
+          >
+            {FIELDS.map((f) => (
               <option key={f} value={f}>
                 {f}
               </option>
