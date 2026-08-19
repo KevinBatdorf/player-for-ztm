@@ -18,6 +18,9 @@ import { cn } from '@/lib/utils';
 /** Split because it drags in three; only this variant pays, and only past `none`. */
 const Watercolor = lazy(() => import('@/components/react-bits/watercolor'));
 
+/** Also on three, so also split. */
+const PixelSnow = lazy(() => import('@/components/react-bits/pixel-snow'));
+
 const WORDMARK = 'Player for ZTM';
 
 const TITLE = 'text-display leading-tight font-medium tracking-tight text-ink';
@@ -54,9 +57,54 @@ export function Boot({ dispatch }: { dispatch: Dispatch<Action> }) {
   }, [dispatch, flair, held]);
 
   const quiet = flair === 'none';
+  if (variant === 'snow') return <Snow quiet={quiet} />;
   if (variant === 'glitch') return <Glitch quiet={quiet} />;
   if (variant === 'brand') return <Brand quiet={quiet} />;
   return variant === 'bars' ? <Bars /> : <Wordmark />;
+}
+
+/** Holds the mark back until the field is up, so it never lands on bare ground. */
+function useLit(quiet: boolean, ready?: boolean) {
+  const [lit, setLit] = useState(quiet);
+
+  useEffect(() => {
+    if (lit) return;
+    if (ready) return setLit(true);
+    const grace = setTimeout(() => setLit(true), WASH_GRACE_MS);
+    return () => clearTimeout(grace);
+  }, [lit, ready]);
+
+  return lit;
+}
+
+function Snow({ quiet }: { quiet: boolean }) {
+  const lit = useLit(quiet);
+
+  return (
+    <div className="relative h-full overflow-hidden" style={{ backgroundColor: ZTM_GROUND }}>
+      {!quiet && (
+        <Suspense fallback={null}>
+          {/* Snow is sparse by nature, so it does not take the glitch field's halving. */}
+          <div
+            className="absolute inset-0 transition-opacity duration-700 ease-panel"
+            style={{ opacity: lit ? 0.9 : 0 }}
+          >
+            <PixelSnow
+              color={ZTM_GREEN}
+              variant="square"
+              density={0.95}
+              speed={0.7}
+              brightness={1.5}
+              pixelResolution={120}
+              direction={165}
+            />
+          </div>
+        </Suspense>
+      )}
+      <Vignette strength={0.26} />
+      {lit && <Mark />}
+    </div>
+  );
 }
 
 function Glitch({ quiet }: { quiet: boolean }) {
