@@ -78,6 +78,8 @@ const render = (field: FieldId, v: Values): ReactNode => {
 
   return (
     <FallingRays
+      topWidth={n('topWidth')}
+      bottomWidth={n('bottomWidth')}
       rayCount={n('rayCount')}
       rayWidth={n('rayWidth')}
       pulseSpeed={n('pulseSpeed')}
@@ -101,11 +103,11 @@ const MARK_FONT =
   "'Helvetica Now Display', 'Neue Haas Grotesk Display', Inter, 'Helvetica Neue', 'Arial Black', system-ui, sans-serif";
 
 export function Lab() {
-  const [field, setField] = useState<FieldId>('snow');
+  const [field, setField] = useState<FieldId>('landscape');
   const [all, setAll] = useState<Record<string, Values>>(() =>
     Object.fromEntries(FIELDS.map((f) => [f, defaults(f)])),
   );
-  const [opacity, setOpacity] = useState(0.9);
+  const [opacity, setOpacity] = useState(1);
   const [vignette, setVignette] = useState(0.32);
   const [copied, setCopied] = useState(false);
 

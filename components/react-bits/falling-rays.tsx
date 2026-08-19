@@ -29,8 +29,10 @@ const fragmentShader = `
   uniform vec3 uColor1;
   uniform vec3 uColor2;
 
-  const float topWidth = 0.15;
-  const float bottomWidth = 1.0;
+  uniform float uTopWidth;
+  uniform float uBottomWidth;
+  #define topWidth uTopWidth
+  #define bottomWidth uBottomWidth
   const float verticalLength = 0.45;
   const float controlPoint1Y = 0.35;
   const float controlPoint1X = 0.25;
@@ -219,6 +221,8 @@ const fragmentShader = `
 interface RaySceneProps {
   rayCount: number;
   rayWidth: number;
+  topWidth: number;
+  bottomWidth: number;
   pulseSpeed: number;
   pulseWidth: number;
   trailLength: number;
@@ -231,6 +235,8 @@ interface RaySceneProps {
 const RayScene: React.FC<RaySceneProps> = ({
   rayCount,
   rayWidth,
+  topWidth,
+  bottomWidth,
   pulseSpeed,
   pulseWidth,
   trailLength,
@@ -249,6 +255,8 @@ const RayScene: React.FC<RaySceneProps> = ({
       uResolution: { value: new THREE.Vector2(size.width, size.height) },
       uRayCount: { value: rayCount },
       uRayWidth: { value: rayWidth },
+      uTopWidth: { value: topWidth },
+      uBottomWidth: { value: bottomWidth },
       uPulseSpeed: { value: pulseSpeed },
       uPulseWidth: { value: pulseWidth },
       uTrailLength: { value: trailLength },
@@ -270,6 +278,8 @@ const RayScene: React.FC<RaySceneProps> = ({
       );
       (materialRef.current.uniforms as any).uRayCount.value = rayCount;
       (materialRef.current.uniforms as any).uRayWidth.value = rayWidth;
+      (materialRef.current.uniforms as any).uTopWidth.value = topWidth;
+      (materialRef.current.uniforms as any).uBottomWidth.value = bottomWidth;
       (materialRef.current.uniforms as any).uPulseSpeed.value = pulseSpeed;
       (materialRef.current.uniforms as any).uPulseWidth.value = pulseWidth;
       (materialRef.current.uniforms as any).uTrailLength.value = trailLength;
@@ -298,6 +308,8 @@ interface FallingRaysProps {
   color1?: string;
   color2?: string;
   rayCount?: number;
+  topWidth?: number;
+  bottomWidth?: number;
   rayWidth?: number;
   pulseSpeed?: number;
   pulseWidth?: number;
@@ -312,6 +324,8 @@ const FallingRays: React.FC<FallingRaysProps> = ({
   color1 = "#1a00ff",
   color2 = "#ff0080",
   rayCount = 37,
+  topWidth = 0.15,
+  bottomWidth = 1.0,
   rayWidth = 0.005,
   pulseSpeed = 0.4,
   pulseWidth = 0.03,
@@ -339,6 +353,8 @@ const FallingRays: React.FC<FallingRaysProps> = ({
       >
         <RayScene
           rayCount={rayCount}
+          topWidth={topWidth}
+          bottomWidth={bottomWidth}
           rayWidth={rayWidth}
           pulseSpeed={pulseSpeed}
           pulseWidth={pulseWidth}

@@ -1,6 +1,5 @@
 import { Suspense, useEffect, useState } from 'react';
-import { useField } from './settings';
-import { FIELD_VIEWS, FULL, MUTED, OFF, type Level } from '@/components/fields';
+import { FULL, Landscape, landscapeProps, MUTED, OFF, type Level } from '@/components/fields';
 import type { ViewName } from '@/lib/machine';
 
 /** A moving field beside a lecture pulls the eye exactly where it should not go. */
@@ -15,7 +14,7 @@ const LEVELS: Record<ViewName, Level> = {
   playing: OFF,
 };
 
-/** Only snow reports its first drawn frame; the rest come up on the deadline. */
+/** Landscape reports no first frame of its own, so the mark comes up on this. */
 const READY_DEADLINE_MS = 900;
 
 /**
@@ -24,30 +23,26 @@ const READY_DEADLINE_MS = 900;
  */
 export function Backdrop({ view, onReady }: { view: ViewName; onReady: () => void }) {
   const [drawn, setDrawn] = useState(false);
-  const field = useField();
   const level = LEVELS[view];
-
-  const settle = () => {
-    setDrawn(true);
-    onReady();
-  };
 
   useEffect(() => {
     if (drawn) return;
-    const deadline = setTimeout(settle, READY_DEADLINE_MS);
+    const deadline = setTimeout(() => {
+      setDrawn(true);
+      onReady();
+    }, READY_DEADLINE_MS);
     return () => clearTimeout(deadline);
   });
 
   return (
     <div className="absolute inset-0 bg-paper">
       <Suspense fallback={null}>
-        {/* Keyed so switching field tears the old canvas down rather than stacking. */}
         <div
-          key={field}
           className="absolute inset-0 transition-opacity duration-700 ease-panel"
           style={{ opacity: drawn ? level.opacity : 0 }}
         >
-          {FIELD_VIEWS[field](level, settle)}
+          {/* Its root sets no size, so without this the fiber canvas falls back to 300x150. */}
+          <Landscape className="h-full w-full" {...landscapeProps(level)} />
         </div>
       </Suspense>
     </div>
