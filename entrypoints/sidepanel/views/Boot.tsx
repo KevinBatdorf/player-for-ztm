@@ -1,7 +1,8 @@
 import { lazy, Suspense, useEffect, useState, type Dispatch } from 'react';
 import { Reveal } from '../Screen';
 import { useFlair, useHold, useVariant } from '../settings';
-import { ZTM_GROUND, ZTM_MARK, ZTM_MARK_FONT, ZTM_PINK, ZTM_PURPLE } from '@/lib/brand';
+import LetterGlitch from '@/components/react-bits/letter-glitch';
+import { ZTM_GREEN, ZTM_GROUND, ZTM_MARK, ZTM_MARK_FONT, ZTM_PINK, ZTM_PURPLE } from '@/lib/brand';
 import type { Action } from '@/lib/machine';
 import { hasSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
@@ -41,8 +42,30 @@ export function Boot({ dispatch }: { dispatch: Dispatch<Action> }) {
     };
   }, [dispatch, flair, held]);
 
-  if (variant === 'brand') return <Brand quiet={flair === 'none'} />;
+  const quiet = flair === 'none';
+  if (variant === 'glitch') return <Glitch quiet={quiet} />;
+  if (variant === 'brand') return <Brand quiet={quiet} />;
   return variant === 'bars' ? <Bars /> : <Wordmark />;
+}
+
+function Glitch({ quiet }: { quiet: boolean }) {
+  return (
+    <div className="relative h-full overflow-hidden" style={{ backgroundColor: ZTM_GROUND }}>
+      {/* Its own rAF loop, which the `flair: none` blanket cannot stop. */}
+      {!quiet && (
+        <div className="absolute inset-0">
+          <LetterGlitch
+            glitchColors={[ZTM_GREEN, ZTM_PINK, ZTM_PURPLE]}
+            glitchSpeed={45}
+            centerVignette
+            outerVignette={false}
+          />
+          <Vignette alpha="ee" />
+        </div>
+      )}
+      <Mark />
+    </div>
+  );
 }
 
 function Brand({ quiet }: { quiet: boolean }) {
@@ -63,7 +86,6 @@ function Brand({ quiet }: { quiet: boolean }) {
           lit ? 'opacity-100' : 'opacity-0',
         )}
       >
-        {/* Its own rAF loop, which the `flair: none` blanket cannot stop. */}
         {!quiet && (
           <Suspense fallback={null}>
             {/* saturation defaults to 0, which collapses this shader to luminance. */}
@@ -81,38 +103,48 @@ function Brand({ quiet }: { quiet: boolean }) {
           </Suspense>
         )}
 
-        {/* The wash drifts, so the mark's contrast would otherwise vary with it. */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `radial-gradient(58% 38% at 50% 47%, ${ZTM_GROUND}c4, transparent 72%)`,
-          }}
-        />
+        <Vignette alpha="c4" />
       </div>
 
       {/* opacity does not stop an IntersectionObserver: hidden, the letters reveal unseen. */}
-      {lit && (
-        <div className="animate-in fade-in relative flex h-full flex-col items-center justify-center text-white duration-700">
-          {/* White rather than `--t-ink`, because this ground does not follow the theme. */}
-          <p className="mb-1 text-caption tracking-[0.28em] uppercase opacity-70">Player for</p>
+      {lit && <Mark />}
+    </div>
+  );
+}
 
-          <div className="flex items-baseline" style={{ fontFamily: ZTM_MARK_FONT }}>
-            {ZTM_MARK.map(({ char, color }, i) => (
-              <span key={char} style={{ color }}>
-                <Reveal
-                  as="span"
-                  text={char}
-                  blur={false}
-                  duration={0.4 + i * 0.14}
-                  className="text-[86px] leading-none font-black tracking-[-0.02em]"
-                />
-              </span>
-            ))}
-          </div>
+/** Both fields move, so the mark's contrast cannot depend on what is under it. */
+function Vignette({ alpha }: { alpha: string }) {
+  return (
+    <div
+      className="pointer-events-none absolute inset-0"
+      style={{
+        background: `radial-gradient(64% 42% at 50% 47%, ${ZTM_GROUND}${alpha}, transparent 74%)`,
+      }}
+    />
+  );
+}
 
-          <p className="mt-7 text-caption opacity-70">Checking your session…</p>
-        </div>
-      )}
+function Mark() {
+  return (
+    <div className="animate-in fade-in relative flex h-full flex-col items-center justify-center text-white duration-700">
+      {/* White rather than `--t-ink`, because these grounds do not follow the theme. */}
+      <p className="mb-1 text-caption tracking-[0.28em] uppercase opacity-70">Player for</p>
+
+      <div className="flex items-baseline" style={{ fontFamily: ZTM_MARK_FONT }}>
+        {ZTM_MARK.map(({ char, color }, i) => (
+          <span key={char} style={{ color }}>
+            <Reveal
+              as="span"
+              text={char}
+              blur={false}
+              duration={0.4 + i * 0.14}
+              className="text-[86px] leading-none font-black tracking-[-0.02em]"
+            />
+          </span>
+        ))}
+      </div>
+
+      <p className="mt-7 text-caption opacity-70">Checking your session…</p>
     </div>
   );
 }
