@@ -25,6 +25,9 @@ const TITLE = 'text-display leading-tight font-medium tracking-tight text-ink';
 /** Without a floor the check outruns the eye and the splash is gone before it reads. */
 const FLOOR_MS = 3000;
 
+/** The glitch field at full strength competes with the mark instead of sitting behind it. */
+const FIELD_OPACITY = 0.5;
+
 /** WebGL can be blocked or the chunk can fail; the mark appears regardless. */
 const WASH_GRACE_MS = 1200;
 
@@ -61,7 +64,7 @@ function Glitch({ quiet }: { quiet: boolean }) {
     <div className="relative h-full overflow-hidden" style={{ backgroundColor: ZTM_GROUND }}>
       {/* Its own rAF loop, which the `flair: none` blanket cannot stop. */}
       {!quiet && (
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" style={{ opacity: FIELD_OPACITY }}>
           <LetterGlitch
             glitchColors={[ZTM_GREEN, ZTM_PINK, ZTM_PURPLE]}
             glitchSpeed={45}
