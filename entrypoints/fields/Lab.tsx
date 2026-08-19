@@ -1,6 +1,5 @@
 import { lazy, Suspense, useState, type ReactNode } from 'react';
-import { asProps, defaults, KNOBS, type Values } from './knobs';
-import { FIELDS, type FieldId } from '@/lib/dev';
+import { asProps, defaults, FIELDS, KNOBS, type FieldId, type Values } from './knobs';
 
 const PixelSnow = lazy(() => import('@/components/react-bits/pixel-snow'));
 const LetterGlitch = lazy(() => import('@/components/react-bits/letter-glitch'));

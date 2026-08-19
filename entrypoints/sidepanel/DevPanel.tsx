@@ -1,7 +1,6 @@
 import type { Dispatch, ReactNode } from 'react';
 import { useSettings } from './settings';
 import {
-  FIELDS,
   FLAIR_LEVELS,
   HOLD_MODES,
   sampleView,
@@ -11,35 +10,15 @@ import {
   type HoldMode,
 } from '@/lib/dev';
 import type { Action, AppState, ViewName } from '@/lib/machine';
-import { cn } from '@/lib/utils';
 
 export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispatch<Action> }) {
-  const { settings, setFlair, setField, setHold, setVariant, setOpen } = useSettings();
+  const { settings, setFlair, setHold, setVariant, setOpen } = useSettings();
   const name = state.view.name;
   const variants = variantsFor(name);
   const variant = settings.variants[name] ?? variants[0] ?? '';
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 rule-t bg-surface/90 backdrop-blur-sm">
-      <div className="flex gap-1 px-2 pt-2">
-        {FIELDS.map((f) => (
-          <button
-            key={f}
-            type="button"
-            onClick={() => setField(f)}
-            className={cn(
-              'rule min-w-0 flex-1 truncate rounded-panel px-1 py-1 font-mono text-caption transition-colors duration-150 ease-panel',
-              'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent',
-              f === settings.field
-                ? 'bg-accent text-accent-ink'
-                : 'bg-raised text-ink-faint hover:text-ink',
-            )}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-
       <button
         type="button"
         onClick={() => setOpen(!settings.open)}

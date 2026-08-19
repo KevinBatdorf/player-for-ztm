@@ -4,7 +4,6 @@ import {
   defaultVariant,
   devSetting,
   type DevSettings,
-  type FieldId,
   type FlairLevel,
   type HoldMode,
   type VariantOf,
@@ -14,7 +13,6 @@ import type { ViewName } from '@/lib/machine';
 type SettingsApi = {
   settings: DevSettings;
   setFlair: (flair: FlairLevel) => void;
-  setField: (field: FieldId) => void;
   setHold: (hold: HoldMode) => void;
   setVariant: (view: ViewName, variant: string) => void;
   setOpen: (open: boolean) => void;
@@ -55,7 +53,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const api: SettingsApi = {
     settings,
     setFlair: (flair) => patch({ flair }),
-    setField: (field) => patch({ field }),
     setHold: (hold) => patch({ hold }),
     setVariant: (view, variant) => patch({ variants: { ...settings.variants, [view]: variant } }),
     setOpen: (open) => patch({ open }),
@@ -71,8 +68,6 @@ export function useSettings(): SettingsApi {
 }
 
 export const useFlair = (): FlairLevel => useSettings().settings.flair;
-
-export const useField = (): FieldId => useSettings().settings.field;
 
 /** The build flag as well as the default: a stale stored `hold` would freeze a ship. */
 export const useHold = (): boolean => useSettings().settings.hold === 'hold';

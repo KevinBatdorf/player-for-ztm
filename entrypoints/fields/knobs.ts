@@ -1,4 +1,7 @@
-import type { FieldId } from '@/lib/dev';
+/** Lab-only: the app itself ships one field and reads no setting for it. */
+export const FIELDS = ['snow', 'glitch', 'warp', 'landscape', 'rays'] as const;
+
+export type FieldId = (typeof FIELDS)[number];
 
 export type Knob =
   | { key: string; kind: 'range'; min: number; max: number; step: number; value: number }
