@@ -75,8 +75,7 @@ export const useFlair = (): FlairLevel => useSettings().settings.flair;
 export const useField = (): FieldId => useSettings().settings.field;
 
 /** The build flag as well as the default: a stale stored `hold` would freeze a ship. */
-export const useHold = (): boolean =>
-  import.meta.env.DEV && useSettings().settings.hold === 'hold';
+export const useHold = (): boolean => useSettings().settings.hold === 'hold';
 
 export function useVariant<N extends ViewName>(view: N): VariantOf<N> {
   const { variants } = useSettings().settings;

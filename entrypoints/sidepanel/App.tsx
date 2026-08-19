@@ -39,8 +39,7 @@ export function App() {
         </motion.div>
       </AnimatePresence>
 
-      {/* A literal false in a build, so DevPanel is tree-shaken out. */}
-      {import.meta.env.DEV && <DevPanel state={state} dispatch={dispatch} />}
+      <DevPanel state={state} dispatch={dispatch} />
     </div>
   );
 }
