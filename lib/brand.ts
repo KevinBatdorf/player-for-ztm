@@ -11,6 +11,9 @@ export const ZTM_GREEN = '#32DD88';
 /** The splash keeps its own ground: a branded launch screen, not a themed one. */
 export const ZTM_GROUND = '#0E1014';
 
+/** The same colour in parts, for gradients that need a real alpha ramp. */
+export const ZTM_GROUND_RGB = '14, 16, 20';
+
 /** Resolves to Helvetica Neue Black on macOS; each fallback is a heaviest-cut family. */
 export const ZTM_MARK_FONT =
   "'Helvetica Now Display', 'Neue Haas Grotesk Display', Inter, 'Helvetica Neue', 'Arial Black', system-ui, sans-serif";

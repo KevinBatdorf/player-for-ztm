@@ -2,7 +2,15 @@ import { lazy, Suspense, useEffect, useState, type Dispatch } from 'react';
 import { Reveal } from '../Screen';
 import { useFlair, useHold, useVariant } from '../settings';
 import LetterGlitch from '@/components/react-bits/letter-glitch';
-import { ZTM_GREEN, ZTM_GROUND, ZTM_MARK, ZTM_MARK_FONT, ZTM_PINK, ZTM_PURPLE } from '@/lib/brand';
+import {
+  ZTM_GREEN,
+  ZTM_GROUND,
+  ZTM_GROUND_RGB,
+  ZTM_MARK,
+  ZTM_MARK_FONT,
+  ZTM_PINK,
+  ZTM_PURPLE,
+} from '@/lib/brand';
 import type { Action } from '@/lib/machine';
 import { hasSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
@@ -60,7 +68,7 @@ function Glitch({ quiet }: { quiet: boolean }) {
             centerVignette
             outerVignette={false}
           />
-          <Vignette alpha="ee" />
+          <Vignette strength={0.94} />
         </div>
       )}
       <Mark />
@@ -103,7 +111,7 @@ function Brand({ quiet }: { quiet: boolean }) {
           </Suspense>
         )}
 
-        <Vignette alpha="c4" />
+        <Vignette strength={0.78} />
       </div>
 
       {/* opacity does not stop an IntersectionObserver: hidden, the letters reveal unseen. */}
@@ -113,12 +121,22 @@ function Brand({ quiet }: { quiet: boolean }) {
 }
 
 /** Both fields move, so the mark's contrast cannot depend on what is under it. */
-function Vignette({ alpha }: { alpha: string }) {
+function Vignette({ strength }: { strength: number }) {
+  const ground = (alpha: number) => `rgba(${ZTM_GROUND_RGB}, ${alpha})`;
+
+  // Three stops rather than two: a single ramp reaches transparent while still
+  // over the mark, which puts a visible ring around it.
   return (
     <div
       className="pointer-events-none absolute inset-0"
       style={{
-        background: `radial-gradient(64% 42% at 50% 47%, ${ZTM_GROUND}${alpha}, transparent 74%)`,
+        background: [
+          'radial-gradient(104% 68% at 50% 47%,',
+          `${ground(strength)} 0%,`,
+          `${ground(strength * 0.7)} 34%,`,
+          `${ground(strength * 0.28)} 62%,`,
+          `${ground(0)} 88%)`,
+        ].join(' '),
       }}
     />
   );
