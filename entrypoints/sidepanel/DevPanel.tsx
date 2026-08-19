@@ -10,11 +10,10 @@ import {
   type HoldMode,
 } from '@/lib/dev';
 import type { Action, AppState, ViewName } from '@/lib/machine';
-import { THEMES, type ThemeId } from '@/lib/themes';
 
 // Theme is a real user setting, hosted here only until there is a settings screen.
 export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispatch<Action> }) {
-  const { settings, setTheme, setFlair, setHold, setVariant, setOpen } = useSettings();
+  const { settings, setFlair, setHold, setVariant, setOpen } = useSettings();
   const name = state.view.name;
   const variants = variantsFor(name);
   const variant = settings.variants[name] ?? variants[0] ?? '';
@@ -28,7 +27,7 @@ export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispa
       >
         <span>{settings.open ? '▾ dev' : '▸ dev'}</span>
         <span className="truncate">
-          {name} · {settings.theme} · {variant} · {settings.flair}
+          {name} · {variant} · {settings.flair}
           {settings.hold === 'hold' && ' · held'}
         </span>
       </button>
@@ -43,14 +42,6 @@ export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispa
             {VIEW_NAMES.map((n) => (
               <option key={n} value={n}>
                 {n}
-              </option>
-            ))}
-          </Field>
-
-          <Field label="theme" value={settings.theme} onChange={(next) => setTheme(next as ThemeId)}>
-            {THEMES.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.label}
               </option>
             ))}
           </Field>
