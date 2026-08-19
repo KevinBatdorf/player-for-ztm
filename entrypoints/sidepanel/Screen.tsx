@@ -1,6 +1,14 @@
-import type { ReactNode } from 'react';
+import { lazy, Suspense, type ReactNode } from 'react';
+import { useFlair } from './settings';
 import type { IndexerProgress } from '@/lib/machine';
 import { cn } from '@/lib/utils';
+
+/**
+ * Split out because motion is 124KB and only `flair: full` ever renders it, which
+ * keeps the default open at the 246KB it costs without. A bundled chunk, not
+ * remote code, so MV3 is fine with it.
+ */
+const StaggeredText = lazy(() => import('@/components/react-bits/staggered-text'));
 
 // Plain on purpose: real panel furniture gets designed against real content.
 export function Screen({
@@ -29,6 +37,52 @@ export function Screen({
       </header>
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3">{children}</div>
     </div>
+  );
+}
+
+/** motion/react writes inline transforms, which the `data-flair` blanket cannot reach. */
+export function Reveal({
+  text,
+  as = 'h1',
+  align = 'start',
+  className,
+}: {
+  text: string;
+  as?: 'h1' | 'h2' | 'p';
+  align?: 'start' | 'center';
+  className?: string;
+}) {
+  const flair = useFlair();
+  const Tag = as;
+
+  if (flair !== 'full') return <Tag className={className}>{text}</Tag>;
+
+  return (
+    // A visible fallback shows the finished heading, then rewinds it to animate.
+    <Suspense fallback={<Tag className={cn(className, 'invisible')}>{text}</Tag>}>
+      <StaggeredText
+        as={as}
+        text={text}
+        // Its own wrapper is a flex row, so alignment has to travel in the class.
+        className={cn(align === 'center' ? 'justify-center' : 'justify-start', className)}
+        segmentBy="chars"
+        delay={34}
+        duration={0.45}
+        direction="bottom"
+      />
+    </Suspense>
+  );
+}
+
+export function Cta({ children, onClick }: { children: ReactNode; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rule w-full rounded-panel bg-accent px-3 py-2 text-body font-medium text-accent-ink shadow-panel transition-transform duration-150 ease-panel active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+    >
+      {children}
+    </button>
   );
 }
 

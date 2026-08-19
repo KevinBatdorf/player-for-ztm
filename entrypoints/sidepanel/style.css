@@ -56,6 +56,26 @@
   border-top-color: var(--t-line);
 }
 
+/* CSS rather than motion/react, so the `flair: none` blanket can zero them. */
+@keyframes panel-sweep {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(420%);
+  }
+}
+
+@keyframes panel-tick {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
 /* Blanket, because `none` has to reach vendored components that were never asked. */
 [data-flair='none'] *,
 [data-flair='none'] *::before,

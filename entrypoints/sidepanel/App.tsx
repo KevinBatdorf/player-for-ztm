@@ -24,13 +24,13 @@ export function App() {
 
 /** Exhaustive by the compiler: a new union member breaks this switch. */
 function renderView(state: AppState, dispatch: Dispatch<Action>) {
-  const { view, indexer } = state;
+  const { view, indexer, awaitingLogin } = state;
 
   switch (view.name) {
     case 'boot':
       return <Boot dispatch={dispatch} />;
     case 'signedOut':
-      return <SignedOut dispatch={dispatch} />;
+      return <SignedOut awaitingLogin={awaitingLogin} dispatch={dispatch} />;
     case 'indexingCourses':
       return <IndexingCourses dispatch={dispatch} />;
     case 'home':

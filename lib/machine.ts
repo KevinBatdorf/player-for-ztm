@@ -20,11 +20,14 @@ export type AppState = {
   view: View;
   // Outside the union on purpose: three screens read it and it survives every transition.
   indexer: IndexerProgress;
+  // The focus re-check rewinds through `boot`, unmounting `signedOut` and any flag on it.
+  awaitingLogin: boolean;
 };
 
 export type Action =
   | { type: 'sessionMissing' }
   | { type: 'sessionFound' }
+  | { type: 'loginOpened' }
   | { type: 'signedIn' }
   | { type: 'courseListReady' }
   | { type: 'searchOpened' }
@@ -42,6 +45,7 @@ export type Action =
 export const initialState: AppState = {
   view: { name: 'boot' },
   indexer: { done: 0, total: 0 },
+  awaitingLogin: false,
 };
 
 const go = (state: AppState, view: View): AppState => ({ ...state, view });
@@ -57,7 +61,13 @@ export function reduce(state: AppState, action: Action): AppState {
       return view.name === 'boot' ? go(state, { name: 'signedOut' }) : state;
 
     case 'sessionFound':
-      return view.name === 'boot' ? go(state, { name: 'indexingCourses' }) : state;
+      // Cleared here, or a later sign-out opens on a stale waiting notice.
+      return view.name === 'boot'
+        ? { ...state, view: { name: 'indexingCourses' }, awaitingLogin: false }
+        : state;
+
+    case 'loginOpened':
+      return view.name === 'signedOut' ? { ...state, awaitingLogin: true } : state;
 
     // Checking is boot's job, so signing in rewinds there instead of skipping ahead.
     case 'signedIn':

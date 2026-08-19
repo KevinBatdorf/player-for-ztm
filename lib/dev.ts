@@ -9,8 +9,8 @@ export type FlairLevel = (typeof FLAIR_LEVELS)[number];
 
 // A record, not a list: the compiler then refuses a screen with no treatments.
 export const VIEW_VARIANTS = {
-  boot: ['plain'],
-  signedOut: ['plain'],
+  boot: ['wordmark', 'bars'],
+  signedOut: ['card', 'steps'],
   indexingCourses: ['plain'],
   home: ['list', 'deck'],
   search: ['plain'],
@@ -52,12 +52,23 @@ export function sampleView(name: ViewName): View {
   }
 }
 
+/** Freezes the automatic transitions, so a screen that leaves after 620ms can be read. */
+export const HOLD_MODES = ['auto', 'hold'] as const;
+
+export type HoldMode = (typeof HOLD_MODES)[number];
+
 export type DevSettings = {
   open: boolean;
   flair: FlairLevel;
+  hold: HoldMode;
   variants: { [N in ViewName]?: VariantOf<N> };
 };
 
-export const DEFAULT_DEV: DevSettings = { open: false, flair: 'subtle', variants: {} };
+export const DEFAULT_DEV: DevSettings = {
+  open: false,
+  flair: 'subtle',
+  hold: 'auto',
+  variants: {},
+};
 
 export const devSetting = storage.defineItem<DevSettings>('local:dev', { fallback: DEFAULT_DEV });
