@@ -3,6 +3,9 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   modules: ['@wxt-dev/module-react'],
+  // WXT otherwise takes the first free port from 3000, and binding [::1] there
+  // shadows anything else holding the wildcard.
+  dev: { server: { port: 7331 } },
   // Tailwind v4 has no config file; the vite hook is what reaches every entrypoint.
   vite: () => ({
     plugins: [tailwindcss()],
