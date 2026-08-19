@@ -68,7 +68,7 @@ function Glitch({ quiet }: { quiet: boolean }) {
             centerVignette
             outerVignette={false}
           />
-          <Vignette strength={0.55} />
+          <Vignette strength={0.32} />
         </div>
       )}
       <Mark />
