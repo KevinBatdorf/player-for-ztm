@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from 'react';
-import { ZTM_GREEN, ZTM_GROUND } from '@/lib/brand';
+import { ZTM_GREEN } from '@/lib/brand';
 import type { ViewName } from '@/lib/machine';
 
 const PixelSnow = lazy(() => import('@/components/react-bits/pixel-snow'));
@@ -31,7 +31,7 @@ export function Backdrop({ view, onReady }: { view: ViewName; onReady: () => voi
   const level = LEVELS[view];
 
   return (
-    <div className="absolute inset-0" style={{ backgroundColor: ZTM_GROUND }}>
+    <div className="absolute inset-0 bg-paper">
       <Suspense fallback={null}>
         <div
           className="absolute inset-0 transition-opacity duration-700 ease-panel"

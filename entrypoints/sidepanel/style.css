@@ -88,20 +88,20 @@
 /* --rb-* is React Bits' own namespace; setting it re-themes vendored blocks unedited. */
 :root,
 [data-theme='clean'] {
-  color-scheme: light;
+  color-scheme: dark;
 
-  --t-paper: #ffffff;
-  --t-surface: #fafafa;
-  --t-raised: #ffffff;
-  --t-line: #e5e5e5;
-  --t-line-strong: #d4d4d4;
+  --t-paper: #0b0b0c;
+  --t-surface: #121214;
+  --t-raised: #18181b;
+  --t-line: #26262b;
+  --t-line-strong: #3a3a41;
   --t-line-w: 1px;
-  --t-ink: #0a0a0a;
-  --t-ink-soft: #525252;
-  --t-ink-faint: #a3a3a3;
-  --t-accent: #171717;
-  --t-accent-ink: #ffffff;
-  --t-accent-text: #171717;
+  --t-ink: #f4f4f5;
+  --t-ink-soft: #a1a1aa;
+  --t-ink-faint: #71717a;
+  --t-accent: #f4f4f5;
+  --t-accent-ink: #0b0b0c;
+  --t-accent-text: #f4f4f5;
 
   --t-font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --t-font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
@@ -112,29 +112,30 @@
   --t-text-caption: 11px;
 
   --t-radius: 10px;
-  --t-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --t-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.5);
   --t-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
-  --rb-accent: #171717;
-  --rb-accent-fg: #ffffff;
+  --rb-accent: #f4f4f5;
+  --rb-accent-fg: #0b0b0c;
   --rb-radius: 10px;
 }
 
 [data-theme='swiss'] {
-  color-scheme: light;
+  color-scheme: dark;
 
-  --t-paper: #ffffff;
-  --t-surface: #ffffff;
-  --t-raised: #ffffff;
-  --t-line: #111111;
-  --t-line-strong: #111111;
+  --t-paper: #0d0d0d;
+  --t-surface: #0d0d0d;
+  --t-raised: #141414;
+  /* Swiss keeps its hairline grid; on a dark ground the rules run light. */
+  --t-line: #ededed;
+  --t-line-strong: #ffffff;
   --t-line-w: 1px;
-  --t-ink: #111111;
-  --t-ink-soft: #666666;
-  --t-ink-faint: #999999;
+  --t-ink: #f5f5f5;
+  --t-ink-soft: #a8a8a8;
+  --t-ink-faint: #767676;
   --t-accent: #e2231a;
   --t-accent-ink: #ffffff;
-  --t-accent-text: #e2231a;
+  --t-accent-text: #ff4b42;
 
   --t-font-sans: 'Helvetica Now', 'Neue Haas Grotesk', Inter, Helvetica, Arial, sans-serif;
   --t-font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
@@ -154,20 +155,21 @@
 }
 
 [data-theme='neobrutalism'] {
-  color-scheme: light;
+  color-scheme: dark;
 
-  --t-paper: #fafaf5;
-  --t-surface: #fafaf5;
-  --t-raised: #ffffff;
-  --t-line: #111111;
-  --t-line-strong: #111111;
+  --t-paper: #131310;
+  --t-surface: #131310;
+  --t-raised: #1d1d18;
+  /* The heavy border is the whole style, so it inverts rather than thins. */
+  --t-line: #f5f5f0;
+  --t-line-strong: #ffffff;
   --t-line-w: 3px;
-  --t-ink: #111111;
-  --t-ink-soft: #3f3f3f;
-  --t-ink-faint: #6b6b6b;
+  --t-ink: #f7f7f2;
+  --t-ink-soft: #c9c9c0;
+  --t-ink-faint: #97978c;
   --t-accent: #ffd400;
   --t-accent-ink: #111111;
-  --t-accent-text: #7a5c00;
+  --t-accent-text: #ffd400;
 
   --t-font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --t-font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
@@ -178,7 +180,7 @@
   --t-text-caption: 11px;
 
   --t-radius: 8px;
-  --t-shadow: 4px 4px 0 0 #111111;
+  --t-shadow: 4px 4px 0 0 #f5f5f0;
   --t-ease: cubic-bezier(0.2, 0.9, 0.3, 1);
 
   --rb-accent: #ffd400;
