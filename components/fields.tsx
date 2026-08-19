@@ -21,6 +21,8 @@ const GEOMETRY = {
 
 export type Level = {
   opacity: number;
+  /** The field runs under every screen, so the scrim travels with the level. */
+  vignette: number;
   color: string;
   farColor: string;
   ringColor: string;
@@ -28,6 +30,7 @@ export type Level = {
 
 export const FULL: Level = {
   opacity: 1,
+  vignette: 0.32,
   color: '#2E1065',
   farColor: '#D946EF',
   ringColor: '#A855F7',
@@ -36,6 +39,7 @@ export const FULL: Level = {
 /** One colour across all three ramps, which is what takes the scene down to a texture. */
 export const MUTED: Level = {
   opacity: 0.34,
+  vignette: 0.18,
   color: '#2E1065',
   farColor: '#2E1065',
   ringColor: '#2E1065',

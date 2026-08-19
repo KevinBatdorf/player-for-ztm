@@ -44,6 +44,20 @@ export function Backdrop({ view, onReady }: { view: ViewName; onReady: () => voi
           {/* Its root sets no size, so without this the fiber canvas falls back to 300x150. */}
           <Landscape className="h-full w-full" {...landscapeProps(level)} />
         </div>
+
+        {/* The scene moves, so the mark's contrast cannot depend on what is under it. */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: [
+              'radial-gradient(104% 68% at 50% 47%,',
+              `rgba(var(--t-scrim), ${level.vignette}) 0%,`,
+              `rgba(var(--t-scrim), ${level.vignette * 0.7}) 34%,`,
+              `rgba(var(--t-scrim), ${level.vignette * 0.28}) 62%,`,
+              'rgba(var(--t-scrim), 0) 88%)',
+            ].join(' '),
+          }}
+        />
       </Suspense>
     </div>
   );

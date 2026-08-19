@@ -90,6 +90,8 @@
   color-scheme: dark;
 
   --t-paper: #0a0b0d;
+  /* The ground as parts, for the scrim that keeps caption type over the field. */
+  --t-scrim: 10 11 13;
   --t-surface: #101216;
   --t-raised: #16181d;
   --t-line: #1e2127;
