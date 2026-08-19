@@ -8,8 +8,9 @@ export const FLAIR_LEVELS = ['none', 'subtle', 'full'] as const;
 export type FlairLevel = (typeof FLAIR_LEVELS)[number];
 
 // A record, not a list: the compiler then refuses a screen with no treatments.
+// First entry is what a build with no dev panel shows, so it is the current pick.
 export const VIEW_VARIANTS = {
-  boot: ['wordmark', 'bars', 'brand'],
+  boot: ['brand', 'wordmark', 'bars'],
   signedOut: ['card', 'steps'],
   indexingCourses: ['plain'],
   home: ['list', 'deck'],

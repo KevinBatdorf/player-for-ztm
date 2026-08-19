@@ -40,6 +40,8 @@ export interface WatercolorProps {
   brightness?: number;
   /** Master opacity */
   opacity?: number;
+  /** Vendored addition: fires once the shader has actually drawn a frame. */
+  onReady?: () => void;
   /** Enable cursor interaction to intensify warp and contrast near pointer */
   cursorInteraction?: boolean;
   /** Cursor effect strength multiplier (0–3) */
@@ -165,6 +167,7 @@ interface WatercolorSceneProps {
   pointer: [number, number];
   cursorInteraction: boolean;
   cursorIntensity: number;
+  onReady?: () => void;
 }
 
 const WatercolorScene: React.FC<WatercolorSceneProps> = ({
@@ -184,10 +187,12 @@ const WatercolorScene: React.FC<WatercolorSceneProps> = ({
   pointer,
   cursorInteraction,
   cursorIntensity,
+  onReady,
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const { size, viewport } = useThree();
   const smoothPointer = useRef(new THREE.Vector2(0.5, 0.5));
+  const drawn = useRef(false);
 
   const uniforms = useMemo(
     () => ({
@@ -249,6 +254,11 @@ const WatercolorScene: React.FC<WatercolorSceneProps> = ({
       smoothPointer.current.x,
       smoothPointer.current.y,
     );
+
+    if (!drawn.current) {
+      drawn.current = true;
+      onReady?.();
+    }
   });
 
   return (
@@ -283,6 +293,7 @@ const Watercolor: React.FC<WatercolorProps> = ({
   brightness = 0.15,
   opacity = 1,
   cursorInteraction = false,
+  onReady,
   cursorIntensity = 1,
 }) => {
   const col1Rgb = useMemo(() => parseHexColor(color1), [color1]);
@@ -340,6 +351,7 @@ const Watercolor: React.FC<WatercolorProps> = ({
           pointer={pointer}
           cursorInteraction={cursorInteraction}
           cursorIntensity={cursorIntensity}
+          onReady={onReady}
         />
       </Canvas>
       {children && (

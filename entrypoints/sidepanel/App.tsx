@@ -14,8 +14,8 @@ export function App() {
   const [state, dispatch] = useReducer(reduce, initialState);
 
   return (
-    <div className="flex h-screen flex-col bg-paper font-sans text-body text-ink">
-      <div className="min-h-0 flex-1">{renderView(state, dispatch)}</div>
+    <div className="h-screen bg-paper font-sans text-body text-ink">
+      {renderView(state, dispatch)}
       {/* A literal false in a build, so DevPanel is tree-shaken out. */}
       {import.meta.env.DEV && <DevPanel state={state} dispatch={dispatch} />}
     </div>

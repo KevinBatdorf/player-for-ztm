@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, type Dispatch } from 'react';
+import { lazy, Suspense, useEffect, useState, type Dispatch } from 'react';
 import { Reveal } from '../Screen';
 import { useFlair, useHold, useVariant } from '../settings';
 import { ZTM_GROUND, ZTM_MARK, ZTM_MARK_FONT, ZTM_PINK, ZTM_PURPLE } from '@/lib/brand';
@@ -13,8 +13,11 @@ const WORDMARK = 'Player for ZTM';
 
 const TITLE = 'text-display leading-tight font-medium tracking-tight text-ink';
 
-/** Without a floor the check outruns the eye and the splash strobes. */
-const FLOOR_MS = 620;
+/** Without a floor the check outruns the eye and the splash is gone before it reads. */
+const FLOOR_MS = 3000;
+
+/** WebGL can be blocked or the chunk can fail; the mark appears regardless. */
+const WASH_GRACE_MS = 1200;
 
 export function Boot({ dispatch }: { dispatch: Dispatch<Action> }) {
   const variant = useVariant('boot');
@@ -43,15 +46,26 @@ export function Boot({ dispatch }: { dispatch: Dispatch<Action> }) {
 }
 
 function Brand({ quiet }: { quiet: boolean }) {
+  // Showing the mark before the shader's first frame shows it against bare black.
+  const [lit, setLit] = useState(quiet);
+
+  useEffect(() => {
+    if (lit) return;
+    const grace = setTimeout(() => setLit(true), WASH_GRACE_MS);
+    return () => clearTimeout(grace);
+  }, [lit]);
+
   return (
-    <div
-      className="relative flex h-full flex-col items-center justify-center overflow-hidden"
-      style={{ backgroundColor: ZTM_GROUND }}
-    >
-      {/* Its own rAF loop, which the `flair: none` blanket cannot stop. */}
-      {!quiet && (
-        <Suspense fallback={null}>
-          <div className="absolute inset-0">
+    <div className="relative h-full overflow-hidden" style={{ backgroundColor: ZTM_GROUND }}>
+      <div
+        className={cn(
+          'absolute inset-0 transition-opacity duration-700 ease-panel',
+          lit ? 'opacity-100' : 'opacity-0',
+        )}
+      >
+        {/* Its own rAF loop, which the `flair: none` blanket cannot stop. */}
+        {!quiet && (
+          <Suspense fallback={null}>
             {/* saturation defaults to 0, which collapses this shader to luminance. */}
             <Watercolor
               color1={ZTM_PURPLE}
@@ -62,39 +76,43 @@ function Brand({ quiet }: { quiet: boolean }) {
               brightness={0}
               opacity={0.38}
               cursorInteraction={false}
+              onReady={() => setLit(true)}
             />
-          </div>
-        </Suspense>
-      )}
+          </Suspense>
+        )}
 
-      {/* The wash drifts, so the mark's contrast would otherwise vary with it. */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `radial-gradient(58% 38% at 50% 47%, ${ZTM_GROUND}c4, transparent 72%)`,
-        }}
-      />
-
-      {/* White rather than `--t-ink`, because the ground here does not follow the theme. */}
-      <div className="relative flex flex-col items-center text-white">
-        <p className="mb-1 text-caption tracking-[0.28em] uppercase opacity-70">Player for</p>
-
-        <div className="flex items-baseline" style={{ fontFamily: ZTM_MARK_FONT }}>
-          {ZTM_MARK.map(({ char, color }, i) => (
-            <span key={char} style={{ color }}>
-              <Reveal
-                as="span"
-                text={char}
-                blur={false}
-                duration={0.4 + i * 0.14}
-                className="text-[86px] leading-none font-black tracking-[-0.02em]"
-              />
-            </span>
-          ))}
-        </div>
-
-        <p className="mt-7 text-caption opacity-70">Checking your session…</p>
+        {/* The wash drifts, so the mark's contrast would otherwise vary with it. */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `radial-gradient(58% 38% at 50% 47%, ${ZTM_GROUND}c4, transparent 72%)`,
+          }}
+        />
       </div>
+
+      {/* opacity does not stop an IntersectionObserver: hidden, the letters reveal unseen. */}
+      {lit && (
+        <div className="animate-in fade-in relative flex h-full flex-col items-center justify-center text-white duration-700">
+          {/* White rather than `--t-ink`, because this ground does not follow the theme. */}
+          <p className="mb-1 text-caption tracking-[0.28em] uppercase opacity-70">Player for</p>
+
+          <div className="flex items-baseline" style={{ fontFamily: ZTM_MARK_FONT }}>
+            {ZTM_MARK.map(({ char, color }, i) => (
+              <span key={char} style={{ color }}>
+                <Reveal
+                  as="span"
+                  text={char}
+                  blur={false}
+                  duration={0.4 + i * 0.14}
+                  className="text-[86px] leading-none font-black tracking-[-0.02em]"
+                />
+              </span>
+            ))}
+          </div>
+
+          <p className="mt-7 text-caption opacity-70">Checking your session…</p>
+        </div>
+      )}
     </div>
   );
 }

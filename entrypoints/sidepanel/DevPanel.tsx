@@ -20,7 +20,7 @@ export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispa
   const variant = settings.variants[name] ?? variants[0] ?? '';
 
   return (
-    <div className="rule-t shrink-0 bg-surface">
+    <div className="fixed inset-x-0 bottom-0 z-50 rule-t bg-surface/90 backdrop-blur-sm">
       <button
         type="button"
         onClick={() => setOpen(!settings.open)}
