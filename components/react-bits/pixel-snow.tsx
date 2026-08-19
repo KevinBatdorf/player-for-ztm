@@ -189,6 +189,8 @@ interface PixelSnowProps {
   direction?: number;
   className?: string;
   style?: React.CSSProperties;
+  /** Vendored addition: fires once the shader has actually drawn a frame. */
+  onReady?: () => void;
 }
 
 export default function PixelSnow({
@@ -205,7 +207,8 @@ export default function PixelSnow({
   variant = 'square',
   direction = 125,
   className = '',
-  style = {}
+  style = {},
+  onReady
 }: PixelSnowProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>(0);
@@ -213,6 +216,7 @@ export default function PixelSnow({
   const rendererRef = useRef<WebGLRenderer | null>(null);
   const materialRef = useRef<ShaderMaterial | null>(null);
   const resizeTimeoutRef = useRef<number | null>(null);
+  const drawnRef = useRef(false);
 
   // Memoize shader variant value
   const variantValue = useMemo(() => {
@@ -317,6 +321,11 @@ export default function PixelSnow({
       if (isVisibleRef.current) {
         u(material).uTime.value = (performance.now() - startTime) * 0.001;
         renderer.render(scene, camera);
+
+        if (!drawnRef.current) {
+          drawnRef.current = true;
+          onReady?.();
+        }
       }
     };
     animate();

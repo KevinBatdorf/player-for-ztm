@@ -1,4 +1,5 @@
-import { useReducer, type Dispatch } from 'react';
+import { useReducer, useState, type Dispatch } from 'react';
+import { Backdrop } from './Backdrop';
 import { DevPanel } from './DevPanel';
 import { Boot } from './views/Boot';
 import { Course } from './views/Course';
@@ -12,10 +13,13 @@ import { initialState, reduce, type Action, type AppState } from '@/lib/machine'
 
 export function App() {
   const [state, dispatch] = useReducer(reduce, initialState);
+  // Boot holds its mark back until the field has drawn, so it needs to hear about it.
+  const [fieldReady, setFieldReady] = useState(false);
 
   return (
-    <div className="h-screen bg-paper font-sans text-body text-ink">
-      {renderView(state, dispatch)}
+    <div className="relative h-screen font-sans text-body text-ink">
+      <Backdrop view={state.view.name} onReady={() => setFieldReady(true)} />
+      <div className="relative h-full">{renderView(state, dispatch, fieldReady)}</div>
       {/* A literal false in a build, so DevPanel is tree-shaken out. */}
       {import.meta.env.DEV && <DevPanel state={state} dispatch={dispatch} />}
     </div>
@@ -23,12 +27,12 @@ export function App() {
 }
 
 /** Exhaustive by the compiler: a new union member breaks this switch. */
-function renderView(state: AppState, dispatch: Dispatch<Action>) {
+function renderView(state: AppState, dispatch: Dispatch<Action>, fieldReady: boolean) {
   const { view, indexer, awaitingLogin } = state;
 
   switch (view.name) {
     case 'boot':
-      return <Boot dispatch={dispatch} />;
+      return <Boot dispatch={dispatch} fieldReady={fieldReady} />;
     case 'signedOut':
       return <SignedOut awaitingLogin={awaitingLogin} dispatch={dispatch} />;
     case 'indexingCourses':

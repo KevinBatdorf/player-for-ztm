@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 const StaggeredText = lazy(() => import('@/components/react-bits/staggered-text'));
 
 // Plain on purpose: real panel furniture gets designed against real content.
+// Translucent so the app's field reads in the gutters; rows stay opaque over it.
 export function Screen({
   title,
   onBack,
@@ -21,7 +22,7 @@ export function Screen({
   children: ReactNode;
 }) {
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-paper/60">
       <header className="rule-b flex shrink-0 items-center gap-2 bg-surface px-3 py-2.5">
         {onBack && (
           <button

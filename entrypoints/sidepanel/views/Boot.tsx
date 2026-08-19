@@ -34,7 +34,13 @@ const FIELD_OPACITY = 0.5;
 /** WebGL can be blocked or the chunk can fail; the mark appears regardless. */
 const WASH_GRACE_MS = 1200;
 
-export function Boot({ dispatch }: { dispatch: Dispatch<Action> }) {
+export function Boot({
+  dispatch,
+  fieldReady,
+}: {
+  dispatch: Dispatch<Action>;
+  fieldReady: boolean;
+}) {
   const variant = useVariant('boot');
   const flair = useFlair();
   const held = useHold();
@@ -57,7 +63,7 @@ export function Boot({ dispatch }: { dispatch: Dispatch<Action> }) {
   }, [dispatch, flair, held]);
 
   const quiet = flair === 'none';
-  if (variant === 'snow') return <Snow quiet={quiet} />;
+  if (variant === 'snow') return <Snow quiet={quiet} fieldReady={fieldReady} />;
   if (variant === 'glitch') return <Glitch quiet={quiet} />;
   if (variant === 'brand') return <Brand quiet={quiet} />;
   return variant === 'bars' ? <Bars /> : <Wordmark />;
@@ -77,32 +83,11 @@ function useLit(quiet: boolean, ready?: boolean) {
   return lit;
 }
 
-function Snow({ quiet }: { quiet: boolean }) {
-  const lit = useLit(quiet);
-
+function Snow({ quiet, fieldReady }: { quiet: boolean; fieldReady: boolean }) {
   return (
-    <div className="relative h-full overflow-hidden" style={{ backgroundColor: ZTM_GROUND }}>
-      {!quiet && (
-        <Suspense fallback={null}>
-          {/* Snow is sparse by nature, so it does not take the glitch field's halving. */}
-          <div
-            className="absolute inset-0 transition-opacity duration-700 ease-panel"
-            style={{ opacity: lit ? 0.9 : 0 }}
-          >
-            <PixelSnow
-              color={ZTM_GREEN}
-              variant="square"
-              density={0.95}
-              speed={0.7}
-              brightness={1.5}
-              pixelResolution={120}
-              direction={165}
-            />
-          </div>
-        </Suspense>
-      )}
+    <div className="relative h-full overflow-hidden">
       <Vignette strength={0.26} />
-      {lit && <Mark />}
+      {(quiet || fieldReady) && <Mark />}
     </div>
   );
 }
@@ -128,14 +113,8 @@ function Glitch({ quiet }: { quiet: boolean }) {
 }
 
 function Brand({ quiet }: { quiet: boolean }) {
-  // Showing the mark before the shader's first frame shows it against bare black.
-  const [lit, setLit] = useState(quiet);
-
-  useEffect(() => {
-    if (lit) return;
-    const grace = setTimeout(() => setLit(true), WASH_GRACE_MS);
-    return () => clearTimeout(grace);
-  }, [lit]);
+  const [drawn, setDrawn] = useState(false);
+  const lit = useLit(quiet, drawn);
 
   return (
     <div className="relative h-full overflow-hidden" style={{ backgroundColor: ZTM_GROUND }}>
@@ -157,7 +136,7 @@ function Brand({ quiet }: { quiet: boolean }) {
               brightness={0}
               opacity={0.38}
               cursorInteraction={false}
-              onReady={() => setLit(true)}
+              onReady={() => setDrawn(true)}
             />
           </Suspense>
         )}
