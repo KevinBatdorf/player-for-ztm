@@ -68,7 +68,7 @@ function Glitch({ quiet }: { quiet: boolean }) {
             centerVignette
             outerVignette={false}
           />
-          <Vignette strength={0.94} />
+          <Vignette strength={0.55} />
         </div>
       )}
       <Mark />
@@ -142,11 +142,16 @@ function Vignette({ strength }: { strength: number }) {
   );
 }
 
+const LEGIBLE = { textShadow: `0 1px 10px rgba(${ZTM_GROUND_RGB}, 0.95)` };
+
 function Mark() {
   return (
     <div className="animate-in fade-in relative flex h-full flex-col items-center justify-center text-white duration-700">
       {/* White rather than `--t-ink`, because these grounds do not follow the theme. */}
-      <p className="mb-1 text-caption tracking-[0.28em] uppercase opacity-70">Player for</p>
+      {/* Caption weight loses to the glitch field; the mark's 86px bold does not. */}
+      <p className="mb-1 text-caption tracking-[0.28em] uppercase opacity-80" style={LEGIBLE}>
+        Player for
+      </p>
 
       <div className="flex items-baseline" style={{ fontFamily: ZTM_MARK_FONT }}>
         {ZTM_MARK.map(({ char, color }, i) => (
@@ -162,7 +167,9 @@ function Mark() {
         ))}
       </div>
 
-      <p className="mt-7 text-caption opacity-70">Checking your session…</p>
+      <p className="mt-7 text-caption opacity-80" style={LEGIBLE}>
+        Checking your session…
+      </p>
     </div>
   );
 }
