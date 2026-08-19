@@ -1,298 +1,178 @@
-:root {
-  color-scheme: light dark;
+@import 'tailwindcss';
+
+/* Auto-detection walks up from this file and misses these. */
+@source '../../components';
+@source '../../entrypoints';
+@source '../../lib';
+
+@custom-variant dark (&:is(.dark *));
+
+/* Adding a token here means adding it to all four themes, or the switch half-applies. */
+@theme inline {
+  --color-paper: var(--t-paper);
+  --color-surface: var(--t-surface);
+  --color-raised: var(--t-raised);
+  --color-line: var(--t-line);
+  --color-line-strong: var(--t-line-strong);
+  --color-ink: var(--t-ink);
+  --color-ink-soft: var(--t-ink-soft);
+  --color-ink-faint: var(--t-ink-faint);
+  --color-accent: var(--t-accent);
+  --color-accent-ink: var(--t-accent-ink);
+
+  --font-sans: var(--t-font-sans);
+  --font-mono: var(--t-font-mono);
+
+  /* 13px body is the part of the App UI scale that survives 400px. */
+  --text-display: var(--t-text-display);
+  --text-heading: var(--t-text-heading);
+  --text-body: var(--t-text-body);
+  --text-caption: var(--t-text-caption);
+
+  --radius-panel: var(--t-radius);
+  --shadow-panel: var(--t-shadow);
+  --ease-panel: var(--t-ease);
 }
 
-body {
-  margin: 0;
-  font: 14px/1.5 system-ui, sans-serif;
+/* Tailwind has no border-width theme namespace, so 1px-vs-3px needs its own utility. */
+@utility rule {
+  border-width: var(--t-line-w);
+  border-style: solid;
+  border-color: var(--t-line);
 }
 
-.wrap {
-  padding: 12px;
+@utility rule-b {
+  border-bottom-width: var(--t-line-w);
+  border-bottom-style: solid;
+  border-bottom-color: var(--t-line);
 }
 
-h1 {
-  font-size: 16px;
-  margin: 0 0 10px;
+/* --rb-* is React Bits' own namespace; setting it re-themes vendored blocks unedited. */
+:root,
+[data-theme='clean'] {
+  color-scheme: light;
+
+  --t-paper: #ffffff;
+  --t-surface: #fafafa;
+  --t-raised: #ffffff;
+  --t-line: #e5e5e5;
+  --t-line-strong: #d4d4d4;
+  --t-line-w: 1px;
+  --t-ink: #0a0a0a;
+  --t-ink-soft: #525252;
+  --t-ink-faint: #a3a3a3;
+  --t-accent: #171717;
+  --t-accent-ink: #ffffff;
+
+  --t-font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --t-font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --t-text-display: 20px;
+  --t-text-heading: 15px;
+  --t-text-body: 13px;
+  --t-text-caption: 11px;
+
+  --t-radius: 10px;
+  --t-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --t-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --rb-accent: #171717;
+  --rb-accent-fg: #ffffff;
+  --rb-radius: 10px;
 }
 
-.tabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 12px;
+[data-theme='swiss'] {
+  color-scheme: light;
+
+  --t-paper: #ffffff;
+  --t-surface: #ffffff;
+  --t-raised: #ffffff;
+  --t-line: #111111;
+  --t-line-strong: #111111;
+  --t-line-w: 1px;
+  --t-ink: #111111;
+  --t-ink-soft: #666666;
+  --t-ink-faint: #999999;
+  --t-accent: #e2231a;
+  --t-accent-ink: #ffffff;
+
+  --t-font-sans: 'Helvetica Now', 'Neue Haas Grotesk', Inter, Helvetica, Arial, sans-serif;
+  --t-font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --t-text-display: 20px;
+  --t-text-heading: 14px;
+  --t-text-body: 13px;
+  --t-text-caption: 11px;
+
+  --t-radius: 0px;
+  --t-shadow: none;
+  --t-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --rb-accent: #e2231a;
+  --rb-accent-fg: #ffffff;
+  --rb-radius: 0px;
 }
 
-.tab {
-  flex: 1;
-  padding: 6px 8px;
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-  background: transparent;
-  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
-  border-radius: 6px;
+[data-theme='neobrutalism'] {
+  color-scheme: light;
+
+  --t-paper: #fafaf5;
+  --t-surface: #fafaf5;
+  --t-raised: #ffffff;
+  --t-line: #111111;
+  --t-line-strong: #111111;
+  --t-line-w: 3px;
+  --t-ink: #111111;
+  --t-ink-soft: #3f3f3f;
+  --t-ink-faint: #6b6b6b;
+  --t-accent: #ffd400;
+  --t-accent-ink: #111111;
+
+  --t-font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --t-font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --t-text-display: 22px;
+  --t-text-heading: 15px;
+  --t-text-body: 13px;
+  --t-text-caption: 11px;
+
+  --t-radius: 8px;
+  --t-shadow: 4px 4px 0 0 #111111;
+  --t-ease: cubic-bezier(0.2, 0.9, 0.3, 1);
+
+  --rb-accent: #ffd400;
+  --rb-accent-fg: #111111;
+  --rb-radius: 8px;
 }
 
-.tab.active {
-  background: color-mix(in srgb, currentColor 12%, transparent);
-  font-weight: 600;
-}
+[data-theme='terminal'] {
+  color-scheme: dark;
 
-.hint {
-  font-size: 12px;
-  opacity: 0.7;
-}
+  --t-paper: #0a0b0d;
+  --t-surface: #101216;
+  --t-raised: #16181d;
+  --t-line: #1e2127;
+  --t-line-strong: #2a2e37;
+  --t-line-w: 1px;
+  --t-ink: #e6e8eb;
+  --t-ink-soft: #9ba1ac;
+  --t-ink-faint: #6b7280;
+  --t-accent: #c792ea;
+  --t-accent-ink: #0a0b0d;
 
-input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 6px 8px;
-  font: inherit;
-  color: inherit;
-  background: transparent;
-  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
-  border-radius: 6px;
-}
+  --t-font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --t-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
-.primary {
-  width: 100%;
-  margin-top: 8px;
-  padding: 8px;
-  font: inherit;
-  color: #fff;
-  cursor: pointer;
-  background: #4f46e5;
-  border: 0;
-  border-radius: 6px;
-}
+  --t-text-display: 20px;
+  --t-text-heading: 15px;
+  --t-text-body: 13px;
+  --t-text-caption: 11px;
 
-.primary:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
+  --t-radius: 8px;
+  --t-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --t-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
-.status {
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.lecture {
-  width: 100%;
-  height: 70vh;
-  margin-top: 10px;
-  border: 0;
-  border-radius: 8px;
-}
-
-.secondary {
-  width: 100%;
-  margin-top: 8px;
-  padding: 8px;
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-  background: transparent;
-  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
-  border-radius: 6px;
-}
-
-.report {
-  margin-top: 10px;
-  padding: 8px;
-  font-size: 11px;
-  white-space: pre-wrap;
-  word-break: break-all;
-  user-select: all;
-  background: color-mix(in srgb, currentColor 8%, transparent);
-  border-radius: 6px;
-  max-height: 340px;
-  overflow: auto;
-}
-
-.readout {
-  margin-top: 10px;
-}
-
-.readout-line {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: baseline;
-  font-size: 12px;
-}
-
-.seek-row {
-  display: flex;
-  gap: 6px;
-}
-
-.seek-row .secondary {
-  margin-top: 6px;
-}
-
-.modes {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 6px;
-}
-
-.modes button {
-  margin-top: 0;
-}
-
-.card {
-  margin-bottom: 12px;
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
-  border-radius: 10px;
-}
-
-.card-video {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 16 / 9;
-  background: #000;
-}
-
-/* Both layers share the cell, and the still sits above the frame so the
-   player's boot-up twitching happens out of sight. */
-.card-video > * {
-  grid-area: 1 / 1;
-}
-
-.card-video iframe {
-  z-index: 0;
-}
-
-.still {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  padding: 12px;
-  box-sizing: border-box;
-  text-align: center;
-  color: #fff;
-  background: linear-gradient(135deg, #312e81, #4f46e5 60%, #7c3aed);
-  z-index: 1;
-  transition: opacity 0.35s ease;
-}
-
-.still.gone {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.spinner {
-  width: 26px;
-  height: 26px;
-  border: 3px solid rgb(255 255 255 / 0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .spinner {
-    animation: pulse 1.4s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    50% {
-      opacity: 0.35;
-    }
-  }
-}
-
-
-.card-video iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-.card-body {
-  display: grid;
-  gap: 6px;
-  padding: 10px;
-}
-
-/* Offscreen, but still laid out and loading, which is what the harvest needs. */
-.harvest {
-  position: absolute;
-  left: -9999px;
-  width: 640px;
-  height: 360px;
-  border: 0;
-}
-
-.scrub {
-  width: 100%;
-  padding: 0;
-  border: 0;
-}
-
-.seek-row button[aria-pressed='true'] {
-  background: color-mix(in srgb, currentColor 15%, transparent);
-  font-weight: 600;
-}
-
-/* Sized like the buttons beside it — it is one, just hosted in a frame. */
-.popout-trigger {
-  flex: 1;
-  height: 33px;
-  border: 0;
-  border-radius: 6px;
-}
-
-.loader {
-  margin-bottom: 12px;
-}
-
-.lessons {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.lesson {
-  display: grid;
-  gap: 2px;
-  width: 100%;
-  padding: 8px 6px;
-  font: inherit;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent);
-}
-
-.lesson:hover:not(:disabled) {
-  background: color-mix(in srgb, currentColor 8%, transparent);
-}
-
-.lesson-meta {
-  font-size: 11px;
-  opacity: 0.65;
-}
-
-.lesson:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.lesson[aria-current='true'] {
-  font-weight: 600;
-  background: color-mix(in srgb, currentColor 12%, transparent);
+  --rb-accent: #c792ea;
+  --rb-accent-fg: #0a0b0d;
+  --rb-radius: 8px;
 }
