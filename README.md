@@ -1,4 +1,4 @@
-# ZTM Sidebar
+# Player for ZTM
 
 Chrome side-panel extension for Zero To Mastery courses. Built with [WXT](https://wxt.dev).
 

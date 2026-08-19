@@ -11,11 +11,6 @@ export function ToolchainProof() {
   return (
     <div className="flex h-screen flex-col bg-paper font-sans text-body text-ink">
       <header className="rule-b flex shrink-0 flex-col gap-2 bg-surface p-3">
-        <div className="flex items-baseline justify-between">
-          <h1 className="text-display font-semibold tracking-tight">ZTM Sidebar</h1>
-          <span className="text-caption text-ink-faint">phase 0</span>
-        </div>
-
         <div className="flex gap-1">
           {THEMES.map((t) => (
             <button

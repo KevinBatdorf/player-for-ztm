@@ -8,9 +8,9 @@ export default defineConfig({
     plugins: [tailwindcss()],
   }),
   manifest: {
-    name: 'ZTM Sidebar',
+    name: 'Player for ZTM',
     description: 'Zero To Mastery courses in a side panel, playing in Picture-in-Picture.',
     permissions: ['sidePanel', 'storage'],
-    action: { default_title: 'ZTM Sidebar' },
+    action: { default_title: 'Player for ZTM' },
   },
 });
