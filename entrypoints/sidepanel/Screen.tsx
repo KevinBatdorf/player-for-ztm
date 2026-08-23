@@ -24,7 +24,7 @@ export function Screen({
   return (
     <div className="flex h-full flex-col">
       {(title || onBack) && (
-        <header className="rule-b flex shrink-0 items-center gap-3 px-8 py-4">
+        <header className="rule-b flex shrink-0 items-center gap-3 px-6 py-3.5">
           {onBack && (
             <button
               type="button"
@@ -38,7 +38,7 @@ export function Screen({
           {title && <h1 className="text-heading leading-snug font-medium text-ink">{title}</h1>}
         </header>
       )}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-8">{children}</div>
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 pt-4 pb-6">{children}</div>
     </div>
   );
 }
