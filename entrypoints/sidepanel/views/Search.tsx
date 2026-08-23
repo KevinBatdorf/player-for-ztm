@@ -1,5 +1,6 @@
 import type { Dispatch } from 'react';
 import { useLibrary } from '../library';
+import { useHoverPrefetch } from '../prefetch';
 import { Row, Screen } from '../Screen';
 import { fixtureCourses, fixtureLessons } from '@/lib/fixtures';
 import type { Course } from '@/lib/courses';
@@ -19,6 +20,7 @@ export function Search({
   dispatch: Dispatch<Action>;
 }) {
   const library = useLibrary();
+  const hover = useHoverPrefetch();
   // The dev panel can jump straight here, so the stubs stay reachable without a session.
   const courses = library.courses ?? fixtureCourses();
   const lessonsFor = library.courses ? library.lessonsFor : fixtureLessons;
@@ -46,6 +48,7 @@ export function Search({
               title={course.title}
               meta={course.updated?.slice(0, 7)}
               onClick={() => dispatch({ type: 'coursePicked', courseId: course.id })}
+              {...hover(course.id)}
             />
           ))}
         </div>

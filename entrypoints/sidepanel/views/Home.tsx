@@ -1,5 +1,6 @@
 import type { Dispatch } from 'react';
 import { useLibrary } from '../library';
+import { useHoverPrefetch } from '../prefetch';
 import SpotlightCard from '@/components/react-bits/spotlight-card';
 import { Row, Screen, StubNote } from '../Screen';
 import { useVariant } from '../settings';
@@ -13,6 +14,7 @@ const SPOTLIGHT = 'rgba(199, 146, 234, 0.18)' as const;
 export function Home({ dispatch }: { dispatch: Dispatch<Action> }) {
   const variant = useVariant('home');
   const { courses } = useLibrary();
+  const hover = useHoverPrefetch();
   const real = courses !== null;
   // The dev panel can jump straight here, so the stubs stay reachable without a session.
   const list = byUpdated(real ? courses : fixtureCourses());
@@ -35,6 +37,7 @@ export function Home({ dispatch }: { dispatch: Dispatch<Action> }) {
               title={course.title}
               meta={course.updated?.slice(0, 7)}
               onClick={() => dispatch({ type: 'coursePicked', courseId: course.id })}
+              {...hover(course.id)}
             />
           ))}
         </div>
@@ -45,6 +48,7 @@ export function Home({ dispatch }: { dispatch: Dispatch<Action> }) {
               <button
                 type="button"
                 onClick={() => dispatch({ type: 'coursePicked', courseId: course.id })}
+                {...hover(course.id)}
                 className="block w-full text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
               >
                 {/* Their CDN art is the only image in the app; a missing one leaves the card plain. */}

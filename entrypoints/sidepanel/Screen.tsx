@@ -142,18 +142,24 @@ export function Row({
   disabled = false,
   /** Picking a lesson does not change screen, so the list shows which one is loaded. */
   active = false,
+  onPointerEnter,
+  onPointerLeave,
 }: {
   title: string;
   meta?: string;
   onClick: () => void;
   disabled?: boolean;
   active?: boolean;
+  onPointerEnter?: () => void;
+  onPointerLeave?: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
       className={cn(
         'rule flex w-full items-baseline justify-between gap-2 rounded-panel px-3 py-2 text-left transition-colors duration-150 ease-panel',
         disabled
