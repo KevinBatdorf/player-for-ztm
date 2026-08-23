@@ -159,7 +159,6 @@ export function Row({
       className={cn(
         'rule flex w-full items-baseline justify-between gap-2 rounded-panel bg-card px-3 py-2.5 text-left transition-colors duration-150 ease-panel',
         'hover:bg-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-        active && 'bg-card-hover',
       )}
     >
       <span

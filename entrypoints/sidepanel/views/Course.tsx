@@ -2,6 +2,7 @@ import { useEffect, type Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { useReader } from '../Reader';
 import { Row, Screen, StubNote, TextRow } from '../Screen';
+import { useHold } from '../settings';
 import { fixtureLessons } from '@/lib/fixtures';
 import type { Action, Loaded, ViewOf } from '@/lib/machine';
 
@@ -10,16 +11,32 @@ export function Course({
   lesson,
   dispatch,
 }: {
-  view: ViewOf<'course'>;
+  view: ViewOf<'course'> | ViewOf<'courseLoading'>;
   lesson: Loaded | null;
   dispatch: Dispatch<Action>;
 }) {
-  const { courses, lessonsFor, sweepText } = useLibrary();
+  const { courses, lessonsFor, openCourse, sweepText } = useLibrary();
   const reader = useReader();
+  const held = useHold();
 
   const course = courses?.find((c) => c.id === view.courseId);
   // The dev panel can jump straight here, so the stubs stay reachable without a session.
   const lessons = courses ? lessonsFor(view.courseId) : fixtureLessons(view.courseId);
+  const pending = view.name === 'courseLoading';
+
+  // Titles are already in hand from the catalogue; this fetch is only durations and type.
+  useEffect(() => {
+    if (!pending || held) return;
+    let live = true;
+
+    void openCourse(view.courseId).then(() => {
+      if (live) dispatch({ type: 'courseReady', courseId: view.courseId });
+    });
+
+    return () => {
+      live = false;
+    };
+  }, [dispatch, openCourse, view.courseId, pending, held]);
 
   useEffect(() => {
     if (courses) sweepText(view.courseId);
@@ -60,8 +77,9 @@ export function Course({
         )}
 
         <StubNote>
-          Phase 6 marks watched lessons from our own record and opens the earliest unwatched
-          one, since nothing persists progress today.
+          {pending
+            ? 'Durations and lesson type are still on their way; the titles came with the catalogue.'
+            : 'Phase 6 marks watched lessons from our own record and opens the earliest unwatched one, since nothing persists progress today.'}
         </StubNote>
       </Screen>
 

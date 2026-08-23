@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { useReducer, useState, type Dispatch } from 'react';
+import { useMemo, useReducer, useState, type Dispatch } from 'react';
 import { Backdrop } from './Backdrop';
 import { DevPanel } from './DevPanel';
 import { Spotlight } from './Spotlight';
@@ -7,7 +7,6 @@ import { Stage } from './Stage';
 import { Player } from './Player';
 import { Boot } from './views/Boot';
 import { Course } from './views/Course';
-import { CourseLoading } from './views/CourseLoading';
 import { Home } from './views/Home';
 import { IndexingCourses } from './views/IndexingCourses';
 import { Search } from './views/Search';
@@ -43,6 +42,9 @@ const CURVE = [0.32, 0.72, 0, 1] as const;
 /** Keyed apart, a cached curriculum resolves them a frame apart and cuts the first slide short. */
 const screenKey = (name: ViewName) => (name === 'courseLoading' ? 'course' : name);
 
+/** Fixed, or the band's collapse changes speed depending on how you last navigated. */
+const RAISE = 0.42;
+
 export function App() {
   const [state, dispatch] = useReducer(reduce, initialState);
   // Boot holds its mark back until the field has drawn, so it needs to hear about it.
@@ -51,6 +53,8 @@ export function App() {
   const [raised, setRaised] = useState(false);
   const flair = useFlair();
   const stage = inside(state.view.name);
+  // A fresh object each render restarts the height animation on every unrelated re-render.
+  const band = useMemo(() => ({ height: raised ? 0 : 'auto' }) as const, [raised]);
   // motion writes inline styles, which the `data-flair` blanket cannot reach.
   const seconds = flair === 'none' ? 0 : state.heading === 'none' ? 0.24 : 0.5;
 
@@ -65,8 +69,8 @@ export function App() {
         {stage && (
           <motion.div
             className="relative shrink-0 overflow-hidden"
-            animate={{ height: raised ? 0 : 'auto' }}
-            transition={{ duration: seconds, ease: CURVE }}
+            animate={band}
+            transition={{ duration: flair === 'none' ? 0 : RAISE, ease: CURVE }}
           >
             <Player lesson={state.lesson} dispatch={dispatch} />
           </motion.div>
@@ -136,8 +140,8 @@ function renderView(state: AppState, dispatch: Dispatch<Action>, fieldReady: boo
       return <Home dispatch={dispatch} />;
     case 'search':
       return <Search view={view} lesson={lesson} dispatch={dispatch} />;
+    // One component for both: the loading line flashed for a frame on a warm cache.
     case 'courseLoading':
-      return <CourseLoading view={view} dispatch={dispatch} />;
     case 'course':
       return <Course view={view} lesson={lesson} dispatch={dispatch} />;
   }
