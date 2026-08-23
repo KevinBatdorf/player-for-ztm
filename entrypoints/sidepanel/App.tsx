@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useReducer, useState, type Dispatch } from 'react';
 import { Backdrop } from './Backdrop';
 import { DevPanel } from './DevPanel';
-import { Dots } from './Dots';
+import { Stage } from './Stage';
 import { Player } from './Player';
 import { Boot } from './views/Boot';
 import { Course } from './views/Course';
@@ -56,7 +56,7 @@ export function App() {
       <Backdrop level={state.field} onReady={() => setFieldReady(true)} />
 
       <div className="relative flex min-h-0 flex-1 flex-col">
-        {stage && <Dots />}
+        {stage && <Stage />}
         {stage && <Player lesson={state.lesson} dispatch={dispatch} />}
 
         {/* Fixed, the dev panel covered the bottom row of every screen even when collapsed. */}

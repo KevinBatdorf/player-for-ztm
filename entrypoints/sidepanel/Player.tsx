@@ -18,8 +18,10 @@ export function Player({
     return (
       <Shell>
         <Frame>
-          <p className="text-body text-ink-soft">Pick a course to start</p>
-          <p className="mt-1 font-mono text-caption text-ink-faint">
+          <p className="text-body text-ink" style={SCRIM}>
+            Pick a course to start
+          </p>
+          <p className="mt-1 font-mono text-caption text-ink-soft" style={SCRIM}>
             the lesson plays up here and the list stays put
           </p>
         </Frame>
@@ -75,6 +77,9 @@ export function Player({
 const Shell = ({ children }: { children: ReactNode }) => (
   <div className="relative shrink-0">{children}</div>
 );
+
+/** The dot grid runs under this type, so it needs its own ground to stay legible. */
+const SCRIM = { textShadow: '0 1px 9px rgba(var(--t-scrim), 0.95)' };
 
 /** No background of its own; the dot layer is what shows through. */
 const Frame = ({ children }: { children: ReactNode }) => (

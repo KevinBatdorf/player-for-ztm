@@ -11,6 +11,8 @@
 /* Adding a token here means adding it to all four themes, or the switch half-applies. */
 @theme inline {
   --color-paper: var(--t-paper);
+  /* The only surface lighter than `raised`. */
+  --color-stage: var(--t-stage);
   --color-surface: var(--t-surface);
   --color-raised: var(--t-raised);
   --color-line: var(--t-line);
@@ -97,6 +99,8 @@
   --t-scrim: 10 11 13;
   --t-surface: #101216;
   --t-raised: #16181d;
+  --t-stage: #23272f;
+  --t-dot: #464c58;
   --t-line: #1e2127;
   --t-line-strong: #2a2e37;
   --t-line-w: 1px;
