@@ -138,8 +138,6 @@ export function Row({
   title,
   meta,
   onClick,
-  /** Text and quiz lessons: in the list because they are the course, but nothing to play. */
-  disabled = false,
   /** Picking a lesson does not change screen, so the list shows which one is loaded. */
   active = false,
   onPointerEnter,
@@ -148,7 +146,6 @@ export function Row({
   title: string;
   meta?: string;
   onClick: () => void;
-  disabled?: boolean;
   active?: boolean;
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
@@ -157,26 +154,48 @@ export function Row({
     <button
       type="button"
       onClick={onClick}
-      disabled={disabled}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
       className={cn(
-        'rule flex w-full items-baseline justify-between gap-2 rounded-panel px-3 py-2 text-left transition-colors duration-150 ease-panel',
-        disabled
-          ? 'cursor-default bg-raised/40'
-          : 'bg-raised hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+        'rule flex w-full items-baseline justify-between gap-2 rounded-panel bg-raised px-3 py-2 text-left transition-colors duration-150 ease-panel',
+        'hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
         active && 'bg-surface',
       )}
     >
       <span
         className={cn(
           'min-w-0 flex-1 text-body leading-snug',
-          disabled ? 'text-ink-faint' : active ? 'font-medium text-accent-text' : 'text-ink',
+          active ? 'font-medium text-accent-text' : 'text-ink',
         )}
       >
         {title}
       </span>
       {meta && <span className="shrink-0 font-mono text-caption text-ink-faint">{meta}</span>}
     </button>
+  );
+}
+
+/** Focus-within is what keeps the two actions reachable without a pointer. */
+export function TextRow({
+  title,
+  onRead,
+  onOpenTab,
+}: {
+  title: string;
+  onRead: () => void;
+  onOpenTab: () => void;
+}) {
+  return (
+    <div className="group rule relative flex w-full items-baseline justify-between gap-2 rounded-panel bg-raised/40 px-3 py-2">
+      <span className="min-w-0 flex-1 text-body leading-snug text-ink-soft">{title}</span>
+      <span className="shrink-0 font-mono text-caption text-ink-faint">text</span>
+
+      <div className="pointer-events-none absolute inset-0 flex items-center gap-1.5 rounded-panel bg-surface px-3 opacity-0 transition-opacity duration-150 ease-panel group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
+        <Button primary onClick={onRead}>
+          read here
+        </Button>
+        <Button onClick={onOpenTab}>open tab</Button>
+      </div>
+    </div>
   );
 }

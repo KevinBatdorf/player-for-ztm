@@ -9,11 +9,23 @@ import {
 } from 'react';
 import { fetchLibrary, type Course } from '@/lib/courses';
 import { fetchCurriculum, mergeIndex, type Lesson, type LessonIndex } from '@/lib/lessons';
-import type { CourseId } from '@/lib/machine';
+import { fetchLectureBody } from '@/lib/lecture';
+import type { CourseId, LessonId } from '@/lib/machine';
 import { read, write } from '@/lib/store';
 
 const COURSES = 'courses';
 const LESSONS = 'lessons';
+
+/** Per course, so opening one reads its own bodies instead of every course's. */
+const bodyKey = (courseId: CourseId) => `text:${courseId}`;
+
+/** Slow on purpose: this host answers with a reCAPTCHA when it is pushed. */
+const SWEEP_GAP_MS = 1200;
+
+/** A second failure in a row is the host saying no, not one bad lecture. */
+const GIVE_UP_AFTER = 2;
+
+type Bodies = { digest: string | null; bodies: Record<LessonId, string> };
 
 type LibraryApi = {
   courses: Course[] | null;
@@ -23,6 +35,11 @@ type LibraryApi = {
   lessonsFor: (courseId: CourseId) => Lesson[];
   /** The one curriculum fetch per course, skipped when the cache is at the same digest. */
   openCourse: (courseId: CourseId) => Promise<void>;
+  /** Only one course sweeps at a time; a second call abandons the first. */
+  sweepText: (courseId: CourseId) => void;
+  /** Deduped, so asking for a lecture already in flight costs nothing. */
+  readLesson: (courseId: CourseId, lessonId: LessonId) => void;
+  bodyFor: (courseId: CourseId, lessonId: LessonId) => string | undefined;
 };
 
 const LibraryContext = createContext<LibraryApi | null>(null);
@@ -36,6 +53,9 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   // Signing in rewinds through boot and remounts this; one fetch per open.
   const inflight = useRef<Promise<boolean> | null>(null);
   const opening = useRef(new Map<CourseId, Promise<void>>());
+  const [text, setText] = useState<Record<CourseId, Bodies>>({});
+  const sweeping = useRef<CourseId | null>(null);
+  const reading = useRef(new Set<LessonId>());
   // The writes are whole-record, so they read the latest without waiting on a render.
   const latest = useRef<LessonIndex>({});
 
@@ -123,6 +143,78 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     [courses, put],
   );
 
+
+  const keep = useCallback((courseId: CourseId, digest: string | null, lessonId: LessonId, body: string) => {
+    setText((prev) => {
+      const held = prev[courseId]?.digest === digest ? prev[courseId] : { digest, bodies: {} };
+      const next = { digest, bodies: { ...held.bodies, [lessonId]: body } };
+      void write(bodyKey(courseId), next);
+      return { ...prev, [courseId]: next };
+    });
+  }, []);
+
+  const readLesson = useCallback(
+    (courseId: CourseId, lessonId: LessonId) => {
+      const course = courses?.find((c) => c.id === courseId);
+      if (!course?.slug || reading.current.has(lessonId)) return;
+
+      reading.current.add(lessonId);
+      const { slug, updated } = course;
+
+      void fetchLectureBody(courseId, slug, lessonId)
+        .then((body) => keep(courseId, updated, lessonId, body))
+        // A failure and an empty lecture look the same to the reader.
+        .catch(() => undefined)
+        .finally(() => reading.current.delete(lessonId));
+    },
+    [courses, keep],
+  );
+
+  const sweepText = useCallback(
+    (courseId: CourseId) => {
+      if (sweeping.current === courseId) return;
+      sweeping.current = courseId;
+
+      void (async () => {
+        const course = courses?.find((c) => c.id === courseId);
+        if (!course?.slug) return;
+        const { slug, updated } = course;
+
+        const cached = await read<Bodies>(bodyKey(courseId));
+        // A course edit invalidates its bodies too.
+        const held: Bodies =
+          cached && cached.digest === updated ? cached : { digest: updated, bodies: {} };
+
+        setText((prev) => ({ ...prev, [courseId]: held }));
+
+        const wanted = (latest.current[courseId]?.lessons ?? []).filter(
+          (lesson) => lesson.video === false && held.bodies[lesson.id] === undefined,
+        );
+
+        let missed = 0;
+
+        for (const lesson of wanted) {
+          if (sweeping.current !== courseId) return;
+
+          let body: string;
+          try {
+            body = await fetchLectureBody(courseId, slug, lesson.id);
+          } catch {
+            missed += 1;
+            if (missed >= GIVE_UP_AFTER) break;
+            continue;
+          }
+
+          missed = 0;
+          keep(courseId, updated, lesson.id, body);
+
+          await new Promise((done) => setTimeout(done, SWEEP_GAP_MS));
+        }
+      })();
+    },
+    [courses, keep],
+  );
+
   const api = useMemo<LibraryApi>(
     () => ({
       courses,
@@ -130,8 +222,11 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       load,
       lessonsFor: (courseId) => index[courseId]?.lessons ?? NONE,
       openCourse,
+      sweepText,
+      readLesson,
+      bodyFor: (courseId, lessonId) => text[courseId]?.bodies[lessonId],
     }),
-    [courses, error, load, index, openCourse],
+    [courses, error, load, index, openCourse, sweepText, readLesson, text],
   );
 
   return <LibraryContext.Provider value={api}>{children}</LibraryContext.Provider>;
