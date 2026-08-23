@@ -39,10 +39,10 @@ const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 
 export function Boot({
   dispatch,
-  fieldReady,
+  backdropReady,
 }: {
   dispatch: Dispatch<Action>;
-  fieldReady: boolean;
+  backdropReady: boolean;
 }) {
   const flair = useFlair();
   const held = useHold();
@@ -67,7 +67,7 @@ export function Boot({
 
   // Mounted on the field's first frame rather than faded from hidden: opacity does not
   // stop an IntersectionObserver, so the letters would reveal unseen.
-  if (!quiet && !fieldReady) return null;
+  if (!quiet && !backdropReady) return null;
 
   return (
     <div className="relative flex h-full flex-col items-center justify-start pt-[15vh]">

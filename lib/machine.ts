@@ -13,11 +13,11 @@ export type View =
 
 export type ViewName = View['name'];
 
-/** The screens reached after sign-in. The player mounts on these; the field mutes on them. */
+/** The screens reached after sign-in. The player mounts on these; the backdrop mutes on them. */
 export const inside = (name: ViewName): boolean =>
   name === 'home' || name === 'search' || name === 'courseLoading' || name === 'course';
 
-export type FieldLevel = 'normal' | 'muted';
+export type BackdropLevel = 'normal' | 'muted';
 
 /** `none` is a progression nobody navigated; it fades instead of sliding. */
 export type Heading = 'in' | 'out' | 'none';
@@ -29,7 +29,7 @@ export type AppState = {
   // The focus re-check rewinds through `boot`, unmounting `signedOut` and any flag on it.
   awaitingLogin: boolean;
   // Outside the union on purpose: it changes once per session, never per screen.
-  field: FieldLevel;
+  backdrop: BackdropLevel;
   // Ambient so a screen change cannot clear a loaded lesson.
   lesson: Loaded | null;
   heading: Heading;
@@ -55,7 +55,7 @@ export type Action =
 export const initialState: AppState = {
   view: { name: 'boot' },
   awaitingLogin: false,
-  field: 'normal',
+  backdrop: 'normal',
   lesson: null,
   heading: 'none',
 };
@@ -69,7 +69,7 @@ const go = (state: AppState, view: View, heading: Heading = 'none'): AppState =>
 const from = (view: View, ...names: ViewName[]) => names.includes(view.name);
 
 /** Only the dev panel asks; the real flow sets the level from the transition instead. */
-const fieldOn = (name: ViewName): FieldLevel => (inside(name) ? 'muted' : 'normal');
+const backdropOn = (name: ViewName): BackdropLevel => (inside(name) ? 'muted' : 'normal');
 
 // Late replies from abandoned fetches are normal, so a stray action drops silently.
 export function reduce(state: AppState, action: Action): AppState {
@@ -78,7 +78,7 @@ export function reduce(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'sessionMissing':
       return view.name === 'boot'
-        ? { ...go(state, { name: 'signedOut' }), field: 'normal' }
+        ? { ...go(state, { name: 'signedOut' }), backdrop: 'normal' }
         : state;
 
     case 'sessionFound':
@@ -96,7 +96,7 @@ export function reduce(state: AppState, action: Action): AppState {
 
     case 'courseListReady':
       return view.name === 'indexingCourses'
-        ? { ...go(state, { name: 'home' }), field: 'muted' }
+        ? { ...go(state, { name: 'home' }), backdrop: 'muted' }
         : state;
 
     case 'searchOpened':
@@ -140,9 +140,9 @@ export function reduce(state: AppState, action: Action): AppState {
         : state;
 
     // Unguarded on purpose: the dev panel has to reach dead ends by hand, and setting
-    // the field keeps both levels reachable without walking the flow.
+    // the backdrop keeps both levels reachable without walking the flow.
     case 'jumped':
-      return { ...go(state, action.view), field: fieldOn(action.view.name) };
+      return { ...go(state, action.view), backdrop: backdropOn(action.view.name) };
   }
 }
 

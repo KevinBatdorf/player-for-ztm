@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useMemo, useReducer, useState, type Dispatch } from 'react';
 import { Backdrop } from './Backdrop';
 import { DevPanel } from './DevPanel';
-import { Stage } from './Stage';
+import { DotGrid } from './DotGrid';
 import { Player } from './Player';
 import { Boot } from './views/Boot';
 import { Course } from './views/Course';
@@ -46,12 +46,12 @@ const RAISE = 0.42;
 
 export function App() {
   const [state, dispatch] = useReducer(reduce, initialState);
-  // Boot holds its mark back until the field has drawn, so it needs to hear about it.
-  const [fieldReady, setFieldReady] = useState(false);
+  // Boot holds its mark back until the backdrop has drawn, so it needs to hear about it.
+  const [backdropReady, setFieldReady] = useState(false);
   // The sheet's own position, not a step in the flow, so it stays out of the machine.
   const [raised, setRaised] = useState(false);
   const flair = useFlair();
-  const stage = inside(state.view.name);
+  const showsPlayer = inside(state.view.name);
   // A fresh object each render restarts the height animation on every unrelated re-render.
   const band = useMemo(() => ({ height: raised ? 0 : 'auto' }) as const, [raised]);
   // motion writes inline styles, which the `data-flair` blanket cannot reach.
@@ -59,13 +59,13 @@ export function App() {
 
   return (
     <div className="relative flex h-screen flex-col font-sans text-body text-ink">
-      <Backdrop level={state.field} onReady={() => setFieldReady(true)} />
+      <Backdrop level={state.backdrop} onReady={() => setFieldReady(true)} />
 
       <div className="relative flex min-h-0 flex-1 flex-col">
-        {stage && <Stage />}
+        {showsPlayer && <DotGrid />}
 
         {/* `auto` so collapsing the band never needs a measured height. */}
-        {stage && (
+        {showsPlayer && (
           <motion.div
             className="relative shrink-0 overflow-hidden"
             animate={band}
@@ -80,11 +80,11 @@ export function App() {
           className={cn(
             'relative flex min-h-0 flex-1 flex-col overflow-hidden',
             // CSS rather than motion, so the `flair: none` blanket can zero it too.
-            stage && 'rounded-t-sheet bg-sheet shadow-lift transition-[border-radius] duration-500 ease-panel',
-            stage && raised && 'rounded-t-none',
+            showsPlayer && 'rounded-t-sheet bg-sheet shadow-lift transition-[border-radius] duration-500 ease-panel',
+            showsPlayer && raised && 'rounded-t-none',
           )}
         >
-          {stage && (
+          {showsPlayer && (
             <button
               type="button"
               onClick={() => setRaised((up) => !up)}
@@ -109,7 +109,7 @@ export function App() {
                 className="absolute inset-0"
                 transition={{ duration: seconds, ease: CURVE }}
               >
-                {renderView(state, dispatch, fieldReady)}
+                {renderView(state, dispatch, backdropReady)}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -122,12 +122,12 @@ export function App() {
 }
 
 /** Exhaustive by the compiler: a new union member breaks this switch. */
-function renderView(state: AppState, dispatch: Dispatch<Action>, fieldReady: boolean) {
+function renderView(state: AppState, dispatch: Dispatch<Action>, backdropReady: boolean) {
   const { view, awaitingLogin, lesson } = state;
 
   switch (view.name) {
     case 'boot':
-      return <Boot dispatch={dispatch} fieldReady={fieldReady} />;
+      return <Boot dispatch={dispatch} backdropReady={backdropReady} />;
     case 'signedOut':
       return <SignedOut awaitingLogin={awaitingLogin} dispatch={dispatch} />;
     case 'indexingCourses':

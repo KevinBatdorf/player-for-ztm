@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
-import { blend, Landscape, landscapeProps, MUTED, NORMAL } from '@/components/fields';
-import type { FieldLevel } from '@/lib/machine';
+import { blend, Landscape, landscapeProps, MUTED, NORMAL } from '@/components/backdrop';
+import type { BackdropLevel } from '@/lib/machine';
 
 /** Landscape reports no first frame of its own, so the mark comes up on this. */
 const READY_DEADLINE_MS = 900;
@@ -12,7 +12,7 @@ const RAMP_MS = 700;
  * One instance for the app's life. Per-screen mounting cost a WebGL init on every
  * transition, and on `boot` that init was the two seconds of black.
  */
-export function Backdrop({ level, onReady }: { level: FieldLevel; onReady: () => void }) {
+export function Backdrop({ level, onReady }: { level: BackdropLevel; onReady: () => void }) {
   const [drawn, setDrawn] = useState(false);
   const t = useRamp(level === 'muted' ? 1 : 0);
   const field = blend(NORMAL, MUTED, t);
