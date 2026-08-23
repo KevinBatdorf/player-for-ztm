@@ -14,12 +14,8 @@ export type View =
 
 export type ViewName = View['name'];
 
-export type IndexerProgress = { done: number; total: number };
-
 export type AppState = {
   view: View;
-  // Outside the union on purpose: three screens read it and it survives every transition.
-  indexer: IndexerProgress;
   // The focus re-check rewinds through `boot`, unmounting `signedOut` and any flag on it.
   awaitingLogin: boolean;
 };
@@ -39,12 +35,10 @@ export type Action =
   | { type: 'lessonEnded'; nextLessonId: LessonId | null }
   | { type: 'playerClosed' }
   | { type: 'wentHome' }
-  | { type: 'indexerProgressed'; done: number; total: number }
   | { type: 'jumped'; view: View };
 
 export const initialState: AppState = {
   view: { name: 'boot' },
-  indexer: { done: 0, total: 0 },
   awaitingLogin: false,
 };
 
@@ -119,9 +113,6 @@ export function reduce(state: AppState, action: Action): AppState {
       return from(view, 'search', 'courseLoading', 'course', 'playing')
         ? go(state, { name: 'home' })
         : state;
-
-    case 'indexerProgressed':
-      return { ...state, indexer: { done: action.done, total: action.total } };
 
     // Unguarded on purpose: the dev panel has to reach dead ends by hand.
     case 'jumped':

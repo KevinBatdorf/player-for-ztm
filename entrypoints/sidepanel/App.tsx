@@ -49,7 +49,7 @@ export function App() {
 
 /** Exhaustive by the compiler: a new union member breaks this switch. */
 function renderView(state: AppState, dispatch: Dispatch<Action>, fieldReady: boolean) {
-  const { view, indexer, awaitingLogin } = state;
+  const { view, awaitingLogin } = state;
 
   switch (view.name) {
     case 'boot':
@@ -59,13 +59,13 @@ function renderView(state: AppState, dispatch: Dispatch<Action>, fieldReady: boo
     case 'indexingCourses':
       return <IndexingCourses dispatch={dispatch} />;
     case 'home':
-      return <Home indexer={indexer} dispatch={dispatch} />;
+      return <Home dispatch={dispatch} />;
     case 'search':
-      return <Search view={view} indexer={indexer} dispatch={dispatch} />;
+      return <Search view={view} dispatch={dispatch} />;
     case 'courseLoading':
       return <CourseLoading view={view} dispatch={dispatch} />;
     case 'course':
-      return <Course view={view} indexer={indexer} dispatch={dispatch} />;
+      return <Course view={view} dispatch={dispatch} />;
     case 'playing':
       return <Playing view={view} dispatch={dispatch} />;
   }

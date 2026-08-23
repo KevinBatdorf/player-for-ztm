@@ -1,4 +1,5 @@
 import { fetchCatalog, type CatalogEntry } from '@/lib/algolia';
+import { fromCatalog, type Lesson } from '@/lib/lessons';
 import type { CourseId } from '@/lib/machine';
 
 const ORIGIN = 'https://academy.zerotomastery.io';
@@ -88,8 +89,11 @@ function match(title: string, catalog: CatalogEntry[]): CatalogEntry | null {
   return best && best.score >= CLOSE_ENOUGH ? best.entry : null;
 }
 
-/** A catalogue failure costs the order, not the list. */
-export async function fetchCourses(): Promise<Course[]> {
+/** Every enrolled course's lessons, keyed the way the views hold a course. */
+export type Library = { courses: Course[]; lessons: Record<CourseId, Lesson[]> };
+
+/** A catalogue failure costs the order and the lessons, not the list. */
+export async function fetchLibrary(): Promise<Library> {
   const res = await fetch(ENROLLED, {
     credentials: 'include',
     signal: AbortSignal.timeout(REACH_MS),
@@ -105,10 +109,17 @@ export async function fetchCourses(): Promise<Course[]> {
 
   const catalog = await fetchCatalog().catch(() => [] as CatalogEntry[]);
 
-  return enrolled.map((course) => {
+  const lessons: Record<CourseId, Lesson[]> = {};
+
+  const courses = enrolled.map((course) => {
     const hit = catalog.length ? match(course.title, catalog) : null;
+    // The four `Step N` tiles never match, so they carry no lessons either.
+    if (hit) lessons[course.id] = fromCatalog(hit);
+
     return { ...course, slug: hit?.slug ?? null, updated: hit?.updated || null };
   });
+
+  return { courses, lessons };
 }
 
 /** Newest edit first; the tiles with no catalogue match sort last. */

@@ -1,6 +1,5 @@
 import { lazy, Suspense, type ReactNode } from 'react';
 import { useFlair } from './settings';
-import type { IndexerProgress } from '@/lib/machine';
 import { cn } from '@/lib/utils';
 
 /**
@@ -139,31 +138,35 @@ export function Row({
   title,
   meta,
   onClick,
+  /** Text and quiz lessons: in the list because they are the course, but nothing to play. */
+  disabled = false,
 }: {
   title: string;
   meta?: string;
   onClick: () => void;
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="rule flex w-full items-baseline justify-between gap-2 rounded-panel bg-raised px-3 py-2 text-left transition-colors duration-150 ease-panel hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      disabled={disabled}
+      className={cn(
+        'rule flex w-full items-baseline justify-between gap-2 rounded-panel px-3 py-2 text-left transition-colors duration-150 ease-panel',
+        disabled
+          ? 'cursor-default bg-raised/40'
+          : 'bg-raised hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+      )}
     >
-      <span className="min-w-0 flex-1 text-body leading-snug text-ink">{title}</span>
+      <span
+        className={cn(
+          'min-w-0 flex-1 text-body leading-snug',
+          disabled ? 'text-ink-faint' : 'text-ink',
+        )}
+      >
+        {title}
+      </span>
       {meta && <span className="shrink-0 font-mono text-caption text-ink-faint">{meta}</span>}
     </button>
   );
-}
-
-export function IndexerNotice({ indexer }: { indexer: IndexerProgress }) {
-  const { done, total } = indexer;
-  const text =
-    total === 0
-      ? 'lesson index idle'
-      : done >= total
-        ? `lesson index complete · ${total} courses`
-        : `indexing… ${done}/${total} courses`;
-
-  return <p className="font-mono text-caption text-ink-faint">{text}</p>;
 }

@@ -1,28 +1,28 @@
 import type { Dispatch } from 'react';
-import { IndexerNotice, Row, Screen, StubNote } from '../Screen';
-import { SAMPLE_COURSES } from '@/lib/fixtures';
-import type { Action, IndexerProgress, ViewOf } from '@/lib/machine';
+import { useLibrary } from '../library';
+import { Row, Screen } from '../Screen';
+import { fixtureCourses, fixtureLessons } from '@/lib/fixtures';
+import type { Course } from '@/lib/courses';
+import type { Lesson } from '@/lib/lessons';
+import type { Action, ViewOf } from '@/lib/machine';
+
+/** Six thousand lesson titles are in reach, and a 400px column is not where they go. */
+const LIMIT = 40;
 
 export function Search({
   view,
-  indexer,
   dispatch,
 }: {
   view: ViewOf<'search'>;
-  indexer: IndexerProgress;
   dispatch: Dispatch<Action>;
 }) {
+  const library = useLibrary();
+  // The dev panel can jump straight here, so the stubs stay reachable without a session.
+  const courses = library.courses ?? fixtureCourses();
+  const lessonsFor = library.courses ? library.lessonsFor : fixtureLessons;
+
   const query = view.query.trim().toLowerCase();
-  const courses = query
-    ? SAMPLE_COURSES.filter((c) => c.title.toLowerCase().includes(query))
-    : [];
-  const lessons = query
-    ? SAMPLE_COURSES.flatMap((course) =>
-        course.lessons
-          .filter((lesson) => lesson.title.toLowerCase().includes(query))
-          .map((lesson) => ({ course, lesson })),
-      )
-    : [];
+  const hits = query ? matches(courses, lessonsFor, query) : null;
 
   return (
     <Screen title="Search" onBack={() => dispatch({ type: 'searchClosed' })}>
@@ -35,47 +35,84 @@ export function Search({
         className="rule w-full rounded-panel bg-surface px-3 py-2 text-body text-ink placeholder:text-ink-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       />
 
-      <IndexerNotice indexer={indexer} />
-
-      {courses.length > 0 && (
+      {hits?.courses.length ? (
         <div className="flex flex-col gap-1.5">
           <p className="font-mono text-caption text-ink-faint">courses</p>
-          {courses.map((course) => (
+          {hits.courses.map((course) => (
             <Row
               key={course.id}
               title={course.title}
-              meta={course.released.slice(0, 7)}
+              meta={course.updated?.slice(0, 7)}
               onClick={() => dispatch({ type: 'coursePicked', courseId: course.id })}
             />
           ))}
         </div>
-      )}
+      ) : null}
 
-      {lessons.length > 0 && (
-        <div className="flex flex-col gap-1.5">
-          <p className="font-mono text-caption text-ink-faint">lessons</p>
-          {lessons.map(({ course, lesson }) => (
+      {/* Grouped by course, because a lesson title alone is ambiguous across thirty of them. */}
+      {hits?.groups.map(({ course, lessons }) => (
+        <div key={course.id} className="flex flex-col gap-1.5">
+          <p className="truncate font-mono text-caption text-ink-faint">{course.title}</p>
+          {lessons.map((lesson) => (
             <Row
-              key={`${course.id}/${lesson.id}`}
+              key={lesson.id}
               title={lesson.title}
-              meta={lesson.duration}
+              meta={lesson.duration ?? (lesson.video === false ? 'text' : undefined)}
+              disabled={lesson.video === false}
               onClick={() =>
                 dispatch({ type: 'lessonPicked', courseId: course.id, lessonId: lesson.id })
               }
             />
           ))}
         </div>
+      ))}
+
+      {hits && hits.hidden > 0 && (
+        <p className="font-mono text-caption text-ink-faint">
+          +{hits.hidden} more lessons — narrow the search
+        </p>
       )}
 
-      {query && courses.length === 0 && lessons.length === 0 && (
+      {hits && !hits.courses.length && !hits.groups.length && (
         <p className="text-body text-ink-soft">No matches.</p>
       )}
-
-      <StubNote>
-        Phase 4 searches the swept index instead of this fixture, and the notice above has to
-        make partial results honest rather than empty — that is the whole design problem in
-        that phase.
-      </StubNote>
     </Screen>
   );
+}
+
+type Hits = {
+  courses: Course[];
+  groups: { course: Course; lessons: Lesson[] }[];
+  hidden: number;
+};
+
+/** Enrolled courses only: a result he cannot open is not a result. */
+function matches(
+  courses: Course[],
+  lessonsFor: (courseId: string) => Lesson[],
+  query: string,
+): Hits {
+  const groups: Hits['groups'] = [];
+  let shown = 0;
+  let found = 0;
+
+  for (const course of courses) {
+    const lessons = lessonsFor(course.id).filter((lesson) =>
+      lesson.title.toLowerCase().includes(query),
+    );
+    if (!lessons.length) continue;
+
+    found += lessons.length;
+    if (shown >= LIMIT) continue;
+
+    const take = lessons.slice(0, LIMIT - shown);
+    groups.push({ course, lessons: take });
+    shown += take.length;
+  }
+
+  return {
+    courses: courses.filter((course) => course.title.toLowerCase().includes(query)),
+    groups,
+    hidden: found - shown,
+  };
 }

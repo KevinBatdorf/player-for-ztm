@@ -1,6 +1,8 @@
 import type { Dispatch } from 'react';
+import { useLibrary } from '../library';
 import { Button, Screen, Simulate, StubNote } from '../Screen';
-import { findCourse, findLesson, nextLesson } from '@/lib/fixtures';
+import { fixtureLessons } from '@/lib/fixtures';
+import { nextOf } from '@/lib/lessons';
 import type { Action, ViewOf } from '@/lib/machine';
 
 export function Playing({
@@ -10,9 +12,12 @@ export function Playing({
   view: ViewOf<'playing'>;
   dispatch: Dispatch<Action>;
 }) {
-  const course = findCourse(view.courseId);
-  const lesson = findLesson(view.courseId, view.lessonId);
-  const next = nextLesson(view.courseId, view.lessonId);
+  const { courses, lessonsFor } = useLibrary();
+  const course = courses?.find((c) => c.id === view.courseId);
+  const lessons = courses ? lessonsFor(view.courseId) : fixtureLessons(view.courseId);
+
+  const lesson = lessons.find((l) => l.id === view.lessonId);
+  const next = nextOf(lessons, view.lessonId);
 
   return (
     <Screen

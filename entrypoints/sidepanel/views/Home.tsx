@@ -1,32 +1,23 @@
 import type { Dispatch } from 'react';
-import { useCourses } from '../courses';
+import { useLibrary } from '../library';
 import SpotlightCard from '@/components/react-bits/spotlight-card';
-import { Button, IndexerNotice, Row, Screen, Simulate, StubNote } from '../Screen';
+import { Row, Screen, StubNote } from '../Screen';
 import { useFlair, useVariant } from '../settings';
-import { byUpdated, type Course } from '@/lib/courses';
-import { SAMPLE_COURSE, SAMPLE_COURSES, SAMPLE_LESSON } from '@/lib/fixtures';
-import type { Action, IndexerProgress } from '@/lib/machine';
+import { byUpdated } from '@/lib/courses';
+import { fixtureCourses, SAMPLE_COURSE, SAMPLE_LESSON } from '@/lib/fixtures';
+import type { Action } from '@/lib/machine';
 import { cn } from '@/lib/utils';
 
 /** The accent, as the literal rgba that component's prop type demands. */
 const SPOTLIGHT = 'rgba(199, 146, 234, 0.18)' as const;
 
-/** The dev panel can jump straight here, so the stubs stay reachable without a session. */
-const asCourses = (samples: typeof SAMPLE_COURSES): Course[] =>
-  samples.map((s) => ({ id: s.id, title: s.title, image: '', slug: null, updated: s.released }));
-
-export function Home({
-  indexer,
-  dispatch,
-}: {
-  indexer: IndexerProgress;
-  dispatch: Dispatch<Action>;
-}) {
+export function Home({ dispatch }: { dispatch: Dispatch<Action> }) {
   const variant = useVariant('home');
   const flair = useFlair();
-  const { courses } = useCourses();
+  const { courses } = useLibrary();
   const real = courses !== null;
-  const list = byUpdated(real ? courses : asCourses(SAMPLE_COURSES));
+  // The dev panel can jump straight here, so the stubs stay reachable without a session.
+  const list = byUpdated(real ? courses : fixtureCourses());
 
   return (
     <Screen>
@@ -66,8 +57,6 @@ export function Home({
         onFocus={() => dispatch({ type: 'searchOpened' })}
         className="rule w-full rounded-panel bg-surface px-3 py-2 text-body text-ink placeholder:text-ink-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       />
-
-      <IndexerNotice indexer={indexer} />
 
       {variant === 'list' ? (
         <div className="flex flex-col gap-1.5">
@@ -117,23 +106,6 @@ export function Home({
           Fixtures — the dev panel jumped here without a session, so nothing was fetched.
         </StubNote>
       )}
-
-      <Simulate>
-        <Button
-          onClick={() =>
-            dispatch({
-              type: 'indexerProgressed',
-              done: Math.min(indexer.done + 7, 95),
-              total: 95,
-            })
-          }
-        >
-          index 7 more
-        </Button>
-        <Button onClick={() => dispatch({ type: 'indexerProgressed', done: 0, total: 0 })}>
-          reset index
-        </Button>
-      </Simulate>
     </Screen>
   );
 }

@@ -1,3 +1,6 @@
+import type { Course } from '@/lib/courses';
+import type { Lesson } from '@/lib/lessons';
+
 // Scaffolding for the stub screens; it leaves with them once real data lands.
 export type SampleLesson = { id: string; title: string; duration: string };
 
@@ -71,12 +74,14 @@ export const SAMPLE_COURSES: SampleCourse[] = [
 export const findCourse = (courseId: string): SampleCourse | undefined =>
   SAMPLE_COURSES.find((c) => c.id === courseId);
 
-export const findLesson = (courseId: string, lessonId: string): SampleLesson | undefined =>
-  findCourse(courseId)?.lessons.find((l) => l.id === lessonId);
+/** The real shapes, so a view reads one list and not two. */
+export const fixtureCourses = (): Course[] =>
+  SAMPLE_COURSES.map((c) => ({ id: c.id, title: c.title, image: '', slug: null, updated: c.released }));
 
-export function nextLesson(courseId: string, lessonId: string): SampleLesson | null {
-  const lessons = findCourse(courseId)?.lessons;
-  if (!lessons) return null;
-  const at = lessons.findIndex((l) => l.id === lessonId);
-  return at < 0 ? null : (lessons[at + 1] ?? null);
-}
+export const fixtureLessons = (courseId: string): Lesson[] =>
+  findCourse(courseId)?.lessons.map((l) => ({
+    id: l.id,
+    title: l.title,
+    duration: l.duration,
+    video: true,
+  })) ?? [];
