@@ -16,12 +16,14 @@ export function Player({
 
   if (!lesson) {
     return (
-      <Frame>
-        <p className="text-body text-ink-soft">Pick a course to start</p>
-        <p className="mt-1 font-mono text-caption text-ink-faint">
-          the lesson plays up here and the list stays put
-        </p>
-      </Frame>
+      <Shell>
+        <Frame>
+          <p className="text-body text-ink-soft">Pick a course to start</p>
+          <p className="mt-1 font-mono text-caption text-ink-faint">
+            the lesson plays up here and the list stays put
+          </p>
+        </Frame>
+      </Shell>
     );
   }
 
@@ -31,7 +33,7 @@ export function Player({
   const next = nextOf(lessons, lesson.lessonId);
 
   return (
-    <div className="rule-b shrink-0 bg-surface">
+    <Shell>
       <Frame>
         <span className="font-mono text-caption text-ink-faint">player frame</span>
       </Frame>
@@ -65,9 +67,14 @@ export function Player({
           {next ? `ended → ${next.title}` : 'ended → end of course'}
         </button>
       </div>
-    </div>
+    </Shell>
   );
 }
+
+/** `relative` or it paints under the backdrop, which is absolute and earlier in the DOM. */
+const Shell = ({ children }: { children: ReactNode }) => (
+  <div className="rule-b relative shrink-0 bg-surface">{children}</div>
+);
 
 const Frame = ({ children }: { children: ReactNode }) => (
   <div className="flex aspect-video flex-col items-center justify-center bg-raised px-4 text-center">

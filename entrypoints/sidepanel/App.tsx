@@ -16,17 +16,18 @@ import { inside, initialState, reduce, type Action, type AppState, type Heading 
 /** Without `custom`, the leaving screen animates on the heading it mounted with. */
 const SLIDE = {
   enter: (heading: Heading) => ({
-    opacity: 0,
-    x: heading === 'in' ? 24 : heading === 'out' ? -24 : 0,
-    y: heading === 'none' ? 6 : 0,
+    x: heading === 'in' ? '100%' : heading === 'out' ? '-100%' : 0,
+    opacity: heading === 'none' ? 0 : 1,
   }),
-  here: { opacity: 1, x: 0, y: 0 },
+  here: { x: 0, opacity: 1 },
   leave: (heading: Heading) => ({
-    opacity: 0,
-    x: heading === 'in' ? -24 : heading === 'out' ? 24 : 0,
-    y: heading === 'none' ? -6 : 0,
+    x: heading === 'in' ? '-100%' : heading === 'out' ? '100%' : 0,
+    opacity: heading === 'none' ? 0 : 1,
   }),
 };
+
+/** Front-loaded on purpose; a symmetric ease reads as sluggish over a full panel width. */
+const CURVE = [0.32, 0.72, 0, 1] as const;
 
 export function App() {
   const [state, dispatch] = useReducer(reduce, initialState);
@@ -34,7 +35,7 @@ export function App() {
   const [fieldReady, setFieldReady] = useState(false);
   const flair = useFlair();
   // motion writes inline styles, which the `data-flair` blanket cannot reach.
-  const seconds = flair === 'none' ? 0 : 0.2;
+  const seconds = flair === 'none' ? 0 : 0.34;
 
   return (
     <div className="relative flex h-screen flex-col font-sans text-body text-ink">
@@ -44,8 +45,8 @@ export function App() {
 
       {/* Fixed, the dev panel covered the bottom row of every screen even when collapsed. */}
       <div className="relative min-h-0 flex-1 overflow-hidden">
-        {/* `wait` rather than overlap: the field underneath is what carries the gap. */}
-        <AnimatePresence mode="wait" initial={false} custom={state.heading}>
+        {/* No `mode`: `wait` runs exit to completion, so the two could never overlap. */}
+        <AnimatePresence initial={false} custom={state.heading}>
           <motion.div
             key={state.view.name}
             custom={state.heading}
@@ -53,8 +54,8 @@ export function App() {
             initial="enter"
             animate="here"
             exit="leave"
-            className="relative h-full"
-            transition={{ duration: seconds, ease: [0.4, 0, 0.2, 1] }}
+            className="absolute inset-0"
+            transition={{ duration: seconds, ease: CURVE }}
           >
             {renderView(state, dispatch, fieldReady)}
           </motion.div>
