@@ -106,7 +106,8 @@
   --t-dot: #161a20;
   --t-sheet: #15181e;
   --t-card: #0c0e12;
-  --t-card-hover: #05070a;
+  /* Red a shade over green, or the tint reads blue rather than purple. */
+  --t-card-hover: #07050d;
   --t-line: #1e2127;
   --t-line-strong: #2a2e37;
   --t-line-w: 1px;
