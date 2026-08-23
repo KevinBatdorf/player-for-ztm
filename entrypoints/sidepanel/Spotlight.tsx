@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { useFlair } from './settings';
 
+/** Wider than the panel on purpose: the falloff, not the core, is what is visible. */
+const REACH = 480;
+
 /** Written straight to CSS vars: a pointermove that re-renders React drops frames. */
 export function Spotlight() {
   const glow = useRef<HTMLDivElement>(null);
@@ -41,7 +44,7 @@ export function Spotlight() {
       className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 ease-panel"
       style={{
         background:
-          'radial-gradient(240px circle at var(--x, 50%) var(--y, 50%), var(--t-pool), transparent 72%)',
+          `radial-gradient(${REACH}px circle at var(--x, 50%) var(--y, 50%), var(--t-pool), transparent 72%)`,
       }}
     />
   );
