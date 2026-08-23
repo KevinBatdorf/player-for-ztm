@@ -59,8 +59,8 @@ export function Reader({
   }, [onClose]);
 
   return (
-    <div className="absolute inset-0 z-40 flex flex-col bg-paper">
-      <header className="rule-b flex shrink-0 items-center gap-2 bg-surface px-3 py-2.5">
+    <div className="absolute inset-0 z-40 flex flex-col bg-sheet">
+      <header className="rule-b flex shrink-0 items-center gap-3 px-8 py-4">
         <h1 className="min-w-0 flex-1 text-heading leading-snug font-medium text-ink">{title}</h1>
 
         <button
@@ -81,7 +81,7 @@ export function Reader({
         </button>
       </header>
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-3">
+      <div className="min-h-0 flex-1 overflow-y-auto p-8">
         {body === undefined ? (
           <p className="text-body text-ink-soft">Fetching this lesson…</p>
         ) : body ? (

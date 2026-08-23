@@ -22,9 +22,9 @@ export function Screen({
   children: ReactNode;
 }) {
   return (
-    <div className="flex h-full flex-col bg-paper/60">
+    <div className="flex h-full flex-col">
       {(title || onBack) && (
-        <header className="rule-b flex shrink-0 items-center gap-2 bg-surface px-4 py-3">
+        <header className="rule-b flex shrink-0 items-center gap-3 px-8 py-4">
           {onBack && (
             <button
               type="button"
@@ -38,7 +38,7 @@ export function Screen({
           {title && <h1 className="text-heading leading-snug font-medium text-ink">{title}</h1>}
         </header>
       )}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">{children}</div>
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-8">{children}</div>
     </div>
   );
 }
@@ -126,7 +126,7 @@ export function Button({
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
         primary
           ? 'bg-accent text-accent-ink shadow-panel'
-          : 'bg-raised text-ink-soft hover:text-ink',
+          : 'bg-card text-ink-soft hover:text-ink',
       )}
     >
       {children}
@@ -157,9 +157,9 @@ export function Row({
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
       className={cn(
-        'rule flex w-full items-baseline justify-between gap-2 rounded-panel bg-raised px-3 py-2 text-left transition-colors duration-150 ease-panel',
-        'hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-        active && 'bg-surface',
+        'rule flex w-full items-baseline justify-between gap-2 rounded-panel bg-card px-3 py-2.5 text-left transition-colors duration-150 ease-panel',
+        'hover:bg-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+        active && 'bg-card-hover',
       )}
     >
       <span
@@ -186,11 +186,11 @@ export function TextRow({
   onOpenTab: () => void;
 }) {
   return (
-    <div className="group rule relative flex w-full items-baseline justify-between gap-2 rounded-panel bg-raised/40 px-3 py-2">
+    <div className="group rule relative flex w-full items-baseline justify-between gap-2 rounded-panel bg-card/60 px-3 py-2.5">
       <span className="min-w-0 flex-1 text-body leading-snug text-ink-soft">{title}</span>
       <span className="shrink-0 font-mono text-caption text-ink-faint">text</span>
 
-      <div className="pointer-events-none absolute inset-0 flex items-center gap-1.5 rounded-panel bg-surface px-3 opacity-0 transition-opacity duration-150 ease-panel group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
+      <div className="pointer-events-none absolute inset-0 flex items-center gap-1.5 rounded-panel bg-card-hover px-3 opacity-0 transition-opacity duration-150 ease-panel group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
         <Button primary onClick={onRead}>
           read here
         </Button>

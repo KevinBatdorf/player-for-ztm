@@ -124,7 +124,7 @@ function Block({ block }: { block: BlockNode }) {
 
     case 'code':
       return (
-        <pre className="rule overflow-x-auto rounded-panel bg-raised p-2.5 font-mono text-caption text-ink">
+        <pre className="rule overflow-x-auto rounded-panel bg-card p-2.5 font-mono text-caption text-ink">
           <code>{block.text}</code>
         </pre>
       );
@@ -198,7 +198,7 @@ function Inline({ text }: { text: string }) {
       out.push(<em key={at}>{hit[4]}</em>);
     } else if (hit[5]) {
       out.push(
-        <code key={at} className="rounded bg-raised px-1 py-0.5 font-mono text-caption">
+        <code key={at} className="rounded bg-card px-1 py-0.5 font-mono text-caption">
           {hit[5]}
         </code>,
       );

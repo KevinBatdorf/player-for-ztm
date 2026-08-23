@@ -46,6 +46,8 @@ export function App() {
   const [state, dispatch] = useReducer(reduce, initialState);
   // Boot holds its mark back until the field has drawn, so it needs to hear about it.
   const [fieldReady, setFieldReady] = useState(false);
+  // The sheet's own position, not a step in the flow, so it stays out of the machine.
+  const [raised, setRaised] = useState(false);
   const flair = useFlair();
   const stage = inside(state.view.name);
   // motion writes inline styles, which the `data-flair` blanket cannot reach.
@@ -57,30 +59,56 @@ export function App() {
 
       <div className="relative flex min-h-0 flex-1 flex-col">
         {stage && <Stage />}
-        {stage && <Player lesson={state.lesson} dispatch={dispatch} />}
+
+        {/* `auto` so collapsing the band never needs a measured height. */}
+        {stage && (
+          <motion.div
+            className="relative shrink-0 overflow-hidden"
+            animate={{ height: raised ? 0 : 'auto' }}
+            transition={{ duration: seconds, ease: CURVE }}
+          >
+            <Player lesson={state.lesson} dispatch={dispatch} />
+          </motion.div>
+        )}
 
         {/* Fixed, the dev panel covered the bottom row of every screen even when collapsed. */}
         <div
           className={cn(
-            'relative min-h-0 flex-1 overflow-hidden',
-            stage && 'rounded-t-sheet bg-paper/70 shadow-lift',
+            'relative flex min-h-0 flex-1 flex-col overflow-hidden',
+            // CSS rather than motion, so the `flair: none` blanket can zero it too.
+            stage && 'rounded-t-sheet bg-sheet shadow-lift transition-[border-radius] duration-500 ease-panel',
+            stage && raised && 'rounded-t-none',
           )}
         >
-          {/* No `mode`: `wait` runs exit to completion, so the two could never overlap. */}
-          <AnimatePresence initial={false} custom={state.heading}>
-            <motion.div
-              key={screenKey(state.view.name)}
-              custom={state.heading}
-              variants={SLIDE}
-              initial="enter"
-              animate="here"
-              exit="leave"
-              className="absolute inset-0"
-              transition={{ duration: seconds, ease: CURVE }}
+          {stage && (
+            <button
+              type="button"
+              onClick={() => setRaised((up) => !up)}
+              aria-expanded={raised}
+              aria-label={raised ? 'Lower the list' : 'Raise the list over the player'}
+              className="group flex w-full shrink-0 items-center justify-center py-2.5 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
             >
-              {renderView(state, dispatch, fieldReady)}
-            </motion.div>
-          </AnimatePresence>
+              <span className="h-1 w-9 rounded-full bg-line-strong transition-colors duration-150 ease-panel group-hover:bg-ink-faint" />
+            </button>
+          )}
+
+          <div className="relative min-h-0 flex-1">
+            {/* No `mode`: `wait` runs exit to completion, so the two could never overlap. */}
+            <AnimatePresence initial={false} custom={state.heading}>
+              <motion.div
+                key={screenKey(state.view.name)}
+                custom={state.heading}
+                variants={SLIDE}
+                initial="enter"
+                animate="here"
+                exit="leave"
+                className="absolute inset-0"
+                transition={{ duration: seconds, ease: CURVE }}
+              >
+                {renderView(state, dispatch, fieldReady)}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 

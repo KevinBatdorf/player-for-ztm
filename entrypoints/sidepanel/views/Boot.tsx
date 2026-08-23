@@ -1,20 +1,39 @@
 import { motion } from 'motion/react';
-import { useEffect, type Dispatch } from 'react';
+import { lazy, Suspense, useEffect, type CSSProperties, type Dispatch } from 'react';
 import { useFlair, useHold } from '../settings';
 import { ZTM_MARK, ZTM_MARK_FONT } from '@/lib/brand';
 import type { Action } from '@/lib/machine';
 import { hasSession } from '@/lib/session';
+
+const StaggeredText = lazy(() => import('@/components/react-bits/staggered-text'));
 
 /** Without a floor the check outruns the eye and the splash is gone before it reads. */
 const FLOOR_MS = 3000;
 
 const SCRIM = { textShadow: '0 1px 10px rgba(var(--t-scrim), 0.95)' };
 
-/** Shorter than this and an 86px letter reads as a pop rather than a wipe. */
-const WIPE = 0.95;
-
 /** Everything has to land inside FLOOR_MS or the splash leaves mid-sequence. */
-const STEP = 0.14;
+const STEP_MS = 220;
+
+const GATHER = 1.35;
+
+/** Deliberately no travel: a letter resolves in place. */
+const DUST = { opacity: 0, filter: 'blur(18px)', scale: 1.5, y: 8 };
+
+const SOLID = { opacity: 1, filter: 'blur(0px)', scale: 1, y: 0 };
+
+const MARK = ZTM_MARK.map(({ char }) => char).join('');
+
+/** Depends on it rendering one span per char as a direct child. */
+const PER_LETTER = [
+  '[&>span:nth-child(1)]:text-[var(--mark-1)]',
+  '[&>span:nth-child(2)]:text-[var(--mark-2)]',
+  '[&>span:nth-child(3)]:text-[var(--mark-3)]',
+].join(' ');
+
+const MARK_COLORS = Object.fromEntries(
+  ZTM_MARK.map(({ color }, i) => [`--mark-${i + 1}`, color]),
+) as CSSProperties;
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 
@@ -62,29 +81,35 @@ export function Boot({
         Player for
       </motion.p>
 
-      {/* The clip is the wipe; without it the letters only translate. */}
-      <div className="flex items-baseline" style={{ fontFamily: ZTM_MARK_FONT }}>
-        {ZTM_MARK.map(({ char, color }, i) => (
-          <span key={char} className="block overflow-hidden">
-            <motion.span
-              className="block text-[86px] leading-none font-black tracking-[-0.02em]"
-              style={{ color }}
-              initial={quiet ? false : { y: '108%' }}
-              animate={{ y: '0%' }}
-              transition={{ duration: WIPE, ease: EASE_OUT, delay: 0.28 + i * STEP }}
-            >
-              {char}
-            </motion.span>
-          </span>
-        ))}
+      <div
+        className="text-[86px] leading-none font-black tracking-[-0.02em]"
+        style={{ fontFamily: ZTM_MARK_FONT, ...MARK_COLORS }}
+      >
+        {quiet ? (
+          MARK
+        ) : (
+          <Suspense fallback={<span className="invisible">{MARK}</span>}>
+            <StaggeredText
+              as="span"
+              text={MARK}
+              segmentBy="chars"
+              delay={STEP_MS}
+              duration={GATHER}
+              easing={[0.16, 1, 0.3, 1]}
+              from={DUST}
+              to={SOLID}
+              className={PER_LETTER}
+            />
+          </Suspense>
+        )}
       </div>
 
-      {/* Its delay has to clear the last letter, or it lands mid-wipe. */}
+      {/* Its delay has to clear the last letter, or it lands mid-gather. */}
       <motion.div
         className="mt-5 h-px w-20 origin-center bg-accent/50"
         initial={quiet ? false : { scaleX: 0, opacity: 0 }}
         animate={{ scaleX: 1, opacity: 1 }}
-        transition={{ duration: 0.8, ease: EASE_OUT, delay: 1.55 }}
+        transition={{ duration: 0.8, ease: EASE_OUT, delay: 1.9 }}
       />
 
       <motion.p
@@ -92,7 +117,7 @@ export function Boot({
         style={SCRIM}
         initial={quiet ? false : { opacity: 0 }}
         animate={{ opacity: 0.8 }}
-        transition={{ duration: 0.7, ease: EASE_OUT, delay: 2.1 }}
+        transition={{ duration: 0.6, ease: EASE_OUT, delay: 2.2 }}
       >
         Checking your session…
       </motion.p>
