@@ -1,5 +1,5 @@
 import { storage } from '#imports';
-import { SAMPLE_COURSE, SAMPLE_LESSON } from '@/lib/fixtures';
+import { SAMPLE_COURSE } from '@/lib/fixtures';
 import type { View, ViewName } from '@/lib/machine';
 
 /** Motion and ornament budget. `none` doubles as the reduced-motion escape hatch. */
@@ -17,7 +17,6 @@ export const VIEW_VARIANTS = {
   search: ['plain'],
   courseLoading: ['plain'],
   course: ['plain'],
-  playing: ['plain'],
 } as const satisfies Record<ViewName, readonly [string, ...string[]]>;
 
 export type VariantOf<N extends ViewName> = (typeof VIEW_VARIANTS)[N][number];
@@ -48,8 +47,6 @@ export function sampleView(name: ViewName): View {
       return { name: 'courseLoading', courseId: SAMPLE_COURSE.id };
     case 'course':
       return { name: 'course', courseId: SAMPLE_COURSE.id };
-    case 'playing':
-      return { name: 'playing', courseId: SAMPLE_COURSE.id, lessonId: SAMPLE_LESSON.id };
   }
 }
 

@@ -9,12 +9,20 @@ export type View =
   | { name: 'home' }
   | { name: 'search'; query: string }
   | { name: 'courseLoading'; courseId: CourseId }
-  | { name: 'course'; courseId: CourseId }
-  | { name: 'playing'; courseId: CourseId; lessonId: LessonId };
+  | { name: 'course'; courseId: CourseId };
 
 export type ViewName = View['name'];
 
+/** The screens reached after sign-in. The player mounts on these; the field mutes on them. */
+export const inside = (name: ViewName): boolean =>
+  name === 'home' || name === 'search' || name === 'courseLoading' || name === 'course';
+
 export type FieldLevel = 'normal' | 'muted';
+
+/** `none` is a progression nobody navigated; it fades instead of sliding. */
+export type Heading = 'in' | 'out' | 'none';
+
+export type Loaded = { courseId: CourseId; lessonId: LessonId };
 
 export type AppState = {
   view: View;
@@ -22,6 +30,9 @@ export type AppState = {
   awaitingLogin: boolean;
   // Outside the union on purpose: it changes once per session, never per screen.
   field: FieldLevel;
+  // Ambient so a screen change cannot clear a loaded lesson.
+  lesson: Loaded | null;
+  heading: Heading;
 };
 
 export type Action =
@@ -45,15 +56,20 @@ export const initialState: AppState = {
   view: { name: 'boot' },
   awaitingLogin: false,
   field: 'normal',
+  lesson: null,
+  heading: 'none',
 };
 
-const go = (state: AppState, view: View): AppState => ({ ...state, view });
+const go = (state: AppState, view: View, heading: Heading = 'none'): AppState => ({
+  ...state,
+  view,
+  heading,
+});
 
 const from = (view: View, ...names: ViewName[]) => names.includes(view.name);
 
 /** Only the dev panel asks; the real flow sets the level from the transition instead. */
-const fieldOn = (name: ViewName): FieldLevel =>
-  name === 'boot' || name === 'signedOut' || name === 'indexingCourses' ? 'normal' : 'muted';
+const fieldOn = (name: ViewName): FieldLevel => (inside(name) ? 'muted' : 'normal');
 
 // Late replies from abandoned fetches are normal, so a stray action drops silently.
 export function reduce(state: AppState, action: Action): AppState {
@@ -62,13 +78,13 @@ export function reduce(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'sessionMissing':
       return view.name === 'boot'
-        ? { ...state, view: { name: 'signedOut' }, field: 'normal' }
+        ? { ...go(state, { name: 'signedOut' }), field: 'normal' }
         : state;
 
     case 'sessionFound':
       // Cleared here, or a later sign-out opens on a stale waiting notice.
       return view.name === 'boot'
-        ? { ...state, view: { name: 'indexingCourses' }, awaitingLogin: false }
+        ? { ...go(state, { name: 'indexingCourses' }), awaitingLogin: false }
         : state;
 
     case 'loginOpened':
@@ -80,21 +96,21 @@ export function reduce(state: AppState, action: Action): AppState {
 
     case 'courseListReady':
       return view.name === 'indexingCourses'
-        ? { ...state, view: { name: 'home' }, field: 'muted' }
+        ? { ...go(state, { name: 'home' }), field: 'muted' }
         : state;
 
     case 'searchOpened':
-      return view.name === 'home' ? go(state, { name: 'search', query: '' }) : state;
+      return view.name === 'home' ? go(state, { name: 'search', query: '' }, 'in') : state;
 
     case 'searchChanged':
       return view.name === 'search' ? go(state, { name: 'search', query: action.query }) : state;
 
     case 'searchClosed':
-      return view.name === 'search' ? go(state, { name: 'home' }) : state;
+      return view.name === 'search' ? go(state, { name: 'home' }, 'out') : state;
 
     case 'coursePicked':
       return from(view, 'home', 'search')
-        ? go(state, { name: 'courseLoading', courseId: action.courseId })
+        ? go(state, { name: 'courseLoading', courseId: action.courseId }, 'in')
         : state;
 
     // Without the id check, a slow first fetch yanks the user out of their second pick.
@@ -103,36 +119,31 @@ export function reduce(state: AppState, action: Action): AppState {
         ? go(state, { name: 'course', courseId: action.courseId })
         : state;
 
+    // Loads the player and leaves the screen alone; the list is still worth reading.
     case 'lessonPicked':
       return from(view, 'home', 'search', 'course')
-        ? go(state, { name: 'playing', courseId: action.courseId, lessonId: action.lessonId })
+        ? { ...state, lesson: { courseId: action.courseId, lessonId: action.lessonId } }
         : state;
 
+    // No next lesson means the video rests on its last frame; there is nowhere to send anyone.
     case 'lessonEnded':
-      if (view.name !== 'playing') return state;
-      return go(
-        state,
-        action.nextLessonId
-          ? { name: 'playing', courseId: view.courseId, lessonId: action.nextLessonId }
-          : { name: 'course', courseId: view.courseId },
-      );
+      return state.lesson && action.nextLessonId
+        ? { ...state, lesson: { ...state.lesson, lessonId: action.nextLessonId } }
+        : state;
 
     case 'playerClosed':
-      return view.name === 'playing'
-        ? go(state, { name: 'course', courseId: view.courseId })
-        : state;
+      return { ...state, lesson: null };
 
     case 'wentHome':
-      return from(view, 'search', 'courseLoading', 'course', 'playing')
-        ? go(state, { name: 'home' })
+      return from(view, 'search', 'courseLoading', 'course')
+        ? go(state, { name: 'home' }, 'out')
         : state;
 
     // Unguarded on purpose: the dev panel has to reach dead ends by hand, and setting
     // the field keeps both levels reachable without walking the flow.
     case 'jumped':
-      return { ...state, view: action.view, field: fieldOn(action.view.name) };
+      return { ...go(state, action.view), field: fieldOn(action.view.name) };
   }
 }
 
 export type ViewOf<N extends ViewName> = Extract<View, { name: N }>;
-

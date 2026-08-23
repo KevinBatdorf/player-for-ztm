@@ -2,18 +2,16 @@ import type { Dispatch } from 'react';
 import { useLibrary } from '../library';
 import SpotlightCard from '@/components/react-bits/spotlight-card';
 import { Row, Screen, StubNote } from '../Screen';
-import { useFlair, useVariant } from '../settings';
+import { useVariant } from '../settings';
 import { byUpdated } from '@/lib/courses';
-import { fixtureCourses, SAMPLE_COURSE, SAMPLE_LESSON } from '@/lib/fixtures';
+import { fixtureCourses } from '@/lib/fixtures';
 import type { Action } from '@/lib/machine';
-import { cn } from '@/lib/utils';
 
 /** The accent, as the literal rgba that component's prop type demands. */
 const SPOTLIGHT = 'rgba(199, 146, 234, 0.18)' as const;
 
 export function Home({ dispatch }: { dispatch: Dispatch<Action> }) {
   const variant = useVariant('home');
-  const flair = useFlair();
   const { courses } = useLibrary();
   const real = courses !== null;
   // The dev panel can jump straight here, so the stubs stay reachable without a session.
@@ -21,35 +19,6 @@ export function Home({ dispatch }: { dispatch: Dispatch<Action> }) {
 
   return (
     <Screen>
-      {real ? (
-        <StubNote>
-          The lesson most recently played sits here from phase 5, which is where the watched
-          record it reads gets written.
-        </StubNote>
-      ) : (
-        <button
-          type="button"
-          onClick={() =>
-            dispatch({
-              type: 'lessonPicked',
-              courseId: SAMPLE_COURSE.id,
-              lessonId: SAMPLE_LESSON.id,
-            })
-          }
-          className={cn(
-            'rule w-full rounded-panel bg-raised p-3 text-left shadow-panel transition-colors duration-150 ease-panel',
-            'hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-            flair === 'full' && 'animate-in fade-in slide-in-from-bottom-1 duration-300',
-          )}
-        >
-          <span className="block font-mono text-caption text-accent-text">continue</span>
-          <span className="mt-1 block text-heading leading-snug text-ink">{SAMPLE_LESSON.title}</span>
-          <span className="mt-0.5 block text-caption text-ink-soft">
-            {SAMPLE_COURSE.title}
-          </span>
-        </button>
-      )}
-
       {/* Focus is the transition: search is its own view, never a filter over this one. */}
       <input
         type="search"

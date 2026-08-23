@@ -4,16 +4,18 @@ import { Row, Screen } from '../Screen';
 import { fixtureCourses, fixtureLessons } from '@/lib/fixtures';
 import type { Course } from '@/lib/courses';
 import type { Lesson } from '@/lib/lessons';
-import type { Action, ViewOf } from '@/lib/machine';
+import type { Action, Loaded, ViewOf } from '@/lib/machine';
 
 /** Six thousand lesson titles are in reach, and a 400px column is not where they go. */
 const LIMIT = 40;
 
 export function Search({
   view,
+  lesson,
   dispatch,
 }: {
   view: ViewOf<'search'>;
+  lesson: Loaded | null;
   dispatch: Dispatch<Action>;
 }) {
   const library = useLibrary();
@@ -53,14 +55,15 @@ export function Search({
       {hits?.groups.map(({ course, lessons }) => (
         <div key={course.id} className="flex flex-col gap-1.5">
           <p className="truncate font-mono text-caption text-ink-faint">{course.title}</p>
-          {lessons.map((lesson) => (
+          {lessons.map((row) => (
             <Row
-              key={lesson.id}
-              title={lesson.title}
-              meta={lesson.duration ?? (lesson.video === false ? 'text' : undefined)}
-              disabled={lesson.video === false}
+              key={row.id}
+              title={row.title}
+              meta={row.duration ?? (row.video === false ? 'text' : undefined)}
+              disabled={row.video === false}
+              active={lesson?.courseId === course.id && lesson.lessonId === row.id}
               onClick={() =>
-                dispatch({ type: 'lessonPicked', courseId: course.id, lessonId: lesson.id })
+                dispatch({ type: 'lessonPicked', courseId: course.id, lessonId: row.id })
               }
             />
           ))}

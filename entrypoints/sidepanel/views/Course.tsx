@@ -3,13 +3,15 @@ import { useLibrary } from '../library';
 import { Row, Screen, StubNote } from '../Screen';
 import { fixtureLessons } from '@/lib/fixtures';
 import type { Lesson } from '@/lib/lessons';
-import type { Action, ViewOf } from '@/lib/machine';
+import type { Action, Loaded, ViewOf } from '@/lib/machine';
 
 export function Course({
   view,
+  lesson,
   dispatch,
 }: {
   view: ViewOf<'course'>;
+  lesson: Loaded | null;
   dispatch: Dispatch<Action>;
 }) {
   const { courses, lessonsFor } = useLibrary();
@@ -27,14 +29,15 @@ export function Course({
         </p>
       ) : (
         <div className="flex flex-col gap-1.5">
-          {lessons.map((lesson) => (
+          {lessons.map((row) => (
             <Row
-              key={lesson.id}
-              title={lesson.title}
-              meta={meta(lesson)}
-              disabled={lesson.video === false}
+              key={row.id}
+              title={row.title}
+              meta={meta(row)}
+              disabled={row.video === false}
+              active={lesson?.courseId === view.courseId && lesson.lessonId === row.id}
               onClick={() =>
-                dispatch({ type: 'lessonPicked', courseId: view.courseId, lessonId: lesson.id })
+                dispatch({ type: 'lessonPicked', courseId: view.courseId, lessonId: row.id })
               }
             />
           ))}

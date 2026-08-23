@@ -2,16 +2,31 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useReducer, useState, type Dispatch } from 'react';
 import { Backdrop } from './Backdrop';
 import { DevPanel } from './DevPanel';
+import { Player } from './Player';
 import { Boot } from './views/Boot';
 import { Course } from './views/Course';
 import { CourseLoading } from './views/CourseLoading';
 import { Home } from './views/Home';
 import { IndexingCourses } from './views/IndexingCourses';
-import { Playing } from './views/Playing';
 import { Search } from './views/Search';
 import { SignedOut } from './views/SignedOut';
 import { useFlair } from './settings';
-import { initialState, reduce, type Action, type AppState } from '@/lib/machine';
+import { inside, initialState, reduce, type Action, type AppState, type Heading } from '@/lib/machine';
+
+/** Without `custom`, the leaving screen animates on the heading it mounted with. */
+const SLIDE = {
+  enter: (heading: Heading) => ({
+    opacity: 0,
+    x: heading === 'in' ? 24 : heading === 'out' ? -24 : 0,
+    y: heading === 'none' ? 6 : 0,
+  }),
+  here: { opacity: 1, x: 0, y: 0 },
+  leave: (heading: Heading) => ({
+    opacity: 0,
+    x: heading === 'in' ? -24 : heading === 'out' ? 24 : 0,
+    y: heading === 'none' ? -6 : 0,
+  }),
+};
 
 export function App() {
   const [state, dispatch] = useReducer(reduce, initialState);
@@ -25,16 +40,20 @@ export function App() {
     <div className="relative flex h-screen flex-col font-sans text-body text-ink">
       <Backdrop level={state.field} onReady={() => setFieldReady(true)} />
 
+      {inside(state.view.name) && <Player lesson={state.lesson} dispatch={dispatch} />}
+
       {/* Fixed, the dev panel covered the bottom row of every screen even when collapsed. */}
-      <div className="relative min-h-0 flex-1">
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         {/* `wait` rather than overlap: the field underneath is what carries the gap. */}
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="wait" initial={false} custom={state.heading}>
           <motion.div
             key={state.view.name}
+            custom={state.heading}
+            variants={SLIDE}
+            initial="enter"
+            animate="here"
+            exit="leave"
             className="relative h-full"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
             transition={{ duration: seconds, ease: [0.4, 0, 0.2, 1] }}
           >
             {renderView(state, dispatch, fieldReady)}
@@ -49,7 +68,7 @@ export function App() {
 
 /** Exhaustive by the compiler: a new union member breaks this switch. */
 function renderView(state: AppState, dispatch: Dispatch<Action>, fieldReady: boolean) {
-  const { view, awaitingLogin } = state;
+  const { view, awaitingLogin, lesson } = state;
 
   switch (view.name) {
     case 'boot':
@@ -61,12 +80,10 @@ function renderView(state: AppState, dispatch: Dispatch<Action>, fieldReady: boo
     case 'home':
       return <Home dispatch={dispatch} />;
     case 'search':
-      return <Search view={view} dispatch={dispatch} />;
+      return <Search view={view} lesson={lesson} dispatch={dispatch} />;
     case 'courseLoading':
       return <CourseLoading view={view} dispatch={dispatch} />;
     case 'course':
-      return <Course view={view} dispatch={dispatch} />;
-    case 'playing':
-      return <Playing view={view} dispatch={dispatch} />;
+      return <Course view={view} lesson={lesson} dispatch={dispatch} />;
   }
 }

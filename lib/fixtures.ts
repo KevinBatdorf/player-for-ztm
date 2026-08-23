@@ -24,8 +24,6 @@ export const SAMPLE_COURSE: SampleCourse = {
   ],
 };
 
-export const SAMPLE_LESSON: SampleLesson = { id: 'rx-2', title: 'Components and Props', duration: '14:20' };
-
 export const SAMPLE_COURSES: SampleCourse[] = [
   {
     id: 'complete-python-developer',

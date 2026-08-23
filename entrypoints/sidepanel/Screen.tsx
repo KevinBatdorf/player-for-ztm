@@ -140,11 +140,14 @@ export function Row({
   onClick,
   /** Text and quiz lessons: in the list because they are the course, but nothing to play. */
   disabled = false,
+  /** Picking a lesson does not change screen, so the list shows which one is loaded. */
+  active = false,
 }: {
   title: string;
   meta?: string;
   onClick: () => void;
   disabled?: boolean;
+  active?: boolean;
 }) {
   return (
     <button
@@ -156,12 +159,13 @@ export function Row({
         disabled
           ? 'cursor-default bg-raised/40'
           : 'bg-raised hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+        active && 'bg-surface',
       )}
     >
       <span
         className={cn(
           'min-w-0 flex-1 text-body leading-snug',
-          disabled ? 'text-ink-faint' : 'text-ink',
+          disabled ? 'text-ink-faint' : active ? 'font-medium text-accent-text' : 'text-ink',
         )}
       >
         {title}
