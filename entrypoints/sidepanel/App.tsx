@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useReducer, useState, type Dispatch } from 'react';
 import { Backdrop } from './Backdrop';
 import { DevPanel } from './DevPanel';
+import { Spotlight } from './Spotlight';
 import { Stage } from './Stage';
 import { Player } from './Player';
 import { Boot } from './views/Boot';
@@ -80,6 +81,9 @@ export function App() {
             stage && raised && 'rounded-t-none',
           )}
         >
+          {/* Must precede the handle and the views, or it paints over them. */}
+          {stage && <Spotlight />}
+
           {stage && (
             <button
               type="button"

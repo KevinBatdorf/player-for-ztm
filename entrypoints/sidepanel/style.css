@@ -103,7 +103,7 @@
   --t-surface: #101216;
   --t-raised: #16181d;
   --t-stage: #000000;
-  --t-dot: #1d2128;
+  --t-dot: #161a20;
   --t-sheet: #15181e;
   --t-card: #0c0e12;
   --t-card-hover: #111419;
@@ -114,6 +114,8 @@
   --t-ink-soft: #9ba1ac;
   --t-ink-faint: #6b7280;
   --t-accent: #c792ea;
+  /* The accent as a wash, not a fill. */
+  --t-glow: rgb(199 146 234 / 0.16);
   --t-accent-ink: #0a0b0d;
   --t-accent-text: #c792ea;
 
