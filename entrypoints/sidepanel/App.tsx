@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useReducer, useState, type Dispatch } from 'react';
 import { Backdrop } from './Backdrop';
 import { DevPanel } from './DevPanel';
+import { Dots } from './Dots';
 import { Player } from './Player';
 import { Boot } from './views/Boot';
 import { Course } from './views/Course';
@@ -11,7 +12,16 @@ import { IndexingCourses } from './views/IndexingCourses';
 import { Search } from './views/Search';
 import { SignedOut } from './views/SignedOut';
 import { useFlair } from './settings';
-import { inside, initialState, reduce, type Action, type AppState, type Heading } from '@/lib/machine';
+import {
+  inside,
+  initialState,
+  reduce,
+  type Action,
+  type AppState,
+  type Heading,
+  type ViewName,
+} from '@/lib/machine';
+import { cn } from '@/lib/utils';
 
 /** Without `custom`, the leaving screen animates on the heading it mounted with. */
 const SLIDE = {
@@ -29,37 +39,49 @@ const SLIDE = {
 /** Front-loaded on purpose; a symmetric ease reads as sluggish over a full panel width. */
 const CURVE = [0.32, 0.72, 0, 1] as const;
 
+/** Keyed apart, a cached curriculum resolves them a frame apart and cuts the first slide short. */
+const screenKey = (name: ViewName) => (name === 'courseLoading' ? 'course' : name);
+
 export function App() {
   const [state, dispatch] = useReducer(reduce, initialState);
   // Boot holds its mark back until the field has drawn, so it needs to hear about it.
   const [fieldReady, setFieldReady] = useState(false);
   const flair = useFlair();
+  const stage = inside(state.view.name);
   // motion writes inline styles, which the `data-flair` blanket cannot reach.
-  const seconds = flair === 'none' ? 0 : 0.34;
+  const seconds = flair === 'none' ? 0 : state.heading === 'none' ? 0.24 : 0.5;
 
   return (
     <div className="relative flex h-screen flex-col font-sans text-body text-ink">
       <Backdrop level={state.field} onReady={() => setFieldReady(true)} />
 
-      {inside(state.view.name) && <Player lesson={state.lesson} dispatch={dispatch} />}
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        {stage && <Dots />}
+        {stage && <Player lesson={state.lesson} dispatch={dispatch} />}
 
-      {/* Fixed, the dev panel covered the bottom row of every screen even when collapsed. */}
-      <div className="relative min-h-0 flex-1 overflow-hidden">
-        {/* No `mode`: `wait` runs exit to completion, so the two could never overlap. */}
-        <AnimatePresence initial={false} custom={state.heading}>
-          <motion.div
-            key={state.view.name}
-            custom={state.heading}
-            variants={SLIDE}
-            initial="enter"
-            animate="here"
-            exit="leave"
-            className="absolute inset-0"
-            transition={{ duration: seconds, ease: CURVE }}
-          >
-            {renderView(state, dispatch, fieldReady)}
-          </motion.div>
-        </AnimatePresence>
+        {/* Fixed, the dev panel covered the bottom row of every screen even when collapsed. */}
+        <div
+          className={cn(
+            'relative min-h-0 flex-1 overflow-hidden',
+            stage && 'rounded-t-sheet bg-paper/70 shadow-lift',
+          )}
+        >
+          {/* No `mode`: `wait` runs exit to completion, so the two could never overlap. */}
+          <AnimatePresence initial={false} custom={state.heading}>
+            <motion.div
+              key={screenKey(state.view.name)}
+              custom={state.heading}
+              variants={SLIDE}
+              initial="enter"
+              animate="here"
+              exit="leave"
+              className="absolute inset-0"
+              transition={{ duration: seconds, ease: CURVE }}
+            >
+              {renderView(state, dispatch, fieldReady)}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
       <DevPanel state={state} dispatch={dispatch} />

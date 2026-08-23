@@ -10,13 +10,11 @@ const FLOOR_MS = 3000;
 
 const SCRIM = { textShadow: '0 1px 10px rgba(var(--t-scrim), 0.95)' };
 
-const ARRIVALS = [
-  { x: -64, y: -34, rotate: -12 },
-  { x: 0, y: 54, rotate: 0 },
-  { x: 64, y: -34, rotate: 12 },
-] as const;
+/** Shorter than this and an 86px letter reads as a pop rather than a wipe. */
+const WIPE = 0.95;
 
-const SETTLE = { type: 'spring', stiffness: 190, damping: 16, mass: 0.9 } as const;
+/** Everything has to land inside FLOOR_MS or the splash leaves mid-sequence. */
+const STEP = 0.14;
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 
@@ -59,32 +57,34 @@ export function Boot({
         style={SCRIM}
         initial={quiet ? false : { opacity: 0, letterSpacing: '0.9em' }}
         animate={{ opacity: 0.8, letterSpacing: '0.28em' }}
-        transition={{ duration: 1, ease: EASE_OUT, delay: 0.1 }}
+        transition={{ duration: 1.2, ease: EASE_OUT, delay: 0.1 }}
       >
         Player for
       </motion.p>
 
+      {/* The clip is the wipe; without it the letters only translate. */}
       <div className="flex items-baseline" style={{ fontFamily: ZTM_MARK_FONT }}>
         {ZTM_MARK.map(({ char, color }, i) => (
-          <motion.span
-            key={char}
-            className="text-[86px] leading-none font-black tracking-[-0.02em]"
-            style={{ color }}
-            initial={quiet ? false : { opacity: 0, filter: 'blur(10px)', ...ARRIVALS[i] }}
-            animate={{ opacity: 1, filter: 'blur(0px)', x: 0, y: 0, rotate: 0 }}
-            transition={{ ...SETTLE, delay: 0.24 + i * 0.08 }}
-          >
-            {char}
-          </motion.span>
+          <span key={char} className="block overflow-hidden">
+            <motion.span
+              className="block text-[86px] leading-none font-black tracking-[-0.02em]"
+              style={{ color }}
+              initial={quiet ? false : { y: '108%' }}
+              animate={{ y: '0%' }}
+              transition={{ duration: WIPE, ease: EASE_OUT, delay: 0.28 + i * STEP }}
+            >
+              {char}
+            </motion.span>
+          </span>
         ))}
       </div>
 
-      {/* Its delay has to clear the letters' spring, or it lands mid-movement. */}
+      {/* Its delay has to clear the last letter, or it lands mid-wipe. */}
       <motion.div
         className="mt-5 h-px w-20 origin-center bg-accent/50"
         initial={quiet ? false : { scaleX: 0, opacity: 0 }}
         animate={{ scaleX: 1, opacity: 1 }}
-        transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.7 }}
+        transition={{ duration: 0.8, ease: EASE_OUT, delay: 1.55 }}
       />
 
       <motion.p
@@ -92,7 +92,7 @@ export function Boot({
         style={SCRIM}
         initial={quiet ? false : { opacity: 0 }}
         animate={{ opacity: 0.8 }}
-        transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.95 }}
+        transition={{ duration: 0.7, ease: EASE_OUT, delay: 2.1 }}
       >
         Checking your session…
       </motion.p>

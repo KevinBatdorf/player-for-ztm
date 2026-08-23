@@ -33,7 +33,10 @@
   --text-caption: var(--t-text-caption);
 
   --radius-panel: var(--t-radius);
+  --radius-sheet: var(--t-radius-sheet);
   --shadow-panel: var(--t-shadow);
+  /* Negative Y on purpose: the shadow falls upward. */
+  --shadow-lift: var(--t-shadow-lift);
   --ease-panel: var(--t-ease);
 }
 
@@ -113,7 +116,9 @@
   --t-text-caption: 11px;
 
   --t-radius: 8px;
+  --t-radius-sheet: 16px;
   --t-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --t-shadow-lift: 0 -10px 26px -8px rgb(0 0 0 / 0.75);
   --t-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
   --rb-accent: #c792ea;

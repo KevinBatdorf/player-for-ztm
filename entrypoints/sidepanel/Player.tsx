@@ -73,11 +73,12 @@ export function Player({
 
 /** `relative` or it paints under the backdrop, which is absolute and earlier in the DOM. */
 const Shell = ({ children }: { children: ReactNode }) => (
-  <div className="rule-b relative shrink-0 bg-surface">{children}</div>
+  <div className="relative shrink-0">{children}</div>
 );
 
+/** No background of its own; the dot layer is what shows through. */
 const Frame = ({ children }: { children: ReactNode }) => (
-  <div className="flex aspect-video flex-col items-center justify-center bg-raised px-4 text-center">
+  <div className="flex aspect-video flex-col items-center justify-center px-4 text-center">
     {children}
   </div>
 );
