@@ -4,10 +4,7 @@ const Landscape = lazy(() => import('@/components/react-bits/landscape'));
 
 export { Landscape };
 
-/**
- * Kevin's settled values from the field lab. The geometry is identical across both,
- * so changing level never moves the horizon — only the palette, the opacity and the speed.
- */
+/** Settled in the field lab. Identical across levels, so the horizon never moves. */
 const GEOMETRY = {
   altitude: 7.2,
   pitch: -0.2,
@@ -28,7 +25,7 @@ export type Level = {
   ringColor: string;
 };
 
-export const FULL: Level = {
+export const NORMAL: Level = {
   opacity: 1,
   speed: 0.45,
   vignette: 0.32,
@@ -47,7 +44,35 @@ export const MUTED: Level = {
   ringColor: '#2E1065',
 };
 
-export const OFF: Level = { ...MUTED, opacity: 0 };
+const channels = (hex: string): [number, number, number] => {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+};
+
+const hex = (rgb: [number, number, number]) =>
+  `#${rgb.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('')}`;
+
+const mixNumber = (a: number, b: number, t: number) => a + (b - a) * t;
+
+const mixColor = (a: string, b: string, t: number) => {
+  const from = channels(a);
+  const to = channels(b);
+  return hex([
+    mixNumber(from[0]!, to[0]!, t),
+    mixNumber(from[1]!, to[1]!, t),
+    mixNumber(from[2]!, to[2]!, t),
+  ]);
+};
+
+/** All six travel together; animating a subset makes the level change lurch. */
+export const blend = (a: Level, b: Level, t: number): Level => ({
+  opacity: mixNumber(a.opacity, b.opacity, t),
+  speed: mixNumber(a.speed, b.speed, t),
+  vignette: mixNumber(a.vignette, b.vignette, t),
+  color: mixColor(a.color, b.color, t),
+  farColor: mixColor(a.farColor, b.farColor, t),
+  ringColor: mixColor(a.ringColor, b.ringColor, t),
+});
 
 export const landscapeProps = (level: Level) => ({
   ...GEOMETRY,
@@ -55,4 +80,7 @@ export const landscapeProps = (level: Level) => ({
   color: level.color,
   farColor: level.farColor,
   ringColor: level.ringColor,
+  opacity: level.opacity,
+  // Defaults to true in the vendored component, and the camera then swings with the mouse.
+  cursorInteraction: false,
 });

@@ -14,10 +14,14 @@ export type View =
 
 export type ViewName = View['name'];
 
+export type FieldLevel = 'normal' | 'muted';
+
 export type AppState = {
   view: View;
   // The focus re-check rewinds through `boot`, unmounting `signedOut` and any flag on it.
   awaitingLogin: boolean;
+  // Outside the union on purpose: it changes once per session, never per screen.
+  field: FieldLevel;
 };
 
 export type Action =
@@ -40,11 +44,16 @@ export type Action =
 export const initialState: AppState = {
   view: { name: 'boot' },
   awaitingLogin: false,
+  field: 'normal',
 };
 
 const go = (state: AppState, view: View): AppState => ({ ...state, view });
 
 const from = (view: View, ...names: ViewName[]) => names.includes(view.name);
+
+/** Only the dev panel asks; the real flow sets the level from the transition instead. */
+const fieldOn = (name: ViewName): FieldLevel =>
+  name === 'boot' || name === 'signedOut' || name === 'indexingCourses' ? 'normal' : 'muted';
 
 // Late replies from abandoned fetches are normal, so a stray action drops silently.
 export function reduce(state: AppState, action: Action): AppState {
@@ -52,7 +61,9 @@ export function reduce(state: AppState, action: Action): AppState {
 
   switch (action.type) {
     case 'sessionMissing':
-      return view.name === 'boot' ? go(state, { name: 'signedOut' }) : state;
+      return view.name === 'boot'
+        ? { ...state, view: { name: 'signedOut' }, field: 'normal' }
+        : state;
 
     case 'sessionFound':
       // Cleared here, or a later sign-out opens on a stale waiting notice.
@@ -68,7 +79,9 @@ export function reduce(state: AppState, action: Action): AppState {
       return view.name === 'signedOut' ? go(state, { name: 'boot' }) : state;
 
     case 'courseListReady':
-      return view.name === 'indexingCourses' ? go(state, { name: 'home' }) : state;
+      return view.name === 'indexingCourses'
+        ? { ...state, view: { name: 'home' }, field: 'muted' }
+        : state;
 
     case 'searchOpened':
       return view.name === 'home' ? go(state, { name: 'search', query: '' }) : state;
@@ -114,10 +127,12 @@ export function reduce(state: AppState, action: Action): AppState {
         ? go(state, { name: 'home' })
         : state;
 
-    // Unguarded on purpose: the dev panel has to reach dead ends by hand.
+    // Unguarded on purpose: the dev panel has to reach dead ends by hand, and setting
+    // the field keeps both levels reachable without walking the flow.
     case 'jumped':
-      return go(state, action.view);
+      return { ...state, view: action.view, field: fieldOn(action.view.name) };
   }
 }
 
 export type ViewOf<N extends ViewName> = Extract<View, { name: N }>;
+
