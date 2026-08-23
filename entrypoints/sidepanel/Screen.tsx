@@ -17,25 +17,28 @@ export function Screen({
   onBack,
   children,
 }: {
-  title: string;
+  /** Only a title naming where you are; the app's own name buys nothing at 400px. */
+  title?: string;
   onBack?: () => void;
   children: ReactNode;
 }) {
   return (
     <div className="flex h-full flex-col bg-paper/60">
-      <header className="rule-b flex shrink-0 items-center gap-2 bg-surface px-3 py-2.5">
-        {onBack && (
-          <button
-            type="button"
-            onClick={onBack}
-            aria-label="Back"
-            className="rule rounded-panel px-1.5 py-0.5 text-caption text-ink-soft transition-colors duration-150 ease-panel hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
-            &larr;
-          </button>
-        )}
-        <h1 className="truncate text-heading font-medium text-ink">{title}</h1>
-      </header>
+      {(title || onBack) && (
+        <header className="rule-b flex shrink-0 items-center gap-2 bg-surface px-3 py-2.5">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              aria-label="Back"
+              className="rule rounded-panel px-1.5 py-0.5 text-caption text-ink-soft transition-colors duration-150 ease-panel hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              &larr;
+            </button>
+          )}
+          {title && <h1 className="text-heading leading-snug font-medium text-ink">{title}</h1>}
+        </header>
+      )}
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3">{children}</div>
     </div>
   );
@@ -147,7 +150,7 @@ export function Row({
       onClick={onClick}
       className="rule flex w-full items-baseline justify-between gap-2 rounded-panel bg-raised px-3 py-2 text-left transition-colors duration-150 ease-panel hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
     >
-      <span className="truncate text-body text-ink">{title}</span>
+      <span className="min-w-0 flex-1 text-body leading-snug text-ink">{title}</span>
       {meta && <span className="shrink-0 font-mono text-caption text-ink-faint">{meta}</span>}
     </button>
   );

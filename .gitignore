@@ -26,17 +26,19 @@ web-ext.config.ts
 *.sw?
 
 # Claude Code local config
-.claude/settings.json
-.claude/settings.local.json
+.claude/
+CLAUDE.md
 
 # Secrets
 .env
 .env.local
 .env.*.local
-.claude/skills/react-bits-pro/
-.claude/skills/swiss-grid/
-.claude/skills/neobrutalism/
-.claude/skills/terminal-dark/
 
 # Prototype, kept for reference only
 _prototype/
+
+# Planning and findings, kept local
+PLAN.md
+TECH-NOTES.md
+NOTES.md
+PIP-FINDINGS.md

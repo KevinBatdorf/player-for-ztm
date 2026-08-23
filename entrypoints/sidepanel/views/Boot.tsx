@@ -41,7 +41,7 @@ export function Boot({
   if (!quiet && !fieldReady) return null;
 
   return (
-    <div className="animate-in fade-in relative flex h-full flex-col items-center justify-center duration-700">
+    <div className="animate-in fade-in relative flex h-full flex-col items-center justify-start pt-[15vh] duration-700">
       {/* Caption weight loses to the field; the mark's 86px bold does not. */}
       <p className="mb-1 text-caption tracking-[0.28em] text-ink uppercase opacity-80" style={SCRIM}>
         Player for

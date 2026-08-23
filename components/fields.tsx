@@ -6,10 +6,9 @@ export { Landscape };
 
 /**
  * Kevin's settled values from the field lab. The geometry is identical across both,
- * so changing level never moves the horizon — only the palette and the opacity go.
+ * so changing level never moves the horizon — only the palette, the opacity and the speed.
  */
 const GEOMETRY = {
-  speed: 0.7,
   altitude: 7.2,
   pitch: -0.2,
   elevation: 3.5,
@@ -21,6 +20,7 @@ const GEOMETRY = {
 
 export type Level = {
   opacity: number;
+  speed: number;
   /** The field runs under every screen, so the scrim travels with the level. */
   vignette: number;
   color: string;
@@ -30,6 +30,7 @@ export type Level = {
 
 export const FULL: Level = {
   opacity: 1,
+  speed: 0.45,
   vignette: 0.32,
   color: '#2E1065',
   farColor: '#D946EF',
@@ -39,6 +40,7 @@ export const FULL: Level = {
 /** One colour across all three ramps, which is what takes the scene down to a texture. */
 export const MUTED: Level = {
   opacity: 0.34,
+  speed: 0.05,
   vignette: 0.18,
   color: '#2E1065',
   farColor: '#2E1065',
@@ -49,6 +51,7 @@ export const OFF: Level = { ...MUTED, opacity: 0 };
 
 export const landscapeProps = (level: Level) => ({
   ...GEOMETRY,
+  speed: level.speed,
   color: level.color,
   farColor: level.farColor,
   ringColor: level.ringColor,

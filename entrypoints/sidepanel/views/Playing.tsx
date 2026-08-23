@@ -22,7 +22,7 @@ export function Playing({
       <div className="rule flex aspect-video items-center justify-center rounded-panel bg-raised">
         <span className="font-mono text-caption text-ink-faint">player frame</span>
       </div>
-      <p className="truncate text-caption text-ink-soft">{course?.title ?? view.courseId}</p>
+      <p className="text-caption text-ink-soft">{course?.title ?? view.courseId}</p>
 
       <StubNote>
         Phase 5 decides which document owns this frame before writing anything into it, and

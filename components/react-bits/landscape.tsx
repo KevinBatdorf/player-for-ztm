@@ -127,7 +127,7 @@ varying vec2 vPlane;
 
 uniform vec2 uCanvas;
 uniform float uClock;
-uniform float uSpeed;
+uniform float uTravel;
 uniform float uAltitude;
 uniform float uFocal;
 uniform float uPitch;
@@ -193,7 +193,7 @@ float softClip(float x) {
 vec4 trace(vec2 field) {
   float t = uClock;
 
-  vec3 eye = vec3(uSteer.x * 6.0, uAltitude, t * uSpeed * 3.0);
+  vec3 eye = vec3(uSteer.x * 6.0, uAltitude, uTravel * 3.0);
 
   vec3 dir = normalize(vec3(field, uFocal));
 
@@ -430,6 +430,8 @@ const TerrainView = ({
 }: TerrainViewProps) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   const clock = useRef(0);
+  // Distance, not time: a clock times speed teleports the camera when speed changes.
+  const travel = useRef(0);
   const glide = useRef({ x: 0, y: 0 });
   const budget = useRef({ frames: 0, span: 0, wins: 0, cap: 4 });
   const { gl, size } = useThree();
@@ -446,7 +448,7 @@ const TerrainView = ({
     () => ({
       uCanvas: { value: new THREE.Vector2(1, 1) },
       uClock: { value: 0 },
-      uSpeed: { value: 1 },
+      uTravel: { value: 0 },
       uAltitude: { value: 5.5 },
       uFocal: { value: 1.2 },
       uPitch: { value: 0 },
@@ -504,14 +506,17 @@ const TerrainView = ({
     if (!material) return;
 
     const beat = Math.min(delta, 0.05);
-    if (!paused) clock.current += beat;
+    if (!paused) {
+      clock.current += beat;
+      travel.current += beat * speed;
+    }
 
     const ratio = gl.getPixelRatio();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const set = material.uniforms as any;
     set.uCanvas.value.set(size.width * ratio, size.height * ratio);
     set.uClock.value = clock.current;
-    set.uSpeed.value = speed;
+    set.uTravel.value = travel.current;
     set.uAltitude.value = altitude;
     set.uFocal.value = Math.max(focal, 0.2);
     set.uPitch.value = pitch;

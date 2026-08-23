@@ -22,22 +22,25 @@ export function App() {
   const seconds = flair === 'none' ? 0 : 0.2;
 
   return (
-    <div className="relative h-screen font-sans text-body text-ink">
+    <div className="relative flex h-screen flex-col font-sans text-body text-ink">
       <Backdrop view={state.view.name} onReady={() => setFieldReady(true)} />
 
-      {/* `wait` rather than overlap: the field underneath is what carries the gap. */}
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={state.view.name}
-          className="relative h-full"
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: seconds, ease: [0.4, 0, 0.2, 1] }}
-        >
-          {renderView(state, dispatch, fieldReady)}
-        </motion.div>
-      </AnimatePresence>
+      {/* Fixed, the dev panel covered the bottom row of every screen even when collapsed. */}
+      <div className="relative min-h-0 flex-1">
+        {/* `wait` rather than overlap: the field underneath is what carries the gap. */}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={state.view.name}
+            className="relative h-full"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: seconds, ease: [0.4, 0, 0.2, 1] }}
+          >
+            {renderView(state, dispatch, fieldReady)}
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
       <DevPanel state={state} dispatch={dispatch} />
     </div>
