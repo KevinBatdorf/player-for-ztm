@@ -115,8 +115,8 @@
   --t-ink-soft: #9ba1ac;
   --t-ink-faint: #6b7280;
   --t-accent: #c792ea;
-  /* The accent as a wash, not a fill. */
-  --t-glow: rgb(199 146 234 / 0.16);
+  /* Darkens rather than lights; the violet lean is the only colour in it. */
+  --t-glow: rgb(7 5 13 / 0.72);
   --t-accent-ink: #0a0b0d;
   --t-accent-text: #c792ea;
 
