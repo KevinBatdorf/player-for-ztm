@@ -115,8 +115,6 @@
   --t-ink-soft: #9ba1ac;
   --t-ink-faint: #6b7280;
   --t-accent: #c792ea;
-  /* Darker than the sheet, so the cursor deepens it rather than lighting it. */
-  --t-pool: rgb(7 5 13 / 0.9);
   --t-accent-ink: #0a0b0d;
   --t-accent-text: #c792ea;
 
