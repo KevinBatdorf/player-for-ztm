@@ -41,7 +41,7 @@ const CURVE = [0.32, 0.72, 0, 1] as const;
 /** Keyed apart, a cached curriculum resolves them a frame apart and cuts the first slide short. */
 const screenKey = (name: ViewName) => (name === 'courseLoading' ? 'course' : name);
 
-/** Fixed, or the band's collapse changes speed depending on how you last navigated. */
+/** Fixed, or the canvas's collapse changes speed depending on how you last navigated. */
 const RAISE = 0.42;
 
 export function App() {
@@ -53,7 +53,7 @@ export function App() {
   const flair = useFlair();
   const showsPlayer = inside(state.view.name);
   // A fresh object each render restarts the height animation on every unrelated re-render.
-  const band = useMemo(() => ({ height: raised ? 0 : 'auto' }) as const, [raised]);
+  const canvasHeight = useMemo(() => ({ height: raised ? 0 : 'auto' }) as const, [raised]);
   // motion writes inline styles, which the `data-flair` blanket cannot reach.
   const seconds = flair === 'none' ? 0 : state.heading === 'none' ? 0.24 : 0.5;
 
@@ -64,11 +64,11 @@ export function App() {
       <div className="relative flex min-h-0 flex-1 flex-col">
         {showsPlayer && <DotGrid />}
 
-        {/* `auto` so collapsing the band never needs a measured height. */}
+        {/* `auto` so collapsing the canvas never needs a measured height. */}
         {showsPlayer && (
           <motion.div
             className="relative shrink-0 overflow-hidden"
-            animate={band}
+            animate={canvasHeight}
             transition={{ duration: flair === 'none' ? 0 : RAISE, ease: CURVE }}
           >
             <Player lesson={state.lesson} dispatch={dispatch} />

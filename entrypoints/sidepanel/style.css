@@ -11,7 +11,7 @@
 /* Adding a token here means adding it to all four themes, or the switch half-applies. */
 @theme inline {
   --color-paper: var(--t-paper);
-  --color-band: var(--t-band);
+  --color-canvas: var(--t-canvas);
   --color-sheet: var(--t-sheet);
   /* Darker than the sheet, which inverts the usual raised-on-dark reading. */
   --color-card: var(--t-card);
@@ -102,7 +102,7 @@
   --t-scrim: 10 11 13;
   --t-surface: #101216;
   --t-raised: #16181d;
-  --t-band: #000000;
+  --t-canvas: #000000;
   --t-dot: #161a20;
   --t-sheet: #15181e;
   --t-card: #0c0e12;
