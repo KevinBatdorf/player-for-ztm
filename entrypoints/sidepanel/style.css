@@ -99,8 +99,8 @@
   --t-scrim: 10 11 13;
   --t-surface: #101216;
   --t-raised: #16181d;
-  --t-stage: #23272f;
-  --t-dot: #464c58;
+  --t-stage: #1b1f26;
+  --t-dot: #343a44;
   --t-line: #1e2127;
   --t-line-strong: #2a2e37;
   --t-line-w: 1px;
@@ -122,7 +122,7 @@
   --t-radius: 8px;
   --t-radius-sheet: 16px;
   --t-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.4);
-  --t-shadow-lift: 0 -10px 26px -8px rgb(0 0 0 / 0.75);
+  --t-shadow-lift: 0 -6px 16px -10px rgb(0 0 0 / 0.5);
   --t-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
   --rb-accent: #c792ea;

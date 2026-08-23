@@ -40,7 +40,7 @@ export function Player({
         <span className="font-mono text-caption text-ink-faint">player frame</span>
       </Frame>
 
-      <div className="flex items-start gap-2 px-3 py-2">
+      <div className="flex items-start gap-2 px-4 py-2.5">
         <div className="min-w-0 flex-1">
           <p className="text-body leading-snug text-ink">{playing?.title ?? lesson.lessonId}</p>
           <p className="mt-0.5 text-caption text-ink-soft">
@@ -59,7 +59,7 @@ export function Player({
       </div>
 
       {/* No real player yet, so nothing fires `ended`. */}
-      <div className="flex flex-wrap items-center gap-1.5 border-t border-dashed border-line px-3 py-2">
+      <div className="flex flex-wrap items-center gap-1.5 border-t border-dashed border-line px-4 py-2.5">
         <span className="w-full font-mono text-caption text-ink-faint">simulate</span>
         <button
           type="button"
