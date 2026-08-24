@@ -47,6 +47,8 @@ export function App() {
   const [state, dispatch] = useReducer(reduce, initialState);
   // Boot holds its mark back until the backdrop has drawn, so it needs to hear about it.
   const [backdropReady, setFieldReady] = useState(false);
+  // Both the canvas and the bar show the wait, so neither of them can own it.
+  const [waiting, setWaiting] = useState(false);
   // The sheet's own position, not a step in the flow, so it stays out of the machine.
   const [raised, setRaised] = useState(false);
   const showsPlayer = inside(state.view.name);
@@ -68,7 +70,12 @@ export function App() {
             animate={canvasHeight}
             transition={{ duration: RAISE, ease: CURVE }}
           >
-            <Player lesson={state.lesson} collapsed={raised} dispatch={dispatch} />
+            <Player
+              lesson={state.lesson}
+              collapsed={raised}
+              onWaiting={setWaiting}
+              dispatch={dispatch}
+            />
           </motion.div>
         )}
 
@@ -110,7 +117,7 @@ export function App() {
           </div>
         </div>
 
-        {showsPlayer && state.lesson && <NowPlaying lesson={state.lesson} />}
+        {showsPlayer && state.lesson && <NowPlaying lesson={state.lesson} waiting={waiting} />}
       </div>
     </div>
   );

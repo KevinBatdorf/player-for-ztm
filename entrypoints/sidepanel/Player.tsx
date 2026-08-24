@@ -31,11 +31,14 @@ type Status =
 export function Player({
   lesson,
   collapsed,
+  onWaiting,
   dispatch,
 }: {
   lesson: Loaded | null;
   /** The frame stays mounted and audible while the canvas is collapsed. */
   collapsed: boolean;
+  /** The bar outside this component shows the same wait. */
+  onWaiting: (waiting: boolean) => void;
   dispatch: Dispatch<Action>;
 }) {
   const { courses, lessonsFor, markWatched } = useLibrary();
@@ -128,6 +131,10 @@ export function Player({
     return () => clearTimeout(rest);
   }, [busy]);
 
+  const waiting = busy || dwelling;
+
+  useEffect(() => onWaiting(waiting), [waiting, onWaiting]);
+
   useEffect(() => {
     const heard = (event: MessageEvent) => {
       if (event.origin !== FRAME_ORIGIN) return;
@@ -199,7 +206,7 @@ export function Player({
         />
       )}
 
-      {(busy || dwelling) && <Waiting />}
+      {waiting && <Waiting />}
 
       {fault && (
         <Note>
@@ -226,13 +233,8 @@ const STARS = '#4b3a6e';
 const Waiting = () => (
   <div className="absolute inset-0 bg-canvas">
     <Suspense fallback={null}>
-      <Stars color={STARS} />
+      <Stars color={STARS} speed={3.4} />
     </Suspense>
-
-    {/* Feedback that does not depend on the WebGL context coming up. */}
-    <div className="absolute inset-0 flex items-center justify-center">
-      <span className="size-5 animate-spin rounded-full border-2 border-line-strong border-t-ink-soft" />
-    </div>
   </div>
 );
 

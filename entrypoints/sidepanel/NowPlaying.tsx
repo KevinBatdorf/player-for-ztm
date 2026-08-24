@@ -13,7 +13,7 @@ const LEAD = Math.round(FADE * 1.5);
 const EDGE = `linear-gradient(to right, #000 calc(100% - ${FADE}px), transparent)`;
 const EDGES = `linear-gradient(to right, transparent, #000 ${FADE}px, #000 calc(100% - ${FADE}px), transparent)`;
 
-export function NowPlaying({ lesson }: { lesson: Loaded }) {
+export function NowPlaying({ lesson, waiting }: { lesson: Loaded; waiting: boolean }) {
   const { courses, lessonsFor } = useLibrary();
   const [reading, setReading] = useState(false);
   const course = courses?.find((c) => c.id === lesson.courseId);
@@ -33,7 +33,11 @@ export function NowPlaying({ lesson }: { lesson: Loaded }) {
         className="font-mono text-caption text-ink-faint"
       />
       <Slide
-        text={titled(numberOf(lessons, lesson.lessonId), playing?.title ?? lesson.lessonId)}
+        text={
+          waiting
+            ? 'Loading…'
+            : titled(numberOf(lessons, lesson.lessonId), playing?.title ?? lesson.lessonId)
+        }
         reading={reading}
         className="text-body leading-snug text-ink"
       />
