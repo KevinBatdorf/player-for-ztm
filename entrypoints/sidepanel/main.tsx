@@ -1,3 +1,4 @@
+import { MotionConfig } from 'motion/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
@@ -7,10 +8,13 @@ import './style.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <SettingsProvider>
-      <LibraryProvider>
-        <App />
-      </LibraryProvider>
-    </SettingsProvider>
+    {/* Inline styles from motion are out of CSS's reach, so it gets told separately. */}
+    <MotionConfig reducedMotion="user">
+      <SettingsProvider>
+        <LibraryProvider>
+          <App />
+        </LibraryProvider>
+      </SettingsProvider>
+    </MotionConfig>
   </React.StrictMode>,
 );

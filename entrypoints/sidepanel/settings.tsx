@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import { DEFAULT_DEV, devSetting, type DevSettings, type FlairLevel } from '@/lib/dev';
+import { DEFAULT_DEV, devSetting, type DevSettings } from '@/lib/dev';
 
 type SettingsApi = {
   settings: DevSettings;
@@ -17,12 +17,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     // Nothing renders until this lands, so the panel never paints on a default first.
     void devSetting.getValue().then((dev) => setSettings({ ...DEFAULT_DEV, ...dev }));
   }, []);
-
-  useEffect(() => {
-    if (!settings) return;
-    // On the root so CSS alone can gate motion on it.
-    document.documentElement.dataset.flair = settings.flair;
-  }, [settings?.flair]);
 
   useEffect(() => {
     if (!settings) return;
@@ -53,8 +47,6 @@ export function useSettings(): SettingsApi {
   if (!api) throw new Error('useSettings called outside SettingsProvider');
   return api;
 }
-
-export const useFlair = (): FlairLevel => useSettings().settings.flair;
 
 /** Defaults off, or a stale stored value would freeze a ship. */
 export const useHold = (): boolean => useSettings().settings.held;

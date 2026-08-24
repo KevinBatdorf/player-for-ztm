@@ -10,7 +10,6 @@ import { Home } from './views/Home';
 import { IndexingCourses } from './views/IndexingCourses';
 import { Search } from './views/Search';
 import { SignedOut } from './views/SignedOut';
-import { useFlair } from './settings';
 import {
   inside,
   initialState,
@@ -50,12 +49,10 @@ export function App() {
   const [backdropReady, setFieldReady] = useState(false);
   // The sheet's own position, not a step in the flow, so it stays out of the machine.
   const [raised, setRaised] = useState(false);
-  const flair = useFlair();
   const showsPlayer = inside(state.view.name);
   // A fresh object each render restarts the height animation on every unrelated re-render.
   const canvasHeight = useMemo(() => ({ height: raised ? 0 : 'auto' }) as const, [raised]);
-  // motion writes inline styles, which the `data-flair` blanket cannot reach.
-  const seconds = flair === 'none' ? 0 : state.heading === 'none' ? 0.24 : 0.5;
+  const seconds = state.heading === 'none' ? 0.24 : 0.5;
 
   return (
     <div className="relative flex h-screen flex-col font-sans text-body text-ink">
@@ -69,7 +66,7 @@ export function App() {
           <motion.div
             className="relative shrink-0 overflow-hidden"
             animate={canvasHeight}
-            transition={{ duration: flair === 'none' ? 0 : RAISE, ease: CURVE }}
+            transition={{ duration: RAISE, ease: CURVE }}
           >
             <Player lesson={state.lesson} dispatch={dispatch} />
           </motion.div>
@@ -79,7 +76,6 @@ export function App() {
         <div
           className={cn(
             'relative flex min-h-0 flex-1 flex-col overflow-hidden',
-            // CSS rather than motion, so the `flair: none` blanket can zero it too.
             showsPlayer && 'rounded-t-sheet bg-sheet shadow-lift transition-[border-radius] duration-500 ease-panel',
             showsPlayer && raised && 'rounded-t-none',
           )}

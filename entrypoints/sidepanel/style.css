@@ -64,7 +64,6 @@
   border-top-color: var(--t-line);
 }
 
-/* CSS rather than motion/react, so the `flair: none` blanket can zero them. */
 @keyframes panel-sweep {
   from {
     transform: translateX(-120%);
@@ -84,13 +83,15 @@
   }
 }
 
-/* Blanket, because `none` has to reach vendored components that were never asked. */
-[data-flair='none'] *,
-[data-flair='none'] *::before,
-[data-flair='none'] *::after {
-  transition-duration: 0ms !important;
-  animation-duration: 0ms !important;
-  animation-iteration-count: 1 !important;
+/* Blanket, because it has to reach vendored components that were never asked. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 /* --rb-* is React Bits' own namespace; setting it re-themes vendored blocks unedited. */

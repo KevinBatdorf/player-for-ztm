@@ -2,9 +2,6 @@ import { storage } from '#imports';
 import { SAMPLE_COURSE } from '@/lib/fixtures';
 import type { View, ViewName } from '@/lib/machine';
 
-/** Motion and ornament budget. `none` doubles as the reduced-motion escape hatch. */
-export type FlairLevel = 'none' | 'subtle' | 'full';
-
 // A record, not a list: the compiler then refuses a screen left out of the jump list.
 const IN_FLOW = {
   boot: true,
@@ -41,14 +38,12 @@ export function sampleView(name: ViewName): View {
 
 export type DevSettings = {
   open: boolean;
-  flair: FlairLevel;
   /** Freezes the automatic transitions, so a screen that leaves after 620ms can be read. */
   held: boolean;
 };
 
 export const DEFAULT_DEV: DevSettings = {
   open: false,
-  flair: 'subtle',
   held: false,
 };
 

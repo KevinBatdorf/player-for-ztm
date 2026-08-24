@@ -1,12 +1,7 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import { useFlair } from './settings';
 import { cn } from '@/lib/utils';
 
-/**
- * Split out because motion is 124KB and only `flair: full` ever renders it, which
- * keeps the default open at the 246KB it costs without. A bundled chunk, not
- * remote code, so MV3 is fine with it.
- */
+/** A bundled chunk rather than remote code, so MV3 is fine with it. */
 const StaggeredText = lazy(() => import('@/components/react-bits/staggered-text'));
 
 // Plain on purpose: real panel furniture gets designed against real content.
@@ -43,7 +38,6 @@ export function Screen({
   );
 }
 
-/** The one gate on flair for type; every screen's heading goes through it. */
 export function Reveal({
   text,
   as = 'h1',
@@ -61,10 +55,7 @@ export function Reveal({
   duration?: number;
   className?: string;
 }) {
-  const flair = useFlair();
   const Tag = as;
-
-  if (flair !== 'full') return <Tag className={className}>{text}</Tag>;
 
   return (
     // A visible fallback shows the finished heading, then rewinds it to animate.

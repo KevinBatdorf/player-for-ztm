@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { lazy, Suspense, useEffect, type CSSProperties, type Dispatch } from 'react';
-import { useFlair, useHold } from '../settings';
+import { useHold } from '../settings';
 import { ZTM_MARK, ZTM_MARK_FONT } from '@/lib/brand';
 import type { Action } from '@/lib/machine';
 import { hasSession } from '@/lib/session';
@@ -44,17 +44,13 @@ export function Boot({
   dispatch: Dispatch<Action>;
   backdropReady: boolean;
 }) {
-  const flair = useFlair();
   const held = useHold();
-  const quiet = flair === 'none';
 
   // Remount is the trigger: signing in rewinds to `boot`, so the deps need no view key.
   useEffect(() => {
     if (held) return;
     let live = true;
-    const floor = quiet ? 0 : FLOOR_MS;
-
-    void Promise.all([hasSession(), new Promise((done) => setTimeout(done, floor))]).then(
+    void Promise.all([hasSession(), new Promise((done) => setTimeout(done, FLOOR_MS))]).then(
       ([signedIn]) => {
         if (live) dispatch({ type: signedIn ? 'sessionFound' : 'sessionMissing' });
       },
@@ -63,18 +59,18 @@ export function Boot({
     return () => {
       live = false;
     };
-  }, [dispatch, quiet, held]);
+  }, [dispatch, held]);
 
   // Mounted on the field's first frame rather than faded from hidden: opacity does not
   // stop an IntersectionObserver, so the letters would reveal unseen.
-  if (!quiet && !backdropReady) return null;
+  if (!backdropReady) return null;
 
   return (
     <div className="relative flex h-full flex-col items-center justify-start pt-[15vh]">
       <motion.p
         className="mb-1 text-caption text-ink uppercase"
         style={SCRIM}
-        initial={quiet ? false : { opacity: 0, letterSpacing: '0.9em' }}
+        initial={{ opacity: 0, letterSpacing: '0.9em' }}
         animate={{ opacity: 0.8, letterSpacing: '0.28em' }}
         transition={{ duration: 1.2, ease: EASE_OUT, delay: 0.1 }}
       >
@@ -85,29 +81,25 @@ export function Boot({
         className="text-[86px] leading-none font-black tracking-[-0.02em]"
         style={{ fontFamily: ZTM_MARK_FONT, ...MARK_COLORS }}
       >
-        {quiet ? (
-          MARK
-        ) : (
-          <Suspense fallback={<span className="invisible">{MARK}</span>}>
-            <StaggeredText
-              as="span"
-              text={MARK}
-              segmentBy="chars"
-              delay={STEP_MS}
-              duration={GATHER}
-              easing={[0.16, 1, 0.3, 1]}
-              from={DUST}
-              to={SOLID}
-              className={PER_LETTER}
-            />
-          </Suspense>
-        )}
+        <Suspense fallback={<span className="invisible">{MARK}</span>}>
+          <StaggeredText
+            as="span"
+            text={MARK}
+            segmentBy="chars"
+            delay={STEP_MS}
+            duration={GATHER}
+            easing={[0.16, 1, 0.3, 1]}
+            from={DUST}
+            to={SOLID}
+            className={PER_LETTER}
+          />
+        </Suspense>
       </div>
 
       {/* Its delay has to clear the last letter, or it lands mid-gather. */}
       <motion.div
         className="mt-5 h-px w-20 origin-center bg-accent/50"
-        initial={quiet ? false : { scaleX: 0, opacity: 0 }}
+        initial={{ scaleX: 0, opacity: 0 }}
         animate={{ scaleX: 1, opacity: 1 }}
         transition={{ duration: 0.8, ease: EASE_OUT, delay: 1.9 }}
       />
@@ -115,7 +107,7 @@ export function Boot({
       <motion.p
         className="mt-4 text-caption text-ink opacity-80"
         style={SCRIM}
-        initial={quiet ? false : { opacity: 0 }}
+        initial={{ opacity: 0 }}
         animate={{ opacity: 0.8 }}
         transition={{ duration: 0.6, ease: EASE_OUT, delay: 2.2 }}
       >
