@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLibrary } from './library';
+import { cn } from '@/lib/utils';
 import type { Loaded } from '@/lib/machine';
 
 /** Pixels a second, away and back. */
 const AWAY = 46;
 const BACK = 20;
 const FADE = 22;
+/** Run past the end by half the fade again, or the last words rest under it. */
+const LEAD = Math.round(FADE * 1.5);
 
 const EDGE = `linear-gradient(to right, #000 calc(100% - ${FADE}px), transparent)`;
 const EDGES = `linear-gradient(to right, transparent, #000 ${FADE}px, #000 calc(100% - ${FADE}px), transparent)`;
@@ -21,17 +24,31 @@ export function NowPlaying({ lesson }: { lesson: Loaded }) {
     <div
       onPointerEnter={() => setReading(true)}
       onPointerLeave={() => setReading(false)}
-      className="rule-t relative shrink-0 bg-canvas px-4 py-2 shadow-lift"
+      className="rule-t relative shrink-0 space-y-0.5 bg-canvas px-4 py-2 shadow-lift"
     >
-      <p className="truncate font-mono text-caption text-ink-faint">
-        {course?.title ?? lesson.courseId}
-      </p>
-      <Slide text={playing?.title ?? lesson.lessonId} reading={reading} />
+      <Slide
+        text={course?.title ?? lesson.courseId}
+        reading={reading}
+        className="font-mono text-caption text-ink-faint"
+      />
+      <Slide
+        text={playing?.title ?? lesson.lessonId}
+        reading={reading}
+        className="text-body leading-snug text-ink"
+      />
     </div>
   );
 }
 
-function Slide({ text, reading }: { text: string; reading: boolean }) {
+function Slide({
+  text,
+  reading,
+  className,
+}: {
+  text: string;
+  reading: boolean;
+  className: string;
+}) {
   const box = useRef<HTMLDivElement | null>(null);
   const line = useRef<HTMLSpanElement | null>(null);
   const [over, setOver] = useState(0);
@@ -51,20 +68,20 @@ function Slide({ text, reading }: { text: string; reading: boolean }) {
   }, [text]);
 
   const away = reading && over > 0;
-  const seconds = over / (away ? AWAY : BACK);
+  const travel = over + LEAD;
 
   return (
     <div
       ref={box}
-      className="mt-0.5 overflow-hidden"
+      className="overflow-hidden"
       style={over ? { maskImage: away ? EDGES : EDGE } : undefined}
     >
       <span
         ref={line}
-        className="block w-max text-body leading-snug whitespace-nowrap text-ink"
+        className={cn('block w-max whitespace-nowrap', className)}
         style={{
-          transform: `translateX(${away ? -over : 0}px)`,
-          transition: `transform ${seconds.toFixed(1)}s ${away ? 'ease-out' : 'ease-in-out'}`,
+          transform: `translateX(${away ? -travel : 0}px)`,
+          transition: `transform ${(travel / (away ? AWAY : BACK)).toFixed(1)}s ${away ? 'ease-out' : 'ease-in-out'}`,
         }}
       >
         {text}
