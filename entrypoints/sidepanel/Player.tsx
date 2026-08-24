@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useRef, useState, type Dispatch, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type Dispatch,
+  type ReactNode,
+} from 'react';
 import { useLibrary } from './library';
 import { FRAME_ORIGIN, framed, fromFrame, type ToFrame } from '@/lib/frame';
 import { nextOf } from '@/lib/lessons';
@@ -155,38 +163,85 @@ export function Player({
   }
 
   return (
-    <Frame>
-      {source && (
-        <iframe
-          ref={frame}
-          src={source}
-          title="Lesson"
-          // Theirs ships this without picture-in-picture, which is why PiP is denied there.
-          allow="autoplay; fullscreen; picture-in-picture"
-          className="absolute inset-0 h-full w-full border-0"
-        />
-      )}
+    <div className="relative shrink-0">
+      <Frame>
+        {source && (
+          <iframe
+            ref={frame}
+            src={source}
+            title="Lesson"
+            // Theirs ships this without picture-in-picture, which is why PiP is denied there.
+            allow="autoplay; fullscreen; picture-in-picture"
+            className="absolute inset-0 h-full w-full border-0"
+          />
+        )}
 
-      {busy && <Loading />}
+        {busy && <Loading />}
 
-      {fault && (
-        <Note>
-          <p className="pointer-events-none font-mono text-caption text-ink-soft" style={SCRIM}>
-            {fault}
-          </p>
-        </Note>
-      )}
+        {fault && (
+          <Note>
+            <p className="pointer-events-none font-mono text-caption text-ink-soft" style={SCRIM}>
+              {fault}
+            </p>
+          </Note>
+        )}
+      </Frame>
 
-      {/* The frame's native control bar takes the bottom edge once it plays. */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-paper/90 to-transparent px-4 pt-2.5 pb-7 opacity-0 transition-opacity duration-200 ease-panel group-hover:opacity-100">
-        <p className="truncate text-body leading-snug text-ink">
-          {playing?.title ?? lesson.lessonId}
-        </p>
-        <p className="mt-0.5 truncate text-caption text-ink-soft">
+      {/* Under the video, not over it: their control bar takes its bottom edge once it plays. */}
+      <div className="rule-t bg-canvas px-4 py-2">
+        <p className="truncate font-mono text-caption text-ink-faint">
           {course?.title ?? lesson.courseId}
         </p>
+        <Marquee text={playing?.title ?? lesson.lessonId} />
       </div>
-    </Frame>
+    </div>
+  );
+}
+
+const GAP = 44;
+const SPEED = 42;
+
+/** A title that fits stays put; a short line sliding past would read as a fault. */
+function Marquee({ text }: { text: string }) {
+  const box = useRef<HTMLDivElement | null>(null);
+  const line = useRef<HTMLSpanElement | null>(null);
+  const [span, setSpan] = useState(0);
+
+  useEffect(() => {
+    const measure = () => {
+      if (!box.current || !line.current) return;
+      const width = line.current.scrollWidth;
+      setSpan(width > box.current.clientWidth ? width + GAP : 0);
+    };
+
+    measure();
+    // The panel is resizable, so a title that fits at one width overflows at another.
+    const watch = new ResizeObserver(measure);
+    if (box.current) watch.observe(box.current);
+    return () => watch.disconnect();
+  }, [text]);
+
+  const rolling = span
+    ? ({
+        gap: `${GAP}px`,
+        '--marquee-span': `${span}px`,
+        animation: `panel-marquee ${(span / SPEED).toFixed(1)}s linear infinite`,
+      } as CSSProperties)
+    : undefined;
+
+  return (
+    <div ref={box} className="mt-0.5 overflow-hidden">
+      <div className="flex w-max" style={rolling}>
+        <span ref={line} className="text-body leading-snug whitespace-nowrap text-ink">
+          {text}
+        </span>
+        {span > 0 && (
+          <span aria-hidden className="text-body leading-snug whitespace-nowrap text-ink">
+            {text}
+          </span>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -210,7 +265,7 @@ const SCRIM = { textShadow: '0 1px 9px rgba(var(--t-scrim), 0.95)' };
 /** No background of its own; the dot layer is what shows through. */
 const Frame = ({ children }: { children: ReactNode }) => (
   // `relative` or it paints under the backdrop, which is absolute and earlier in the DOM.
-  <div className="group relative aspect-video w-full shrink-0">{children}</div>
+  <div className="relative aspect-video w-full">{children}</div>
 );
 
 const Note = ({ children }: { children: ReactNode }) => (
