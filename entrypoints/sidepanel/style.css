@@ -76,11 +76,10 @@
     padding: 1px;
     pointer-events: none;
     /* Bottom right unless the button asks otherwise. */
-    background: linear-gradient(
-      var(--t-glint-angle, 135deg),
-      rgb(155 161 172 / 0.05),
-      rgb(155 161 172 / 0.05) 54%,
-      rgb(230 232 235 / 0.5) 100%
+    background: radial-gradient(
+      130% 130% at var(--t-glint-at, 100% 100%),
+      rgb(230 232 235 / 0.5),
+      rgb(155 161 172 / 0.05) 55%
     );
     mask:
       linear-gradient(#000 0 0) content-box,
