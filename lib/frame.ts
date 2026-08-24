@@ -7,8 +7,13 @@ export const framed = (embed: string, lessonId: LessonId) => `${embed}#ztm:${les
 
 export const lessonInHash = (hash: string): LessonId => hash.match(/#ztm:(\w+)/)?.[1] ?? '';
 
+export type Swap = { ztm: 'swap'; lessonId: LessonId; src: string };
+
 /** A foreign document we own the element of, so postMessage is the whole channel. */
-export type ToFrame = { ztm: 'swap'; lessonId: LessonId; src: string };
+export type ToFrame =
+  | Swap
+  /** The frame ignores it while the video is popped out. */
+  | { ztm: 'pause' };
 
 export type FromFrame =
   | { ztm: 'ready'; lessonId: LessonId }

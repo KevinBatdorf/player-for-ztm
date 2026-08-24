@@ -19,9 +19,12 @@ type Status =
 /** Not a screen: Picture-in-Picture and the sticky activation die with the document. */
 export function Player({
   lesson,
+  collapsed,
   dispatch,
 }: {
   lesson: Loaded | null;
+  /** The frame stays mounted and audible while the canvas is collapsed. */
+  collapsed: boolean;
   dispatch: Dispatch<Action>;
 }) {
   const { courses, lessonsFor, markWatched } = useLibrary();
@@ -38,7 +41,8 @@ export function Player({
     const inside = frame.current?.contentWindow;
     // Its script attaches well after the element exists, so an early swap waits for it.
     if (!listening.current || !inside) {
-      queued.current = message;
+      // A frame that never played is already paused, so only a swap is queued.
+      if (message.ztm === 'swap') queued.current = message;
       return;
     }
     queued.current = null;
@@ -96,6 +100,10 @@ export function Player({
   }, [lesson, course?.slug, send]);
 
   useEffect(() => {
+    if (collapsed) send({ ztm: 'pause' });
+  }, [collapsed, send]);
+
+  useEffect(() => {
     const heard = (event: MessageEvent) => {
       if (event.origin !== FRAME_ORIGIN) return;
       const message = fromFrame(event.data);
@@ -136,59 +144,49 @@ export function Player({
 
   if (!lesson) {
     return (
-      <Shell>
-        <Frame>
-          <Note>
-            <p className="text-body text-ink" style={SCRIM}>
-              Pick a lesson to start
-            </p>
-          </Note>
-        </Frame>
-      </Shell>
+      <Frame>
+        <Note>
+          <p className="text-body text-ink" style={SCRIM}>
+            Pick a lesson to start
+          </p>
+        </Note>
+      </Frame>
     );
   }
 
   return (
-    <Shell>
-      <Frame>
-        {source && (
-          <iframe
-            ref={frame}
-            src={source}
-            title="Lesson"
-            // Theirs ships this without picture-in-picture, which is why PiP is denied there.
-            allow="autoplay; fullscreen; picture-in-picture"
-            className="absolute inset-0 h-full w-full border-0"
-          />
-        )}
+    <Frame>
+      {source && (
+        <iframe
+          ref={frame}
+          src={source}
+          title="Lesson"
+          // Theirs ships this without picture-in-picture, which is why PiP is denied there.
+          allow="autoplay; fullscreen; picture-in-picture"
+          className="absolute inset-0 h-full w-full border-0"
+        />
+      )}
 
-        {busy && <Loading />}
+      {busy && <Loading />}
 
-        {fault && (
-          <Note>
-            <p className="pointer-events-none font-mono text-caption text-ink-soft" style={SCRIM}>
-              {fault}
-            </p>
-          </Note>
-        )}
-      </Frame>
+      {fault && (
+        <Note>
+          <p className="pointer-events-none font-mono text-caption text-ink-soft" style={SCRIM}>
+            {fault}
+          </p>
+        </Note>
+      )}
 
-      <div className="flex items-start gap-2 px-6 py-2.5">
-        <div className="min-w-0 flex-1">
-          <p className="text-body leading-snug text-ink">{playing?.title ?? lesson.lessonId}</p>
-          <p className="mt-0.5 text-caption text-ink-soft">{course?.title ?? lesson.courseId}</p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => dispatch({ type: 'playerClosed' })}
-          aria-label="Close the player"
-          className="rule shrink-0 rounded-panel px-1.5 py-0.5 font-mono text-caption text-ink-faint transition-colors duration-150 ease-panel hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        >
-          ✕
-        </button>
+      {/* The frame's native control bar takes the bottom edge once it plays. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-paper/90 to-transparent px-4 pt-2.5 pb-7 opacity-0 transition-opacity duration-200 ease-panel group-hover:opacity-100">
+        <p className="truncate text-body leading-snug text-ink">
+          {playing?.title ?? lesson.lessonId}
+        </p>
+        <p className="mt-0.5 truncate text-caption text-ink-soft">
+          {course?.title ?? lesson.courseId}
+        </p>
       </div>
-    </Shell>
+    </Frame>
   );
 }
 
@@ -206,17 +204,13 @@ const Loading = () => (
   </div>
 );
 
-/** `relative` or it paints under the backdrop, which is absolute and earlier in the DOM. */
-const Shell = ({ children }: { children: ReactNode }) => (
-  <div className="relative shrink-0">{children}</div>
-);
-
 /** The dot grid runs under this type, so it needs its own ground to stay legible. */
 const SCRIM = { textShadow: '0 1px 9px rgba(var(--t-scrim), 0.95)' };
 
 /** No background of its own; the dot layer is what shows through. */
 const Frame = ({ children }: { children: ReactNode }) => (
-  <div className="relative aspect-video w-full">{children}</div>
+  // `relative` or it paints under the backdrop, which is absolute and earlier in the DOM.
+  <div className="group relative aspect-video w-full shrink-0">{children}</div>
 );
 
 const Note = ({ children }: { children: ReactNode }) => (

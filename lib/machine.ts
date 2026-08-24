@@ -48,7 +48,6 @@ export type Action =
   | { type: 'courseReady'; courseId: CourseId }
   | { type: 'lessonPicked'; courseId: CourseId; lessonId: LessonId }
   | { type: 'lessonEnded'; nextLessonId: LessonId | null }
-  | { type: 'playerClosed' }
   | { type: 'wentHome' };
 
 export const initialState: AppState = {
@@ -126,9 +125,6 @@ export function reduce(state: AppState, action: Action): AppState {
       return state.lesson && action.nextLessonId
         ? { ...state, lesson: { ...state.lesson, lessonId: action.nextLessonId } }
         : state;
-
-    case 'playerClosed':
-      return { ...state, lesson: null };
 
     case 'wentHome':
       return from(view, 'search', 'courseLoading', 'course')

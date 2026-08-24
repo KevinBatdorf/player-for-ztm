@@ -67,7 +67,7 @@ export function App() {
             animate={canvasHeight}
             transition={{ duration: RAISE, ease: CURVE }}
           >
-            <Player lesson={state.lesson} dispatch={dispatch} />
+            <Player lesson={state.lesson} collapsed={raised} dispatch={dispatch} />
           </motion.div>
         )}
 
