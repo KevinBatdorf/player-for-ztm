@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useMemo, useReducer, useState, type Dispatch } from 'react';
 import { Backdrop } from './Backdrop';
+import { NowPlaying } from './NowPlaying';
 import { DotGrid } from './DotGrid';
 import { Player } from './Player';
 import { Boot } from './views/Boot';
@@ -108,6 +109,8 @@ export function App() {
             </AnimatePresence>
           </div>
         </div>
+
+        {showsPlayer && state.lesson && <NowPlaying lesson={state.lesson} />}
       </div>
     </div>
   );

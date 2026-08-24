@@ -1,12 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type Dispatch,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useRef, useState, type Dispatch, type ReactNode } from 'react';
 import { useLibrary } from './library';
 import { FRAME_ORIGIN, framed, fromFrame, type ToFrame } from '@/lib/frame';
 import { nextOf } from '@/lib/lessons';
@@ -59,7 +51,6 @@ export function Player({
 
   const course = courses?.find((c) => c.id === lesson?.courseId);
   const lessons = lesson ? lessonsFor(lesson.courseId) : NONE;
-  const playing = lessons.find((l) => l.id === lesson?.lessonId);
   const busy = status.kind === 'signing' || status.kind === 'loading';
   const fault = lesson ? faultIn(status, course?.slug ?? null) : null;
 
@@ -163,85 +154,28 @@ export function Player({
   }
 
   return (
-    <div className="relative shrink-0">
-      <Frame>
-        {source && (
-          <iframe
-            ref={frame}
-            src={source}
-            title="Lesson"
-            // Theirs ships this without picture-in-picture, which is why PiP is denied there.
-            allow="autoplay; fullscreen; picture-in-picture"
-            className="absolute inset-0 h-full w-full border-0"
-          />
-        )}
+    <Frame>
+      {source && (
+        <iframe
+          ref={frame}
+          src={source}
+          title="Lesson"
+          // Theirs ships this without picture-in-picture, which is why PiP is denied there.
+          allow="autoplay; fullscreen; picture-in-picture"
+          className="absolute inset-0 h-full w-full border-0"
+        />
+      )}
 
-        {busy && <Loading />}
+      {busy && <Loading />}
 
-        {fault && (
-          <Note>
-            <p className="pointer-events-none font-mono text-caption text-ink-soft" style={SCRIM}>
-              {fault}
-            </p>
-          </Note>
-        )}
-      </Frame>
-
-      {/* Under the video, not over it: their control bar takes its bottom edge once it plays. */}
-      <div className="rule-t bg-canvas px-4 py-2">
-        <p className="truncate font-mono text-caption text-ink-faint">
-          {course?.title ?? lesson.courseId}
-        </p>
-        <Marquee text={playing?.title ?? lesson.lessonId} />
-      </div>
-    </div>
-  );
-}
-
-const GAP = 44;
-const SPEED = 42;
-
-/** A title that fits stays put; a short line sliding past would read as a fault. */
-function Marquee({ text }: { text: string }) {
-  const box = useRef<HTMLDivElement | null>(null);
-  const line = useRef<HTMLSpanElement | null>(null);
-  const [span, setSpan] = useState(0);
-
-  useEffect(() => {
-    const measure = () => {
-      if (!box.current || !line.current) return;
-      const width = line.current.scrollWidth;
-      setSpan(width > box.current.clientWidth ? width + GAP : 0);
-    };
-
-    measure();
-    // The panel is resizable, so a title that fits at one width overflows at another.
-    const watch = new ResizeObserver(measure);
-    if (box.current) watch.observe(box.current);
-    return () => watch.disconnect();
-  }, [text]);
-
-  const rolling = span
-    ? ({
-        gap: `${GAP}px`,
-        '--marquee-span': `${span}px`,
-        animation: `panel-marquee ${(span / SPEED).toFixed(1)}s linear infinite`,
-      } as CSSProperties)
-    : undefined;
-
-  return (
-    <div ref={box} className="mt-0.5 overflow-hidden">
-      <div className="flex w-max" style={rolling}>
-        <span ref={line} className="text-body leading-snug whitespace-nowrap text-ink">
-          {text}
-        </span>
-        {span > 0 && (
-          <span aria-hidden className="text-body leading-snug whitespace-nowrap text-ink">
-            {text}
-          </span>
-        )}
-      </div>
-    </div>
+      {fault && (
+        <Note>
+          <p className="pointer-events-none font-mono text-caption text-ink-soft" style={SCRIM}>
+            {fault}
+          </p>
+        </Note>
+      )}
+    </Frame>
   );
 }
 
