@@ -54,7 +54,7 @@ export function App() {
   const showsPlayer = inside(state.view.name);
   // A fresh object each render restarts the height animation on every unrelated re-render.
   const canvasHeight = useMemo(() => ({ height: raised ? 0 : 'auto' }) as const, [raised]);
-  const seconds = state.heading === 'none' ? 0.24 : 0.5;
+  const seconds = state.heading === 'none' ? 0.42 : 0.5;
 
   return (
     <div className="relative flex h-screen flex-col font-sans text-body text-ink">

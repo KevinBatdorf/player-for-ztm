@@ -190,7 +190,6 @@ export function Player({
             Pick a lesson to start
           </p>
         </Note>
-        <Waiting show={false} />
       </Frame>
     );
   }
@@ -239,12 +238,16 @@ const Waiting = ({ show }: { show: boolean }) => (
   >
     <Suspense fallback={null}>
       <Blinds
-        color="#171a21"
-        hotColor="#7d5ea8"
+        color="#12151b"
+        hotColor="#6c56a0"
         backgroundColor="#000000"
-        drift={0.36}
-        gain={0.9}
-        vignette={0.5}
+        bandWidth={0.06}
+        warp={0.8}
+        tilt={0.2}
+        gain={1.5}
+        contrast={1.5}
+        vignette={0.3}
+        drift={0.5}
         cursorInteraction={false}
       />
     </Suspense>
