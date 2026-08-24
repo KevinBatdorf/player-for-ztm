@@ -243,13 +243,13 @@ const Waiting = ({ show }: { show: boolean }) => (
         color="#12151b"
         hotColor="#6c56a0"
         backgroundColor="#000000"
-        bandWidth={0.05}
-        warp={0.8}
-        tilt={0.2}
-        gain={2.1}
-        contrast={1.5}
-        vignette={0.12}
-        drift={0.5}
+        bandWidth={0.22}
+        warp={1}
+        tilt={0.15}
+        gain={1.45}
+        contrast={1}
+        vignette={0.1}
+        drift={0.6}
         cursorInteraction={false}
       />
     </Suspense>
