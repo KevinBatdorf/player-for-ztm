@@ -44,14 +44,14 @@ export function NowPlaying({
       onPointerLeave={() => setReading(false)}
       className="rule-t relative flex shrink-0 items-center gap-2.5 bg-canvas px-4 py-2 shadow-lift"
     >
-      <div className="flex shrink-0 items-center gap-2 text-white">
+      <div className="flex shrink-0 items-center gap-3 text-white">
         <button
           type="button"
           onClick={onToggle}
           aria-label={playing ? 'Pause' : 'Play'}
           className={TAP}
         >
-          {playing ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
+          {playing ? <Pause className="size-5" /> : <Play className="size-5" />}
         </button>
 
         <button
@@ -63,7 +63,7 @@ export function NowPlaying({
           aria-label="Next lesson"
           className={TAP}
         >
-          <SkipForward className="size-3.5" />
+          <SkipForward className="size-5" />
         </button>
       </div>
 
