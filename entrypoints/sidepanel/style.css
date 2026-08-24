@@ -75,8 +75,9 @@
     border-radius: inherit;
     padding: 1px;
     pointer-events: none;
+    /* Bottom right unless the button asks otherwise. */
     background: linear-gradient(
-      315deg,
+      var(--t-glint-angle, 135deg),
       rgb(155 161 172 / 0.05),
       rgb(155 161 172 / 0.05) 54%,
       rgb(230 232 235 / 0.5) 100%

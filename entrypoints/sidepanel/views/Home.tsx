@@ -97,6 +97,7 @@ function Card({
               <Button
                 variant="silver"
                 size="xs"
+                className="[--t-glint-angle:315deg]"
                 onClick={() => dispatch({ type: 'coursePicked', courseId: course.id })}
               >
                 view
