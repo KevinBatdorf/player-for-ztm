@@ -13,7 +13,7 @@ const buttonVariants = cva(
         outline: "rule bg-surface text-ink hover:bg-raised",
         secondary: "bg-paper/80 text-ink hover:bg-paper",
         silver:
-          "shimmer border border-line-strong bg-gradient-to-b from-raised to-surface text-ink shadow-panel",
+          "sheen border border-line-strong bg-gradient-to-b from-raised to-surface text-ink shadow-panel",
         ghost: "text-ink-soft hover:bg-raised hover:text-ink",
         link: "text-accent-text underline-offset-4 hover:underline",
       },
