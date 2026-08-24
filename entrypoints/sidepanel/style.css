@@ -79,9 +79,9 @@
     transition: opacity 220ms var(--t-ease);
     background: linear-gradient(
       160deg,
-      rgb(230 232 235 / 0.65),
-      rgb(155 161 172 / 0.12) 45%,
-      rgb(230 232 235 / 0.4)
+      rgb(230 232 235 / 0.38),
+      rgb(155 161 172 / 0.08) 45%,
+      rgb(230 232 235 / 0.22)
     );
     mask:
       linear-gradient(#000 0 0) content-box,
@@ -101,7 +101,7 @@
     background: conic-gradient(
       from 0deg,
       rgb(255 255 255 / 0) 0deg,
-      rgb(255 255 255 / 0.9) 25deg,
+      rgb(255 255 255 / 0.42) 25deg,
       rgb(255 255 255 / 0) 55deg,
       rgb(255 255 255 / 0) 360deg
     );
