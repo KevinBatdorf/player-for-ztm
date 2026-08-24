@@ -13,7 +13,7 @@ export const VIEW_VARIANTS = {
   boot: ['mark'],
   signedOut: ['card', 'steps'],
   indexingCourses: ['plain'],
-  home: ['list', 'deck'],
+  home: ['deck'],
   search: ['plain'],
   courseLoading: ['plain'],
   course: ['plain'],
