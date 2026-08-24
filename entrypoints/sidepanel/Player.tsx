@@ -227,10 +227,7 @@ function faultIn(status: Status, slug: string | null): string | null {
   return status.kind === 'failed' ? status.message : null;
 }
 
-const Stars = lazy(() => import('@/components/react-bits/rotating-stars'));
-
-/** Their violet at about a third; the shader trebles whatever it is given. */
-const STARS = '#4b3a6e';
+const Blinds = lazy(() => import('@/components/react-bits/rolling-blinds'));
 
 /** Opaque, or the lesson being swapped away from sits there looking like a fault. */
 const Waiting = ({ show }: { show: boolean }) => (
@@ -241,7 +238,15 @@ const Waiting = ({ show }: { show: boolean }) => (
     )}
   >
     <Suspense fallback={null}>
-      <Stars color={STARS} speed={3.4} />
+      <Blinds
+        color="#171a21"
+        hotColor="#7d5ea8"
+        backgroundColor="#000000"
+        drift={0.36}
+        gain={0.9}
+        vignette={0.5}
+        cursorInteraction={false}
+      />
     </Suspense>
   </div>
 );
