@@ -105,6 +105,18 @@ export function numberOf(lessons: Lesson[], lessonId: LessonId): number | null {
 export const titled = (number: number | null, title: string) =>
   number ? `${number}. ${title}` : title;
 
+/** Text lessons are unplayable, so stepping back steps over them too. */
+export function prevOf(lessons: Lesson[], lessonId: LessonId): Lesson | null {
+  const at = lessons.findIndex((lesson) => lesson.id === lessonId);
+  if (at < 0) return null;
+
+  for (let i = at - 1; i >= 0; i--) {
+    const lesson = lessons[i];
+    if (lesson && lesson.video !== false) return lesson;
+  }
+  return null;
+}
+
 /** Null at the end of the course, which is what sends `playing` back to `course`. */
 export function nextOf(lessons: Lesson[], lessonId: LessonId): Lesson | null {
   const at = lessons.findIndex((lesson) => lesson.id === lessonId);

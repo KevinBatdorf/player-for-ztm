@@ -52,6 +52,7 @@ export function App() {
   const [playing, setPlaying] = useState(false);
   // A count rather than a flag: the same press twice has to reach the frame twice.
   const [toggles, setToggles] = useState(0);
+  const [skips, setSkips] = useState(0);
   // The sheet's own position, not a step in the flow, so it stays out of the machine.
   const [raised, setRaised] = useState(false);
   const showsPlayer = inside(state.view.name);
@@ -90,6 +91,7 @@ export function App() {
               onWaiting={setWaiting}
               onPlaying={setPlaying}
               toggles={toggles}
+              skips={skips}
               dispatch={dispatch}
             />
           </motion.div>
@@ -139,6 +141,7 @@ export function App() {
             waiting={waiting}
             playing={playing}
             onToggle={() => setToggles((n) => n + 1)}
+            onSkip={() => setSkips((n) => n + 1)}
             dispatch={dispatch}
           />
         )}

@@ -1,7 +1,7 @@
-import { Pause, Play, SkipForward } from 'lucide-react';
+import { Pause, Play, SkipBack, SkipForward } from 'lucide-react';
 import { useEffect, useRef, useState, type Dispatch } from 'react';
 import { useLibrary } from './library';
-import { nextOf, numberOf, titled } from '@/lib/lessons';
+import { nextOf, numberOf, prevOf, titled } from '@/lib/lessons';
 import { cn } from '@/lib/utils';
 import type { Action, Loaded } from '@/lib/machine';
 
@@ -22,12 +22,14 @@ export function NowPlaying({
   waiting,
   playing,
   onToggle,
+  onSkip,
   dispatch,
 }: {
   lesson: Loaded;
   waiting: boolean;
   playing: boolean;
   onToggle: () => void;
+  onSkip: () => void;
   dispatch: Dispatch<Action>;
 }) {
   const { courses, lessonsFor } = useLibrary();
@@ -36,6 +38,13 @@ export function NowPlaying({
   const lessons = lessonsFor(lesson.courseId);
   const current = lessons.find((l) => l.id === lesson.lessonId);
   const next = nextOf(lessons, lesson.lessonId);
+  const prev = prevOf(lessons, lesson.lessonId);
+
+  const step = (to: { id: string } | null) => {
+    if (!to) return;
+    onSkip();
+    dispatch({ type: 'lessonPicked', courseId: lesson.courseId, lessonId: to.id });
+  };
 
   return (
     // `relative`, or the dot field is positioned and paints over the whole bar.
@@ -44,27 +53,41 @@ export function NowPlaying({
       onPointerLeave={() => setReading(false)}
       className="rule-t relative flex shrink-0 items-center gap-2.5 bg-canvas px-4 py-2 shadow-lift"
     >
-      <div className="flex shrink-0 items-center gap-3 text-white">
+      <div className="flex shrink-0 flex-col items-center gap-1.5 text-white">
         <button
           type="button"
           onClick={onToggle}
           aria-label={playing ? 'Pause' : 'Play'}
           className={TAP}
         >
-          {playing ? <Pause className="size-5" /> : <Play className="size-5" />}
+          {playing ? (
+            <Pause className="size-6" fill="currentColor" strokeWidth={0} />
+          ) : (
+            <Play className="size-6" fill="currentColor" strokeWidth={0} />
+          )}
         </button>
 
-        <button
-          type="button"
-          onClick={() =>
-            next && dispatch({ type: 'lessonPicked', courseId: lesson.courseId, lessonId: next.id })
-          }
-          disabled={!next}
-          aria-label="Next lesson"
-          className={TAP}
-        >
-          <SkipForward className="size-5" />
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => step(prev)}
+            disabled={!prev}
+            aria-label="Previous lesson"
+            className={TAP}
+          >
+            <SkipBack className="size-3.5" fill="currentColor" strokeWidth={0} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => step(next)}
+            disabled={!next}
+            aria-label="Next lesson"
+            className={TAP}
+          >
+            <SkipForward className="size-3.5" fill="currentColor" strokeWidth={0} />
+          </button>
+        </div>
       </div>
 
       <div className="min-w-0 flex-1 space-y-0.5">

@@ -35,6 +35,7 @@ export function Player({
   onWaiting,
   onPlaying,
   toggles,
+  skips,
   dispatch,
 }: {
   lesson: Loaded | null;
@@ -45,6 +46,8 @@ export function Player({
   onPlaying: (playing: boolean) => void;
   /** Rises when the bar's play button is pressed; the frame owns the actual state. */
   toggles: number;
+  /** Rises when the bar steps to another lesson. */
+  skips: number;
   dispatch: Dispatch<Action>;
 }) {
   const { courses, lessonsFor, markWatched } = useLibrary();
@@ -144,6 +147,13 @@ export function Player({
   useEffect(() => {
     if (toggles > 0) send({ ztm: 'toggle' });
   }, [toggles, send]);
+
+  // The outgoing lesson would otherwise keep playing for the whole signing round trip.
+  useEffect(() => {
+    if (skips === 0) return;
+    advancing.current = true;
+    send({ ztm: 'pause' });
+  }, [skips, send]);
 
   useEffect(() => {
     const heard = (event: MessageEvent) => {
