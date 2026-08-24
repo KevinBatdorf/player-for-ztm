@@ -173,6 +173,8 @@ const RotatingStars: React.FC<RotatingStarsProps> = ({
         camera={{ position: [0, 0, 1], zoom: 1 }}
         gl={{ alpha: true, antialias: true }}
         dpr={[1, 2]}
+        // R3F writes pointer-events auto inline, which beats any class on a parent.
+        style={{ pointerEvents: "none" }}
       >
         <Scene
           center={[x, y]}

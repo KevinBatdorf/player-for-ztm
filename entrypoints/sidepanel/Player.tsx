@@ -190,6 +190,7 @@ export function Player({
             Pick a lesson to start
           </p>
         </Note>
+        <Waiting show={false} />
       </Frame>
     );
   }
@@ -235,8 +236,8 @@ const STARS = '#4b3a6e';
 const Waiting = ({ show }: { show: boolean }) => (
   <div
     className={cn(
-      'absolute inset-0 bg-canvas transition-opacity duration-200 ease-panel',
-      show ? 'opacity-100' : 'pointer-events-none opacity-0',
+      'pointer-events-none absolute inset-0 bg-canvas transition-opacity ease-panel',
+      show ? 'opacity-100 duration-100' : 'opacity-0 duration-300',
     )}
   >
     <Suspense fallback={null}>
