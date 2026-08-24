@@ -12,9 +12,11 @@ import { fetchCurriculum, mergeIndex, type Lesson, type LessonIndex } from '@/li
 import { fetchLectureBody } from '@/lib/lecture';
 import type { CourseId, LessonId } from '@/lib/machine';
 import { read, write } from '@/lib/store';
+import { mark, resumeOf, type Watched } from '@/lib/watched';
 
 const COURSES = 'courses';
 const LESSONS = 'lessons';
+const WATCHED = 'watched';
 
 /** Per course, so opening one reads its own bodies instead of every course's. */
 const bodyKey = (courseId: CourseId) => `text:${courseId}`;
@@ -40,6 +42,9 @@ type LibraryApi = {
   /** Deduped, so asking for a lecture already in flight costs nothing. */
   readLesson: (courseId: CourseId, lessonId: LessonId) => void;
   bodyFor: (courseId: CourseId, lessonId: LessonId) => string | undefined;
+  seen: (courseId: CourseId, lessonId: LessonId) => boolean;
+  markWatched: (courseId: CourseId, lessonId: LessonId) => void;
+  resumeIn: (courseId: CourseId) => Lesson | null;
 };
 
 const LibraryContext = createContext<LibraryApi | null>(null);
@@ -54,6 +59,8 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   const inflight = useRef<Promise<boolean> | null>(null);
   const opening = useRef(new Map<CourseId, Promise<void>>());
   const [text, setText] = useState<Record<CourseId, Bodies>>({});
+  const [watched, setWatched] = useState<Watched>({});
+  const record = useRef<Watched>({});
   const sweeping = useRef<CourseId | null>(null);
   const reading = useRef(new Set<LessonId>());
   // The writes are whole-record, so they read the latest without waiting on a render.
@@ -86,14 +93,20 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     if (inflight.current) return inflight.current;
 
     const run = (async () => {
-      const [cachedCourses, cachedIndex] = await Promise.all([
+      const [cachedCourses, cachedIndex, cachedWatched] = await Promise.all([
         read<Course[]>(COURSES),
         read<LessonIndex>(LESSONS),
+        read<Watched>(WATCHED),
       ]);
 
       if (cachedIndex) {
         latest.current = cachedIndex;
         setIndex(cachedIndex);
+      }
+
+      if (cachedWatched) {
+        record.current = cachedWatched;
+        setWatched(cachedWatched);
       }
 
       const warm = Array.isArray(cachedCourses) && cachedCourses.length > 0;
@@ -215,6 +228,15 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     [courses, keep],
   );
 
+  // Every progress tick past the threshold says the same thing, so only the first writes.
+  const markWatched = useCallback((courseId: CourseId, lessonId: LessonId) => {
+    if (record.current[courseId]?.[lessonId]) return;
+    const next = mark(record.current, courseId, lessonId);
+    record.current = next;
+    setWatched(next);
+    void write(WATCHED, next);
+  }, []);
+
   const api = useMemo<LibraryApi>(
     () => ({
       courses,
@@ -225,8 +247,11 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       sweepText,
       readLesson,
       bodyFor: (courseId, lessonId) => text[courseId]?.bodies[lessonId],
+      seen: (courseId, lessonId) => !!watched[courseId]?.[lessonId],
+      markWatched,
+      resumeIn: (courseId) => resumeOf(index[courseId]?.lessons ?? NONE, watched[courseId]),
     }),
-    [courses, error, load, index, openCourse, sweepText, readLesson, text],
+    [courses, error, load, index, openCourse, sweepText, readLesson, text, watched, markWatched],
   );
 
   return <LibraryContext.Provider value={api}>{children}</LibraryContext.Provider>;

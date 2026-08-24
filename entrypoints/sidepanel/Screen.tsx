@@ -100,14 +100,6 @@ export const StubNote = ({ children }: { children: ReactNode }) => (
   <p className="text-caption leading-relaxed text-ink-faint">{children}</p>
 );
 
-/** Stands in for transitions nothing raises yet, so the flow is walkable by hand. */
-export const Simulate = ({ children }: { children: ReactNode }) => (
-  <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-dashed border-line pt-3">
-    <span className="w-full font-mono text-caption text-ink-faint">simulate</span>
-    {children}
-  </div>
-);
-
 export function Button({
   children,
   onClick,
@@ -140,6 +132,7 @@ export function Row({
   onClick,
   /** Picking a lesson does not change screen, so the list shows which one is loaded. */
   active = false,
+  done = false,
   onPointerEnter,
   onPointerLeave,
 }: {
@@ -147,6 +140,7 @@ export function Row({
   meta?: string;
   onClick: () => void;
   active?: boolean;
+  done?: boolean;
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
 }) {
@@ -169,6 +163,11 @@ export function Row({
       >
         {title}
       </span>
+      {done && (
+        <span className="shrink-0 font-mono text-caption text-accent-text" title="Watched">
+          &#10003;
+        </span>
+      )}
       {meta && <span className="shrink-0 font-mono text-caption text-ink-faint">{meta}</span>}
     </button>
   );

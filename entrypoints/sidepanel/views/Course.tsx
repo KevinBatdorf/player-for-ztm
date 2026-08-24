@@ -1,7 +1,7 @@
 import { useEffect, type Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { useReader } from '../Reader';
-import { Row, Screen, StubNote, TextRow } from '../Screen';
+import { Cta, Row, Screen, StubNote, TextRow } from '../Screen';
 import { useHold } from '../settings';
 import { fixtureLessons } from '@/lib/fixtures';
 import type { Action, Loaded, ViewOf } from '@/lib/machine';
@@ -15,7 +15,7 @@ export function Course({
   lesson: Loaded | null;
   dispatch: Dispatch<Action>;
 }) {
-  const { courses, lessonsFor, openCourse, sweepText } = useLibrary();
+  const { courses, lessonsFor, openCourse, sweepText, seen, resumeIn } = useLibrary();
   const reader = useReader();
   const held = useHold();
 
@@ -23,6 +23,7 @@ export function Course({
   // The dev panel can jump straight here, so the stubs stay reachable without a session.
   const lessons = courses ? lessonsFor(view.courseId) : fixtureLessons(view.courseId);
   const pending = view.name === 'courseLoading';
+  const resume = resumeIn(view.courseId);
 
   // Titles are already in hand from the catalogue; this fetch is only durations and type.
   useEffect(() => {
@@ -45,6 +46,16 @@ export function Course({
   return (
     <>
       <Screen title={course?.title ?? view.courseId} onBack={() => dispatch({ type: 'wentHome' })}>
+        {resume && resume.id !== lesson?.lessonId && (
+          <Cta
+            onClick={() =>
+              dispatch({ type: 'lessonPicked', courseId: view.courseId, lessonId: resume.id })
+            }
+          >
+            <span className="block truncate">Resume — {resume.title}</span>
+          </Cta>
+        )}
+
         {lessons.length === 0 ? (
           <p className="text-body text-ink-soft">
             {course && !course.slug
@@ -67,6 +78,7 @@ export function Course({
                   title={row.title}
                   meta={row.duration ?? undefined}
                   active={lesson?.courseId === view.courseId && lesson.lessonId === row.id}
+                  done={seen(view.courseId, row.id)}
                   onClick={() =>
                     dispatch({ type: 'lessonPicked', courseId: view.courseId, lessonId: row.id })
                   }
@@ -76,11 +88,11 @@ export function Course({
           </div>
         )}
 
-        <StubNote>
-          {pending
-            ? 'Durations and lesson type are still on their way; the titles came with the catalogue.'
-            : 'Phase 6 marks watched lessons from our own record and opens the earliest unwatched one, since nothing persists progress today.'}
-        </StubNote>
+        {pending && (
+          <StubNote>
+            Durations and lesson type are still on their way; the titles came with the catalogue.
+          </StubNote>
+        )}
       </Screen>
 
       {reader.node}

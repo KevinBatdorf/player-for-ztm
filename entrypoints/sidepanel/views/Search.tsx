@@ -75,6 +75,7 @@ export function Search({
                   title={row.title}
                   meta={row.duration ?? undefined}
                   active={lesson?.courseId === course.id && lesson.lessonId === row.id}
+                  done={library.seen(course.id, row.id)}
                   onClick={() =>
                     dispatch({ type: 'lessonPicked', courseId: course.id, lessonId: row.id })
                   }

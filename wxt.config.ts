@@ -17,9 +17,13 @@ export default defineConfig({
   manifest: {
     name: 'Player for ZTM',
     description: 'Zero To Mastery courses in a side panel, playing in Picture-in-Picture.',
-    permissions: ['sidePanel', 'storage'],
+    permissions: ['sidePanel', 'storage', 'declarativeNetRequestWithHostAccess'],
     // The session check reads a page that only answers with cookies attached.
-    host_permissions: ['https://academy.zerotomastery.io/*'],
+    host_permissions: ['https://academy.zerotomastery.io/*', 'https://player.hotmart.com/*'],
     action: { default_title: 'Player for ZTM' },
+    // player.hotmart.com refuses to be framed by another origin; the rule strips the headers.
+    declarative_net_request: {
+      rule_resources: [{ id: 'frame-headers', enabled: true, path: 'rules.json' }],
+    },
   },
 });
