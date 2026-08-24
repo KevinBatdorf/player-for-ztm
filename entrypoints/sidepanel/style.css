@@ -67,7 +67,7 @@
 @utility sheen {
   position: relative;
 
-  /* A real child, not a pseudo: the mask has to stay put while the highlight moves. */
+  /* A real child, not a pseudo: the ring carries a mask of its own. */
   & > .glint {
     position: absolute;
     /* The border box, not the padding box, or the ring lands inside the edge. */
@@ -75,50 +75,16 @@
     border-radius: inherit;
     padding: 1px;
     pointer-events: none;
-    opacity: 0;
-    transition: opacity 220ms var(--t-ease);
     background: linear-gradient(
-      160deg,
-      rgb(230 232 235 / 0.38),
-      rgb(155 161 172 / 0.08) 45%,
-      rgb(230 232 235 / 0.22)
+      135deg,
+      rgb(155 161 172 / 0.05),
+      rgb(155 161 172 / 0.05) 54%,
+      rgb(230 232 235 / 0.5) 100%
     );
     mask:
       linear-gradient(#000 0 0) content-box,
       linear-gradient(#000 0 0);
     mask-composite: exclude;
-  }
-
-  & > .glint::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    /* Square and oversized, or the corners fall outside the sweep as it turns. */
-    width: 300%;
-    aspect-ratio: 1;
-    translate: -50% -50%;
-    background: conic-gradient(
-      from 0deg,
-      rgb(255 255 255 / 0) 0deg,
-      rgb(255 255 255 / 0.42) 25deg,
-      rgb(255 255 255 / 0) 55deg,
-      rgb(255 255 255 / 0) 360deg
-    );
-    animation: glint-orbit 60s linear infinite;
-  }
-
-  &:hover > .glint {
-    opacity: 1;
-  }
-}
-
-@keyframes glint-orbit {
-  from {
-    rotate: 0deg;
-  }
-  to {
-    rotate: 360deg;
   }
 }
 
