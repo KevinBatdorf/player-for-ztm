@@ -96,6 +96,15 @@ export function runtimeOf(lessons: Lesson[]): string | null {
   return hours ? `${hours}h ${minutes}m` : `${minutes}m`;
 }
 
+/** Their curriculum numbers text lessons too, so it is the position in the whole list. */
+export function numberOf(lessons: Lesson[], lessonId: LessonId): number | null {
+  const at = lessons.findIndex((lesson) => lesson.id === lessonId);
+  return at < 0 ? null : at + 1;
+}
+
+export const titled = (number: number | null, title: string) =>
+  number ? `${number}. ${title}` : title;
+
 /** Null at the end of the course, which is what sends `playing` back to `course`. */
 export function nextOf(lessons: Lesson[], lessonId: LessonId): Lesson | null {
   const at = lessons.findIndex((lesson) => lesson.id === lessonId);

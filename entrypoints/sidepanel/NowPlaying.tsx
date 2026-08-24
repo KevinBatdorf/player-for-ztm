@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLibrary } from './library';
+import { numberOf, titled } from '@/lib/lessons';
 import { cn } from '@/lib/utils';
 import type { Loaded } from '@/lib/machine';
 
@@ -16,7 +17,8 @@ export function NowPlaying({ lesson }: { lesson: Loaded }) {
   const { courses, lessonsFor } = useLibrary();
   const [reading, setReading] = useState(false);
   const course = courses?.find((c) => c.id === lesson.courseId);
-  const playing = lessonsFor(lesson.courseId).find((l) => l.id === lesson.lessonId);
+  const lessons = lessonsFor(lesson.courseId);
+  const playing = lessons.find((l) => l.id === lesson.lessonId);
 
   return (
     // `relative`, or the dot field is positioned and paints over the whole bar.
@@ -31,7 +33,7 @@ export function NowPlaying({ lesson }: { lesson: Loaded }) {
         className="font-mono text-caption text-ink-faint"
       />
       <Slide
-        text={playing?.title ?? lesson.lessonId}
+        text={titled(numberOf(lessons, lesson.lessonId), playing?.title ?? lesson.lessonId)}
         reading={reading}
         className="text-body leading-snug text-ink"
       />

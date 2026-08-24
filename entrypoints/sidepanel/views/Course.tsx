@@ -2,6 +2,7 @@ import { useEffect, type Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { useReader } from '../Reader';
 import { Cta, Row, Screen, TextRow } from '../Screen';
+import { numberOf, titled } from '@/lib/lessons';
 import type { Action, Loaded, ViewOf } from '@/lib/machine';
 
 export function Course({
@@ -48,7 +49,9 @@ export function Course({
               dispatch({ type: 'lessonPicked', courseId: view.courseId, lessonId: resume.id })
             }
           >
-            <span className="block truncate">Resume — {resume.title}</span>
+            <span className="block truncate">
+              Resume — {titled(numberOf(lessons, resume.id), resume.title)}
+            </span>
           </Cta>
         )}
 
@@ -60,18 +63,18 @@ export function Course({
           </p>
         ) : (
           <div className="flex flex-col gap-1.5">
-            {lessons.map((row) =>
+            {lessons.map((row, at) =>
               row.video === false ? (
                 <TextRow
                   key={row.id}
-                  title={row.title}
+                  title={titled(at + 1, row.title)}
                   onRead={() => reader.open(view.courseId, row.id, row.title)}
                   onOpenTab={() => reader.openTab(view.courseId, row.id)}
                 />
               ) : (
                 <Row
                   key={row.id}
-                  title={row.title}
+                  title={titled(at + 1, row.title)}
                   meta={row.duration ?? undefined}
                   active={lesson?.courseId === view.courseId && lesson.lessonId === row.id}
                   done={seen(view.courseId, row.id)}

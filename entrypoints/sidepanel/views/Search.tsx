@@ -4,7 +4,7 @@ import { useHoverPrefetch } from '../prefetch';
 import { useReader } from '../Reader';
 import { Row, Screen, TextRow } from '../Screen';
 import type { Course } from '@/lib/courses';
-import type { Lesson } from '@/lib/lessons';
+import { numberOf, titled, type Lesson } from '@/lib/lessons';
 import type { Action, Loaded, ViewOf } from '@/lib/machine';
 
 /** Six thousand lesson titles are in reach, and a 400px column is not where they go. */
@@ -63,14 +63,14 @@ export function Search({
               row.video === false ? (
                 <TextRow
                   key={row.id}
-                  title={row.title}
+                  title={titled(numberOf(lessonsFor(course.id), row.id), row.title)}
                   onRead={() => reader.open(course.id, row.id, row.title)}
                   onOpenTab={() => reader.openTab(course.id, row.id)}
                 />
               ) : (
                 <Row
                   key={row.id}
-                  title={row.title}
+                  title={titled(numberOf(lessonsFor(course.id), row.id), row.title)}
                   meta={row.duration ?? undefined}
                   active={lesson?.courseId === course.id && lesson.lessonId === row.id}
                   done={library.seen(course.id, row.id)}
