@@ -238,15 +238,17 @@ const Waiting = ({ show }: { show: boolean }) => (
   >
     <Suspense fallback={null}>
       <Blinds
+        // Its root carries no size of its own, and a canvas with no height draws nothing.
+        className="h-full w-full"
         color="#12151b"
         hotColor="#6c56a0"
         backgroundColor="#000000"
-        bandWidth={0.06}
+        bandWidth={0.05}
         warp={0.8}
         tilt={0.2}
-        gain={1.5}
+        gain={2.1}
         contrast={1.5}
-        vignette={0.3}
+        vignette={0.12}
         drift={0.5}
         cursorInteraction={false}
       />

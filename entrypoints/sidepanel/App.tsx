@@ -53,7 +53,7 @@ export function App() {
   const [raised, setRaised] = useState(false);
   const showsPlayer = inside(state.view.name);
   // A fresh object each render restarts the height animation on every unrelated re-render.
-  const canvasHeight = useMemo(() => ({ height: raised ? 0 : 'auto' }) as const, [raised]);
+  const canvasHeight = useMemo(() => ({ height: raised ? 0 : 'auto', opacity: 1 }) as const, [raised]);
   const seconds = state.heading === 'none' ? 0.42 : 0.5;
 
   return (
@@ -61,12 +61,23 @@ export function App() {
       <Backdrop level={state.backdrop} onReady={() => setFieldReady(true)} />
 
       <div className="relative flex min-h-0 flex-1 flex-col">
-        {showsPlayer && <DotGrid />}
+        {showsPlayer && (
+          <motion.div
+            className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: RAISE, ease: CURVE }}
+          >
+            <DotGrid />
+          </motion.div>
+        )}
 
         {/* `auto` so collapsing the canvas never needs a measured height. */}
         {showsPlayer && (
           <motion.div
             className="relative shrink-0 overflow-hidden"
+            // Home mounts this whole region at once, and at full height that reads as a jump.
+            initial={{ height: 0, opacity: 0 }}
             animate={canvasHeight}
             transition={{ duration: RAISE, ease: CURVE }}
           >
