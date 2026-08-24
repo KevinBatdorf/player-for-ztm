@@ -194,6 +194,7 @@ export default defineContentScript({
         paint();
         post({ ztm: 'playing', lessonId: lesson });
       });
+      video.addEventListener('pause', () => post({ ztm: 'paused', lessonId: lesson }));
       video.addEventListener('ended', () => post({ ztm: 'ended', lessonId: lesson }));
       video.addEventListener('enterpictureinpicture', paint);
       video.addEventListener('leavepictureinpicture', paint);
@@ -212,7 +213,9 @@ export default defineContentScript({
       }
 
       lesson = request.lessonId;
-      wanted = true;
+      wanted = request.play;
+      // A lesson picked while paused arrives paused, so its overlay has to come back.
+      started = request.play;
 
       const giveUp = setTimeout(() => {
         post({ ztm: 'failed', lessonId: lesson, message: 'That lesson never loaded.' });
@@ -223,6 +226,12 @@ export default defineContentScript({
         'loadedmetadata',
         () => {
           clearTimeout(giveUp);
+          if (!request.play) {
+            if (video) video.controls = false;
+            paint();
+            post({ ztm: 'ready', lessonId: lesson });
+            return;
+          }
           void start().then(() => post({ ztm: 'ready', lessonId: lesson }));
         },
         { once: true },

@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useRef, useState, type Dispatch, type ReactNode } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type Dispatch,
+  type ReactNode,
+} from 'react';
 import { useLibrary } from './library';
 import { FRAME_ORIGIN, framed, fromFrame, type ToFrame } from '@/lib/frame';
 import { nextOf } from '@/lib/lessons';
@@ -36,6 +45,9 @@ export function Player({
   const signedFor = useRef<LessonId | null>(null);
   const listening = useRef(false);
   const queued = useRef<ToFrame | null>(null);
+  // What the frame is doing, which the panel cannot read off a cross-origin document.
+  const rolling = useRef(false);
+  const advancing = useRef(false);
 
   const send = useCallback((message: ToFrame) => {
     const inside = frame.current?.contentWindow;
@@ -81,7 +93,10 @@ export function Player({
         setStatus({ kind: 'loading' });
 
         if (loaded.current) {
-          send({ ztm: 'swap', lessonId, src: signed.src });
+          // A pick inherits the last video's play state; the end of a lesson overrides it.
+          const play = advancing.current || rolling.current;
+          advancing.current = false;
+          send({ ztm: 'swap', lessonId, src: signed.src, play });
           return;
         }
         loaded.current = framed(signed.embed, lessonId);
@@ -116,7 +131,12 @@ export function Player({
           return setStatus((was) => (was.kind === 'playing' ? was : { kind: 'holding' }));
 
         case 'playing':
+          rolling.current = true;
           return setStatus({ kind: 'playing' });
+
+        case 'paused':
+          rolling.current = false;
+          return setStatus((was) => (was.kind === 'playing' ? { kind: 'holding' } : was));
 
         case 'progress':
           if (lesson && isDone(message.covered, message.duration)) {
@@ -124,13 +144,15 @@ export function Player({
           }
           return;
 
-        case 'ended':
+        case 'ended': {
           if (!lesson) return;
           markWatched(lesson.courseId, message.lessonId);
-          return dispatch({
-            type: 'lessonEnded',
-            nextLessonId: nextOf(lessons, message.lessonId)?.id ?? null,
-          });
+          const nextLessonId = nextOf(lessons, message.lessonId)?.id ?? null;
+          // The viewer did not pick this one, so the play carries over.
+          advancing.current = nextLessonId !== null;
+          rolling.current = false;
+          return dispatch({ type: 'lessonEnded', nextLessonId });
+        }
 
         case 'failed':
           return setStatus({ kind: 'failed', message: message.message });
@@ -166,7 +188,7 @@ export function Player({
         />
       )}
 
-      {busy && <Loading />}
+      {busy && <Waiting />}
 
       {fault && (
         <Note>
@@ -184,12 +206,17 @@ function faultIn(status: Status, slug: string | null): string | null {
   return status.kind === 'failed' ? status.message : null;
 }
 
-const SWEEP = { animation: 'panel-sweep 1.1s var(--t-ease) infinite' };
+const Stars = lazy(() => import('@/components/react-bits/rotating-stars'));
 
-/** Indeterminate: neither the signing chain nor their player reports progress. */
-const Loading = () => (
-  <div className="absolute inset-x-0 bottom-0 h-0.5 overflow-hidden bg-line">
-    <span className="block h-full w-1/4 bg-accent" style={SWEEP} />
+/** The shader triples its colour, so this is darker than it renders. */
+const STARS = '#241b33';
+
+/** Opaque, or the lesson being swapped away from sits there looking like a fault. */
+const Waiting = () => (
+  <div className="absolute inset-0 bg-canvas">
+    <Suspense fallback={null}>
+      <Stars color={STARS} radius={13} speed={1} thickness={0.014} />
+    </Suspense>
   </div>
 );
 

@@ -122,15 +122,6 @@
   }
 }
 
-@keyframes panel-sweep {
-  from {
-    transform: translateX(-120%);
-  }
-  to {
-    transform: translateX(420%);
-  }
-}
-
 @keyframes panel-tick {
   0%,
   100% {

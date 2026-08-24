@@ -7,7 +7,7 @@ export const framed = (embed: string, lessonId: LessonId) => `${embed}#ztm:${les
 
 export const lessonInHash = (hash: string): LessonId => hash.match(/#ztm:(\w+)/)?.[1] ?? '';
 
-export type Swap = { ztm: 'swap'; lessonId: LessonId; src: string };
+export type Swap = { ztm: 'swap'; lessonId: LessonId; src: string; play: boolean };
 
 /** A foreign document we own the element of, so postMessage is the whole channel. */
 export type ToFrame =
@@ -18,6 +18,7 @@ export type ToFrame =
 export type FromFrame =
   | { ztm: 'ready'; lessonId: LessonId }
   | { ztm: 'playing'; lessonId: LessonId }
+  | { ztm: 'paused'; lessonId: LessonId }
   /** `covered` is seconds watched, not a position. */
   | { ztm: 'progress'; lessonId: LessonId; covered: number; duration: number | null }
   | { ztm: 'ended'; lessonId: LessonId }
