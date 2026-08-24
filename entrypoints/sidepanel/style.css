@@ -131,16 +131,6 @@
   }
 }
 
-/* The distance differs with every title, so it arrives as a variable. */
-@keyframes panel-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(calc(-1 * var(--marquee-span)));
-  }
-}
-
 @keyframes panel-tick {
   0%,
   100% {
