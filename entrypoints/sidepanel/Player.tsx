@@ -17,6 +17,8 @@ import { isDone } from '@/lib/watched';
 
 const NONE: never[] = [];
 
+const DWELL_MS = 800;
+
 type Status =
   | { kind: 'empty' }
   | { kind: 'signing' }
@@ -39,6 +41,7 @@ export function Player({
   const { courses, lessonsFor, markWatched } = useLibrary();
   const [source, setSource] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>({ kind: 'empty' });
+  const [dwelling, setDwelling] = useState(false);
   const frame = useRef<HTMLIFrameElement | null>(null);
   // One document for the session; a lesson change is a swap, never a reload.
   const loaded = useRef<string | null>(null);
@@ -117,6 +120,14 @@ export function Player({
     if (collapsed) send({ ztm: 'pause' });
   }, [collapsed, send]);
 
+  // A warm swap resolves in a frame or two, and that reads as a flicker.
+  useEffect(() => {
+    if (!busy) return;
+    setDwelling(true);
+    const rest = setTimeout(() => setDwelling(false), DWELL_MS);
+    return () => clearTimeout(rest);
+  }, [busy]);
+
   useEffect(() => {
     const heard = (event: MessageEvent) => {
       if (event.origin !== FRAME_ORIGIN) return;
@@ -188,7 +199,7 @@ export function Player({
         />
       )}
 
-      {busy && <Waiting />}
+      {(busy || dwelling) && <Waiting />}
 
       {fault && (
         <Note>
@@ -208,15 +219,20 @@ function faultIn(status: Status, slug: string | null): string | null {
 
 const Stars = lazy(() => import('@/components/react-bits/rotating-stars'));
 
-/** The shader triples its colour, so this is darker than it renders. */
-const STARS = '#241b33';
+/** Their violet at about a third; the shader trebles whatever it is given. */
+const STARS = '#4b3a6e';
 
 /** Opaque, or the lesson being swapped away from sits there looking like a fault. */
 const Waiting = () => (
   <div className="absolute inset-0 bg-canvas">
     <Suspense fallback={null}>
-      <Stars color={STARS} radius={13} speed={1} thickness={0.014} />
+      <Stars color={STARS} />
     </Suspense>
+
+    {/* Feedback that does not depend on the WebGL context coming up. */}
+    <div className="absolute inset-0 flex items-center justify-center">
+      <span className="size-5 animate-spin rounded-full border-2 border-line-strong border-t-ink-soft" />
+    </div>
   </div>
 );
 
