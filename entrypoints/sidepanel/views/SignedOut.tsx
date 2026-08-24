@@ -34,8 +34,8 @@ export function SignedOut({
       <div className="rule flex w-full flex-col gap-3 rounded-panel bg-raised p-4 shadow-panel">
         <Reveal text={HEADING} className={HEADING_TYPE} />
         <p className="text-body leading-relaxed text-ink-soft">
-          Zero To Mastery emails a one-time code, so signing in happens on their site rather
-          than here. This panel picks the session up when you come back.
+          Zero To Mastery emails you a code, so you sign in on their site. Come back here
+          when you are done.
         </p>
         <Cta onClick={send}>{awaitingLogin ? 'Reopen the ZTM tab' : 'Open ZTM to sign in'}</Cta>
         {awaitingLogin && <Waiting onClick={recheck} />}
@@ -46,7 +46,7 @@ export function SignedOut({
 
 const Waiting = ({ onClick }: { onClick: () => void }) => (
   <div className="flex items-baseline justify-between gap-2">
-    <p className="text-caption text-ink-faint">Re-checks when you come back.</p>
+    <p className="text-caption text-ink-faint">Checks again when you come back.</p>
     <button
       type="button"
       onClick={onClick}

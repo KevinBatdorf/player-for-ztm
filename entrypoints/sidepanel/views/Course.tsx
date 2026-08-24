@@ -59,8 +59,8 @@ export function Course({
         {lessons.length === 0 ? (
           <p className="text-body text-ink-soft">
             {course && !course.slug
-              ? 'One of their onboarding tiles rather than a course, so it has no curriculum to read.'
-              : 'No lessons in reach for this course.'}
+              ? 'This one is a welcome card, not a course, so there is nothing to play.'
+              : 'No lessons here.'}
           </p>
         ) : (
           <div className="flex flex-col gap-1.5">
@@ -89,9 +89,7 @@ export function Course({
         )}
 
         {pending && (
-          <StubNote>
-            Durations and lesson type are still on their way; the titles came with the catalogue.
-          </StubNote>
+          <StubNote>Loading the rest of the lessons…</StubNote>
         )}
       </Screen>
 

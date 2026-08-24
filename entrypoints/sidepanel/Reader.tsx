@@ -88,7 +88,7 @@ export function Reader({
           <Markdown text={body} />
         ) : (
           <p className="text-body text-ink-soft">
-            Nothing readable came back for this one. Open it in a tab instead.
+            This lesson would not load. Try opening it in a tab.
           </p>
         )}
       </div>

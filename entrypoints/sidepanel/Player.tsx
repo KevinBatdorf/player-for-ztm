@@ -145,10 +145,7 @@ export function Player({
         <Frame>
           <Note>
             <p className="text-body text-ink" style={SCRIM}>
-              Pick a course to start
-            </p>
-            <p className="mt-1 font-mono text-caption text-ink-soft" style={SCRIM}>
-              the lesson plays up here and the list stays put
+              Pick a lesson to start
             </p>
           </Note>
         </Frame>
@@ -201,7 +198,7 @@ export function Player({
 }
 
 function faultIn(status: Status, slug: string | null): string | null {
-  if (!slug) return 'One of their onboarding tiles, so it has no lecture to sign.';
+  if (!slug) return 'There’s no video in this one.';
   return status.kind === 'failed' ? status.message : null;
 }
 
