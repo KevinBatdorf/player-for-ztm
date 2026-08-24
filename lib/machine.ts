@@ -49,8 +49,7 @@ export type Action =
   | { type: 'lessonPicked'; courseId: CourseId; lessonId: LessonId }
   | { type: 'lessonEnded'; nextLessonId: LessonId | null }
   | { type: 'playerClosed' }
-  | { type: 'wentHome' }
-  | { type: 'jumped'; view: View };
+  | { type: 'wentHome' };
 
 export const initialState: AppState = {
   view: { name: 'boot' },
@@ -67,9 +66,6 @@ const go = (state: AppState, view: View, heading: Heading = 'none'): AppState =>
 });
 
 const from = (view: View, ...names: ViewName[]) => names.includes(view.name);
-
-/** Only the dev panel asks; the real flow sets the level from the transition instead. */
-const backdropOn = (name: ViewName): BackdropLevel => (inside(name) ? 'muted' : 'normal');
 
 // Late replies from abandoned fetches are normal, so a stray action drops silently.
 export function reduce(state: AppState, action: Action): AppState {
@@ -138,11 +134,6 @@ export function reduce(state: AppState, action: Action): AppState {
       return from(view, 'search', 'courseLoading', 'course')
         ? go(state, { name: 'home' }, 'out')
         : state;
-
-    // Unguarded on purpose: the dev panel has to reach dead ends by hand, and setting
-    // the backdrop keeps both levels reachable without walking the flow.
-    case 'jumped':
-      return { ...go(state, action.view), backdrop: backdropOn(action.view.name) };
   }
 }
 

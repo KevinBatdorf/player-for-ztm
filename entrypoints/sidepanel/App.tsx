@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useMemo, useReducer, useState, type Dispatch } from 'react';
 import { Backdrop } from './Backdrop';
-import { DevPanel } from './DevPanel';
 import { DotGrid } from './DotGrid';
 import { Player } from './Player';
 import { Boot } from './views/Boot';
@@ -72,7 +71,6 @@ export function App() {
           </motion.div>
         )}
 
-        {/* Fixed, the dev panel covered the bottom row of every screen even when collapsed. */}
         <div
           className={cn(
             'relative flex min-h-0 flex-1 flex-col overflow-hidden',
@@ -111,8 +109,6 @@ export function App() {
           </div>
         </div>
       </div>
-
-      <DevPanel state={state} dispatch={dispatch} />
     </div>
   );
 }

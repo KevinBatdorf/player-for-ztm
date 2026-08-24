@@ -1,16 +1,13 @@
 import { useEffect, useState, type Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { Button, Screen } from '../Screen';
-import { useHold } from '../settings';
 import type { Action } from '@/lib/machine';
 
 export function IndexingCourses({ dispatch }: { dispatch: Dispatch<Action> }) {
   const { load, error } = useLibrary();
-  const held = useHold();
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    if (held) return;
     let live = true;
 
     void load().then((ready) => {
@@ -20,7 +17,7 @@ export function IndexingCourses({ dispatch }: { dispatch: Dispatch<Action> }) {
     return () => {
       live = false;
     };
-  }, [dispatch, load, held, attempt]);
+  }, [dispatch, load, attempt]);
 
   return (
     <Screen>

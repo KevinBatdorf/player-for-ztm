@@ -2,7 +2,6 @@ import { useEffect, type Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { useReader } from '../Reader';
 import { Cta, Row, Screen, TextRow } from '../Screen';
-import { useHold } from '../settings';
 import type { Action, Loaded, ViewOf } from '@/lib/machine';
 
 export function Course({
@@ -16,7 +15,6 @@ export function Course({
 }) {
   const { courses, lessonsFor, openCourse, sweepText, seen, resumeIn } = useLibrary();
   const reader = useReader();
-  const held = useHold();
 
   const course = courses?.find((c) => c.id === view.courseId);
   const lessons = lessonsFor(view.courseId);
@@ -25,7 +23,7 @@ export function Course({
 
   // Titles are already in hand from the catalogue; this fetch is only durations and type.
   useEffect(() => {
-    if (!pending || held) return;
+    if (!pending) return;
     let live = true;
 
     void openCourse(view.courseId).then(() => {
@@ -35,7 +33,7 @@ export function Course({
     return () => {
       live = false;
     };
-  }, [dispatch, openCourse, view.courseId, pending, held]);
+  }, [dispatch, openCourse, view.courseId, pending]);
 
   useEffect(() => {
     if (courses) sweepText(view.courseId);

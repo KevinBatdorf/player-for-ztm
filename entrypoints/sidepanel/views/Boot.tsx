@@ -1,6 +1,5 @@
 import { motion } from 'motion/react';
 import { lazy, Suspense, useEffect, type CSSProperties, type Dispatch } from 'react';
-import { useHold } from '../settings';
 import { ZTM_MARK, ZTM_MARK_FONT } from '@/lib/brand';
 import type { Action } from '@/lib/machine';
 import { hasSession } from '@/lib/session';
@@ -44,11 +43,8 @@ export function Boot({
   dispatch: Dispatch<Action>;
   backdropReady: boolean;
 }) {
-  const held = useHold();
-
   // Remount is the trigger: signing in rewinds to `boot`, so the deps need no view key.
   useEffect(() => {
-    if (held) return;
     let live = true;
     void Promise.all([hasSession(), new Promise((done) => setTimeout(done, FLOOR_MS))]).then(
       ([signedIn]) => {
@@ -59,7 +55,7 @@ export function Boot({
     return () => {
       live = false;
     };
-  }, [dispatch, held]);
+  }, [dispatch]);
 
   // Mounted on the field's first frame rather than faded from hidden: opacity does not
   // stop an IntersectionObserver, so the letters would reveal unseen.

@@ -17,7 +17,7 @@ export default defineConfig({
   manifest: {
     name: 'Player for ZTM',
     description: 'Zero To Mastery courses in a side panel, playing in Picture-in-Picture.',
-    permissions: ['sidePanel', 'storage', 'declarativeNetRequestWithHostAccess'],
+    permissions: ['sidePanel', 'declarativeNetRequestWithHostAccess'],
     // The session check reads a page that only answers with cookies attached.
     host_permissions: ['https://academy.zerotomastery.io/*', 'https://player.hotmart.com/*'],
     action: { default_title: 'Player for ZTM' },
