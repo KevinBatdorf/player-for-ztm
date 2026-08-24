@@ -12,6 +12,7 @@ import { useLibrary } from './library';
 import { FRAME_ORIGIN, framed, fromFrame, type ToFrame } from '@/lib/frame';
 import { nextOf } from '@/lib/lessons';
 import type { Action, LessonId, Loaded } from '@/lib/machine';
+import { cn } from '@/lib/utils';
 import { sign } from '@/lib/video';
 import { isDone } from '@/lib/watched';
 
@@ -206,7 +207,8 @@ export function Player({
         />
       )}
 
-      {waiting && <Waiting />}
+      {/* Mounted for the session: a fresh WebGL context takes a frame or two to draw. */}
+      <Waiting show={waiting} />
 
       {fault && (
         <Note>
@@ -230,8 +232,13 @@ const Stars = lazy(() => import('@/components/react-bits/rotating-stars'));
 const STARS = '#4b3a6e';
 
 /** Opaque, or the lesson being swapped away from sits there looking like a fault. */
-const Waiting = () => (
-  <div className="absolute inset-0 bg-canvas">
+const Waiting = ({ show }: { show: boolean }) => (
+  <div
+    className={cn(
+      'absolute inset-0 bg-canvas transition-opacity duration-200 ease-panel',
+      show ? 'opacity-100' : 'pointer-events-none opacity-0',
+    )}
+  >
     <Suspense fallback={null}>
       <Stars color={STARS} speed={3.4} />
     </Suspense>
