@@ -1,4 +1,5 @@
 import { lazy, Suspense, type ReactNode } from 'react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 /** A bundled chunk rather than remote code, so MV3 is fine with it. */
@@ -75,41 +76,11 @@ export function Reveal({
   );
 }
 
-export function Cta({ children, onClick }: { children: ReactNode; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="rule w-full rounded-panel bg-accent px-3 py-2 text-body font-medium text-accent-ink shadow-panel transition-transform duration-150 ease-panel active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-    >
-      {children}
-    </button>
-  );
-}
-
-export function Button({
-  children,
-  onClick,
-  primary = false,
-}: {
-  children: ReactNode;
-  onClick: () => void;
-  primary?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'rule inline-flex items-center gap-1 rounded-panel bg-paper/80 px-2 py-1 text-caption transition-colors duration-150 ease-panel',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-        primary ? 'font-medium text-accent-text hover:bg-paper' : 'text-ink-soft hover:text-ink',
-      )}
-    >
-      {children}
-    </button>
-  );
-}
+export const Cta = ({ children, onClick }: { children: ReactNode; onClick: () => void }) => (
+  <Button className="w-full shadow-panel active:translate-y-px" onClick={onClick}>
+    {children}
+  </Button>
+);
 
 export function Row({
   title,
@@ -174,10 +145,12 @@ export function TextRow({
       <span className="shrink-0 font-mono text-caption text-ink-faint">text</span>
 
       <div className="pointer-events-none absolute inset-0 flex items-center gap-1.5 rounded-panel bg-card-hover px-3 opacity-0 transition-opacity duration-150 ease-panel group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
-        <Button primary onClick={onRead}>
+        <Button variant="secondary" size="xs" onClick={onRead}>
           read here
         </Button>
-        <Button onClick={onOpenTab}>open tab</Button>
+        <Button variant="secondary" size="xs" onClick={onOpenTab}>
+          open tab
+        </Button>
       </div>
     </div>
   );

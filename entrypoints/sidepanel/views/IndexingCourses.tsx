@@ -1,6 +1,7 @@
 import { useEffect, useState, type Dispatch } from 'react';
 import { useLibrary } from '../library';
-import { Button, Screen } from '../Screen';
+import { Screen } from '../Screen';
+import { Button } from '@/components/ui/button';
 import type { Action } from '@/lib/machine';
 
 export function IndexingCourses({ dispatch }: { dispatch: Dispatch<Action> }) {
@@ -27,7 +28,7 @@ export function IndexingCourses({ dispatch }: { dispatch: Dispatch<Action> }) {
           {/* Their message, not a generic one: "the session is gone" needs a different fix. */}
           <p className="font-mono text-caption text-ink-faint">{error}</p>
           <div>
-            <Button primary onClick={() => setAttempt((n) => n + 1)}>
+            <Button size="sm" onClick={() => setAttempt((n) => n + 1)}>
               try again
             </Button>
           </div>
