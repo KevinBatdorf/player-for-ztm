@@ -53,7 +53,8 @@ export function Player({
       : fixtureLessons(lesson.courseId)
     : NONE;
   const playing = lessons.find((l) => l.id === lesson?.lessonId);
-  const said = lesson ? note(status, course?.slug ?? null) : null;
+  const busy = status.kind === 'signing' || status.kind === 'loading';
+  const fault = lesson ? faultIn(status, course?.slug ?? null) : null;
 
   useEffect(() => {
     if (!lesson) {
@@ -169,10 +170,12 @@ export function Player({
           />
         )}
 
-        {said && (
+        {busy && <Loading />}
+
+        {fault && (
           <Note>
             <p className="pointer-events-none font-mono text-caption text-ink-soft" style={SCRIM}>
-              {said}
+              {fault}
             </p>
           </Note>
         )}
@@ -197,21 +200,19 @@ export function Player({
   );
 }
 
-/** Play and Pop out are the frame's own, so the panel only ever narrates. */
-function note(status: Status, slug: string | null): string | null {
+function faultIn(status: Status, slug: string | null): string | null {
   if (!slug) return 'One of their onboarding tiles, so it has no lecture to sign.';
-
-  switch (status.kind) {
-    case 'signing':
-      return 'signing…';
-    case 'loading':
-      return 'loading the video…';
-    case 'failed':
-      return status.message;
-    default:
-      return null;
-  }
+  return status.kind === 'failed' ? status.message : null;
 }
+
+const SWEEP = { animation: 'panel-sweep 1.1s var(--t-ease) infinite' };
+
+/** Indeterminate: neither the signing chain nor their player reports progress. */
+const Loading = () => (
+  <div className="absolute inset-x-0 bottom-0 h-0.5 overflow-hidden bg-line">
+    <span className="block h-full w-1/4 bg-accent" style={SWEEP} />
+  </div>
+);
 
 /** `relative` or it paints under the backdrop, which is absolute and earlier in the DOM. */
 const Shell = ({ children }: { children: ReactNode }) => (
