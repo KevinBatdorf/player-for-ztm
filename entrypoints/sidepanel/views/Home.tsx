@@ -1,7 +1,7 @@
 import type { Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { useHoverPrefetch } from '../prefetch';
-import { Screen } from '../Screen';
+import { Button, Screen } from '../Screen';
 import { byUpdated, type Course } from '@/lib/courses';
 import { runtimeOf } from '@/lib/lessons';
 import type { Action } from '@/lib/machine';
@@ -23,32 +23,65 @@ export function Home({ dispatch }: { dispatch: Dispatch<Action> }) {
 
       <div className="flex flex-col gap-2">
         {list.map((course) => (
-          <button
-            key={course.id}
-            type="button"
-            onClick={() => dispatch({ type: 'coursePicked', courseId: course.id })}
-            {...hover(course.id)}
-            className="group rule block w-full overflow-hidden rounded-panel bg-card text-left transition-colors duration-150 ease-panel hover:bg-card-hover focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
-          >
-            {/* Their CDN art is the only image in the app; a missing one leaves the card plain. */}
-            {course.image && (
-              <span className="relative block">
-                <img
-                  src={course.image}
-                  alt=""
-                  loading="lazy"
-                  className="aspect-video w-full object-cover"
-                />
-                <Details course={course} />
-              </span>
-            )}
-            <span className="block px-3 py-2.5 text-body leading-snug text-ink">
-              {course.title}
-            </span>
-          </button>
+          <Card key={course.id} course={course} dispatch={dispatch} {...hover(course.id)} />
         ))}
       </div>
     </Screen>
+  );
+}
+
+function Card({
+  course,
+  dispatch,
+  onPointerEnter,
+  onPointerLeave,
+}: {
+  course: Course;
+  dispatch: Dispatch<Action>;
+  onPointerEnter?: () => void;
+  onPointerLeave?: () => void;
+}) {
+  const { resumeIn, watchedCount } = useLibrary();
+
+  const open = () => dispatch({ type: 'coursePicked', courseId: course.id });
+  const resume = resumeIn(course.id);
+  const started = watchedCount(course.id) > 0;
+
+  return (
+    <div
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
+      className="group rule relative overflow-hidden rounded-panel bg-card transition-colors duration-150 ease-panel hover:bg-card-hover"
+    >
+      {/* Their CDN art is the only image in the app; a missing one leaves the card plain. */}
+      {course.image && (
+        <div className="relative">
+          <img
+            src={course.image}
+            alt=""
+            loading="lazy"
+            className="aspect-video w-full object-cover"
+          />
+          <Details course={course} />
+        </div>
+      )}
+
+      <p className="px-3 py-2.5 text-body leading-snug text-ink">{course.title}</p>
+
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-end gap-1.5 bg-gradient-to-b from-paper/90 to-transparent p-2 pb-8 opacity-0 transition-opacity duration-200 ease-panel group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
+        <Button onClick={open}>view</Button>
+        {resume && (
+          <Button
+            primary
+            onClick={() =>
+              dispatch({ type: 'lessonPicked', courseId: course.id, lessonId: resume.id })
+            }
+          >
+            {started ? 'continue' : 'start'}
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }
 
