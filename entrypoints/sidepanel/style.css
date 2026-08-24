@@ -67,8 +67,8 @@
 @utility sheen {
   position: relative;
 
-  &::after {
-    content: '';
+  /* A real child, not a pseudo: the mask has to stay put while the highlight moves. */
+  & > .glint {
     position: absolute;
     /* The border box, not the padding box, or the ring lands inside the edge. */
     inset: -1px;
@@ -76,7 +76,6 @@
     padding: 1px;
     pointer-events: none;
     opacity: 0;
-    /* A moving gradient behind a mask repaints every frame; opacity is composited. */
     transition: opacity 220ms var(--t-ease);
     background: linear-gradient(
       160deg,
@@ -90,8 +89,33 @@
     mask-composite: exclude;
   }
 
-  &:hover::after {
+  & > .glint::before {
+    content: '';
+    position: absolute;
+    inset: -150%;
+    background: linear-gradient(
+      100deg,
+      transparent 44%,
+      rgb(255 255 255 / 0.75) 50%,
+      transparent 56%
+    );
+  }
+
+  &:hover > .glint {
     opacity: 1;
+  }
+
+  &:hover > .glint::before {
+    animation: glint-drift 9s linear infinite;
+  }
+}
+
+@keyframes glint-drift {
+  from {
+    transform: translateX(-30%);
+  }
+  to {
+    transform: translateX(30%);
   }
 }
 
