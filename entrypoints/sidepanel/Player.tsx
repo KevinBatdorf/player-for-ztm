@@ -33,9 +33,6 @@ export function Player({
   lesson,
   collapsed,
   onWaiting,
-  onPlaying,
-  toggles,
-  skips,
   dispatch,
 }: {
   lesson: Loaded | null;
@@ -43,11 +40,6 @@ export function Player({
   collapsed: boolean;
   /** The bar outside this component shows the same wait. */
   onWaiting: (waiting: boolean) => void;
-  onPlaying: (playing: boolean) => void;
-  /** Rises when the bar's play button is pressed; the frame owns the actual state. */
-  toggles: number;
-  /** Rises when the bar steps to another lesson. */
-  skips: number;
   dispatch: Dispatch<Action>;
 }) {
   const { courses, lessonsFor, markWatched } = useLibrary();
@@ -144,16 +136,6 @@ export function Player({
 
   useEffect(() => onWaiting(waiting), [waiting, onWaiting]);
 
-  useEffect(() => {
-    if (toggles > 0) send({ ztm: 'toggle' });
-  }, [toggles, send]);
-
-  // The outgoing lesson would otherwise keep playing for the whole signing round trip.
-  useEffect(() => {
-    if (skips === 0) return;
-    advancing.current = true;
-    send({ ztm: 'pause' });
-  }, [skips, send]);
 
   useEffect(() => {
     const heard = (event: MessageEvent) => {
@@ -170,12 +152,10 @@ export function Player({
 
         case 'playing':
           rolling.current = true;
-          onPlaying(true);
           return setStatus({ kind: 'playing' });
 
         case 'paused':
           rolling.current = false;
-          onPlaying(false);
           return setStatus((was) => (was.kind === 'playing' ? { kind: 'holding' } : was));
 
         case 'progress':
@@ -201,7 +181,7 @@ export function Player({
 
     addEventListener('message', heard);
     return () => removeEventListener('message', heard);
-  }, [dispatch, lesson, lessons, markWatched, onPlaying, send]);
+  }, [dispatch, lesson, lessons, markWatched, send]);
 
   if (!lesson) {
     return (
@@ -261,13 +241,13 @@ const Waiting = ({ show }: { show: boolean }) => (
       <Blinds
         // Its root carries no size of its own, and a canvas with no height draws nothing.
         className="h-full w-full"
-        color="#12151b"
-        hotColor="#6c56a0"
+        color="#0d1014"
+        hotColor="#5a626e"
         backgroundColor="#000000"
         bandWidth={0.22}
         warp={1}
         tilt={0.15}
-        gain={1.45}
+        gain={1.6}
         contrast={1}
         vignette={0.1}
         drift={0.6}
