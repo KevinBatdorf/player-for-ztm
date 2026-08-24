@@ -1,17 +1,14 @@
 import type { Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { useHoverPrefetch } from '../prefetch';
-import { Screen, StubNote } from '../Screen';
+import { Screen } from '../Screen';
 import { byUpdated } from '@/lib/courses';
-import { fixtureCourses } from '@/lib/fixtures';
 import type { Action } from '@/lib/machine';
 
 export function Home({ dispatch }: { dispatch: Dispatch<Action> }) {
   const { courses } = useLibrary();
   const hover = useHoverPrefetch();
-  const real = courses !== null;
-  // The dev panel can jump straight here, so the stubs stay reachable without a session.
-  const list = byUpdated(real ? courses : fixtureCourses());
+  const list = byUpdated(courses ?? []);
 
   return (
     <Screen>
@@ -52,12 +49,6 @@ export function Home({ dispatch }: { dispatch: Dispatch<Action> }) {
           </button>
         ))}
       </div>
-
-      {!real && (
-        <StubNote>
-          Fixtures — the dev panel jumped here without a session, so nothing was fetched.
-        </StubNote>
-      )}
     </Screen>
   );
 }

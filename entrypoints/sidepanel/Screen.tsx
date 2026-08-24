@@ -87,10 +87,6 @@ export function Cta({ children, onClick }: { children: ReactNode; onClick: () =>
   );
 }
 
-export const StubNote = ({ children }: { children: ReactNode }) => (
-  <p className="text-caption leading-relaxed text-ink-faint">{children}</p>
-);
-
 export function Button({
   children,
   onClick,

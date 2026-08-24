@@ -1,10 +1,12 @@
 import type { Dispatch } from 'react';
+import { useLibrary } from './library';
 import { useSettings } from './settings';
 import { sampleView, VIEW_NAMES } from '@/lib/dev';
 import type { Action, AppState, ViewName } from '@/lib/machine';
 
 export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispatch<Action> }) {
   const { settings, setHeld, setOpen } = useSettings();
+  const { courses } = useLibrary();
   const name = state.view.name;
 
   return (
@@ -27,7 +29,12 @@ export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispa
             <span className="truncate font-mono text-caption text-ink-faint">state</span>
             <select
               value={name}
-              onChange={(e) => dispatch({ type: 'jumped', view: sampleView(e.target.value as ViewName) })}
+              onChange={(e) =>
+                dispatch({
+                  type: 'jumped',
+                  view: sampleView(e.target.value as ViewName, courses?.[0]?.id ?? ''),
+                })
+              }
               className="rule w-full rounded-panel bg-raised px-1.5 py-1 text-caption text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
               {VIEW_NAMES.map((n) => (

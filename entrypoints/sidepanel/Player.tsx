@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type Dispatch, type ReactNode } from 'react';
 import { useLibrary } from './library';
-import { fixtureLessons } from '@/lib/fixtures';
 import { FRAME_ORIGIN, framed, fromFrame, type ToFrame } from '@/lib/frame';
 import { nextOf } from '@/lib/lessons';
 import type { Action, LessonId, Loaded } from '@/lib/machine';
@@ -47,11 +46,7 @@ export function Player({
   }, []);
 
   const course = courses?.find((c) => c.id === lesson?.courseId);
-  const lessons = lesson
-    ? courses
-      ? lessonsFor(lesson.courseId)
-      : fixtureLessons(lesson.courseId)
-    : NONE;
+  const lessons = lesson ? lessonsFor(lesson.courseId) : NONE;
   const playing = lessons.find((l) => l.id === lesson?.lessonId);
   const busy = status.kind === 'signing' || status.kind === 'loading';
   const fault = lesson ? faultIn(status, course?.slug ?? null) : null;

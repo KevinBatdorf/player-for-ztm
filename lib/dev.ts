@@ -1,6 +1,5 @@
 import { storage } from '#imports';
-import { SAMPLE_COURSE } from '@/lib/fixtures';
-import type { View, ViewName } from '@/lib/machine';
+import type { CourseId, View, ViewName } from '@/lib/machine';
 
 // A record, not a list: the compiler then refuses a screen left out of the jump list.
 const IN_FLOW = {
@@ -16,8 +15,7 @@ const IN_FLOW = {
 /** Flow order, because the dev panel's state list reads as the flow. */
 export const VIEW_NAMES = Object.keys(IN_FLOW) as ViewName[];
 
-/** Placeholder payloads, so states carrying one are still a single click away. */
-export function sampleView(name: ViewName): View {
+export function sampleView(name: ViewName, courseId: CourseId): View {
   switch (name) {
     case 'boot':
       return { name: 'boot' };
@@ -30,9 +28,9 @@ export function sampleView(name: ViewName): View {
     case 'search':
       return { name: 'search', query: 'async' };
     case 'courseLoading':
-      return { name: 'courseLoading', courseId: SAMPLE_COURSE.id };
+      return { name: 'courseLoading', courseId };
     case 'course':
-      return { name: 'course', courseId: SAMPLE_COURSE.id };
+      return { name: 'course', courseId };
   }
 }
 

@@ -1,9 +1,8 @@
 import { useEffect, type Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { useReader } from '../Reader';
-import { Cta, Row, Screen, StubNote, TextRow } from '../Screen';
+import { Cta, Row, Screen, TextRow } from '../Screen';
 import { useHold } from '../settings';
-import { fixtureLessons } from '@/lib/fixtures';
 import type { Action, Loaded, ViewOf } from '@/lib/machine';
 
 export function Course({
@@ -20,8 +19,7 @@ export function Course({
   const held = useHold();
 
   const course = courses?.find((c) => c.id === view.courseId);
-  // The dev panel can jump straight here, so the stubs stay reachable without a session.
-  const lessons = courses ? lessonsFor(view.courseId) : fixtureLessons(view.courseId);
+  const lessons = lessonsFor(view.courseId);
   const pending = view.name === 'courseLoading';
   const resume = resumeIn(view.courseId);
 
@@ -89,7 +87,9 @@ export function Course({
         )}
 
         {pending && (
-          <StubNote>Loading the rest of the lessons…</StubNote>
+          <p className="text-caption leading-relaxed text-ink-faint">
+            Loading the rest of the lessons…
+          </p>
         )}
       </Screen>
 

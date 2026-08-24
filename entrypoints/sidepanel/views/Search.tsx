@@ -3,7 +3,6 @@ import { useLibrary } from '../library';
 import { useHoverPrefetch } from '../prefetch';
 import { useReader } from '../Reader';
 import { Row, Screen, TextRow } from '../Screen';
-import { fixtureCourses, fixtureLessons } from '@/lib/fixtures';
 import type { Course } from '@/lib/courses';
 import type { Lesson } from '@/lib/lessons';
 import type { Action, Loaded, ViewOf } from '@/lib/machine';
@@ -23,9 +22,8 @@ export function Search({
   const library = useLibrary();
   const hover = useHoverPrefetch();
   const reader = useReader();
-  // The dev panel can jump straight here, so the stubs stay reachable without a session.
-  const courses = library.courses ?? fixtureCourses();
-  const lessonsFor = library.courses ? library.lessonsFor : fixtureLessons;
+  const courses = library.courses ?? [];
+  const lessonsFor = library.lessonsFor;
 
   const query = view.query.trim().toLowerCase();
   const hits = query ? matches(courses, lessonsFor, query) : null;
