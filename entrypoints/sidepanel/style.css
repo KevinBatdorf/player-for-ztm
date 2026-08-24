@@ -105,24 +105,20 @@
       rgb(255 255 255 / 0) 55deg,
       rgb(255 255 255 / 0) 360deg
     );
+    animation: glint-orbit 60s linear infinite;
   }
 
   &:hover > .glint {
     opacity: 1;
   }
-
-  &:hover > .glint::before {
-    animation: glint-orbit 6s linear infinite;
-  }
 }
 
-/* Negative, because a positive rotation runs clockwise. */
 @keyframes glint-orbit {
   from {
     rotate: 0deg;
   }
   to {
-    rotate: -360deg;
+    rotate: 360deg;
   }
 }
 
