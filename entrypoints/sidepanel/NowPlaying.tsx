@@ -3,9 +3,8 @@ import { useLibrary } from './library';
 import { cn } from '@/lib/utils';
 import type { Loaded } from '@/lib/machine';
 
-/** Pixels a second, away and back. */
-const AWAY = 46;
-const BACK = 20;
+/** Pixels a second, the same away and back. */
+const SPEED = 46;
 const FADE = 22;
 /** Run past the end by half the fade again, or the last words rest under it. */
 const LEAD = Math.round(FADE * 1.5);
@@ -81,7 +80,7 @@ function Slide({
         className={cn('block w-max whitespace-nowrap', className)}
         style={{
           transform: `translateX(${away ? -travel : 0}px)`,
-          transition: `transform ${(travel / (away ? AWAY : BACK)).toFixed(1)}s ${away ? 'ease-out' : 'ease-in-out'}`,
+          transition: `transform ${(travel / SPEED).toFixed(1)}s ease-out`,
         }}
       >
         {text}
