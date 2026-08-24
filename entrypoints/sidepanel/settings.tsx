@@ -1,20 +1,9 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import {
-  DEFAULT_DEV,
-  defaultVariant,
-  devSetting,
-  type DevSettings,
-  type FlairLevel,
-  type HoldMode,
-  type VariantOf,
-} from '@/lib/dev';
-import type { ViewName } from '@/lib/machine';
+import { DEFAULT_DEV, devSetting, type DevSettings, type FlairLevel } from '@/lib/dev';
 
 type SettingsApi = {
   settings: DevSettings;
-  setFlair: (flair: FlairLevel) => void;
-  setHold: (hold: HoldMode) => void;
-  setVariant: (view: ViewName, variant: string) => void;
+  setHeld: (held: boolean) => void;
   setOpen: (open: boolean) => void;
 };
 
@@ -52,9 +41,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   const api: SettingsApi = {
     settings,
-    setFlair: (flair) => patch({ flair }),
-    setHold: (hold) => patch({ hold }),
-    setVariant: (view, variant) => patch({ variants: { ...settings.variants, [view]: variant } }),
+    setHeld: (held) => patch({ held }),
     setOpen: (open) => patch({ open }),
   };
 
@@ -69,10 +56,5 @@ export function useSettings(): SettingsApi {
 
 export const useFlair = (): FlairLevel => useSettings().settings.flair;
 
-/** The build flag as well as the default: a stale stored `hold` would freeze a ship. */
-export const useHold = (): boolean => useSettings().settings.hold === 'hold';
-
-export function useVariant<N extends ViewName>(view: N): VariantOf<N> {
-  const { variants } = useSettings().settings;
-  return (variants[view] ?? defaultVariant(view)) as VariantOf<N>;
-}
+/** Defaults off, or a stale stored value would freeze a ship. */
+export const useHold = (): boolean => useSettings().settings.held;

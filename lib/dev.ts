@@ -3,32 +3,21 @@ import { SAMPLE_COURSE } from '@/lib/fixtures';
 import type { View, ViewName } from '@/lib/machine';
 
 /** Motion and ornament budget. `none` doubles as the reduced-motion escape hatch. */
-export const FLAIR_LEVELS = ['none', 'subtle', 'full'] as const;
+export type FlairLevel = 'none' | 'subtle' | 'full';
 
-export type FlairLevel = (typeof FLAIR_LEVELS)[number];
-
-// A record, not a list: the compiler then refuses a screen with no treatments.
-// First entry is what a build with no dev panel shows, so it is the current pick.
-export const VIEW_VARIANTS = {
-  boot: ['mark'],
-  signedOut: ['card', 'steps'],
-  indexingCourses: ['plain'],
-  home: ['deck'],
-  search: ['plain'],
-  courseLoading: ['plain'],
-  course: ['plain'],
-} as const satisfies Record<ViewName, readonly [string, ...string[]]>;
-
-export type VariantOf<N extends ViewName> = (typeof VIEW_VARIANTS)[N][number];
+// A record, not a list: the compiler then refuses a screen left out of the jump list.
+const IN_FLOW = {
+  boot: true,
+  signedOut: true,
+  indexingCourses: true,
+  home: true,
+  search: true,
+  courseLoading: true,
+  course: true,
+} satisfies Record<ViewName, true>;
 
 /** Flow order, because the dev panel's state list reads as the flow. */
-export const VIEW_NAMES = Object.keys(VIEW_VARIANTS) as ViewName[];
-
-// Widened: TS will not map over a union of readonly tuples.
-export const variantsFor = (name: ViewName): readonly string[] => VIEW_VARIANTS[name];
-
-export const defaultVariant = <N extends ViewName>(name: N): VariantOf<N> =>
-  VIEW_VARIANTS[name][0] as VariantOf<N>;
+export const VIEW_NAMES = Object.keys(IN_FLOW) as ViewName[];
 
 /** Placeholder payloads, so states carrying one are still a single click away. */
 export function sampleView(name: ViewName): View {
@@ -50,23 +39,17 @@ export function sampleView(name: ViewName): View {
   }
 }
 
-/** Freezes the automatic transitions, so a screen that leaves after 620ms can be read. */
-export const HOLD_MODES = ['auto', 'hold'] as const;
-
-export type HoldMode = (typeof HOLD_MODES)[number];
-
 export type DevSettings = {
   open: boolean;
   flair: FlairLevel;
-  hold: HoldMode;
-  variants: { [N in ViewName]?: VariantOf<N> };
+  /** Freezes the automatic transitions, so a screen that leaves after 620ms can be read. */
+  held: boolean;
 };
 
 export const DEFAULT_DEV: DevSettings = {
   open: false,
   flair: 'subtle',
-  hold: 'auto',
-  variants: {},
+  held: false,
 };
 
 export const devSetting = storage.defineItem<DevSettings>('local:dev', { fallback: DEFAULT_DEV });

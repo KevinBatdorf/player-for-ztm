@@ -1,21 +1,11 @@
-import type { Dispatch, ReactNode } from 'react';
+import type { Dispatch } from 'react';
 import { useSettings } from './settings';
-import {
-  FLAIR_LEVELS,
-  HOLD_MODES,
-  sampleView,
-  variantsFor,
-  VIEW_NAMES,
-  type FlairLevel,
-  type HoldMode,
-} from '@/lib/dev';
+import { sampleView, VIEW_NAMES } from '@/lib/dev';
 import type { Action, AppState, ViewName } from '@/lib/machine';
 
 export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispatch<Action> }) {
-  const { settings, setFlair, setHold, setVariant, setOpen } = useSettings();
+  const { settings, setHeld, setOpen } = useSettings();
   const name = state.view.name;
-  const variants = variantsFor(name);
-  const variant = settings.variants[name] ?? variants[0] ?? '';
 
   return (
     <div className="relative z-50 shrink-0 rule-t bg-surface/90 backdrop-blur-sm">
@@ -26,84 +16,39 @@ export function DevPanel({ state, dispatch }: { state: AppState; dispatch: Dispa
       >
         <span>{settings.open ? '▾ dev' : '▸ dev'}</span>
         <span className="truncate">
-          {name} · {variant} · {settings.flair}
-          {settings.hold === 'hold' && ' · held'}
+          {name}
+          {settings.held && ' · held'}
         </span>
       </button>
 
       {settings.open && (
-        <div className="grid grid-cols-2 gap-2 px-3 pb-3">
-          <Field
-            label="state"
-            value={name}
-            onChange={(next) => dispatch({ type: 'jumped', view: sampleView(next as ViewName) })}
-          >
-            {VIEW_NAMES.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </Field>
+        <div className="flex items-end gap-3 px-3 pb-3">
+          <label className="flex min-w-0 flex-1 flex-col gap-1">
+            <span className="truncate font-mono text-caption text-ink-faint">state</span>
+            <select
+              value={name}
+              onChange={(e) => dispatch({ type: 'jumped', view: sampleView(e.target.value as ViewName) })}
+              className="rule w-full rounded-panel bg-raised px-1.5 py-1 text-caption text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              {VIEW_NAMES.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <Field
-            label={`variant · ${name}`}
-            value={variant}
-            onChange={(next) => setVariant(name, next)}
-          >
-            {variants.map((v) => (
-              <option key={v} value={v}>
-                {v}
-              </option>
-            ))}
-          </Field>
-
-          <Field label="flair" value={settings.flair} onChange={(next) => setFlair(next as FlairLevel)}>
-            {FLAIR_LEVELS.map((f) => (
-              <option key={f} value={f}>
-                {f}
-              </option>
-            ))}
-          </Field>
-
-
-          <Field
-            label="transitions"
-            value={settings.hold}
-            onChange={(next) => setHold(next as HoldMode)}
-          >
-            {HOLD_MODES.map((h) => (
-              <option key={h} value={h}>
-                {h}
-              </option>
-            ))}
-          </Field>
+          <label className="flex shrink-0 items-center gap-1.5 py-1 font-mono text-caption text-ink-faint">
+            <input
+              type="checkbox"
+              checked={settings.held}
+              onChange={(e) => setHeld(e.target.checked)}
+              className="accent-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            />
+            hold transitions
+          </label>
         </div>
       )}
     </div>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  children,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  children: ReactNode;
-}) {
-  return (
-    <label className="flex min-w-0 flex-col gap-1">
-      <span className="truncate font-mono text-caption text-ink-faint">{label}</span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="rule w-full rounded-panel bg-raised px-1.5 py-1 text-caption text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-      >
-        {children}
-      </select>
-    </label>
   );
 }
