@@ -49,6 +49,9 @@ export function App() {
   const [backdropReady, setFieldReady] = useState(false);
   // Both the canvas and the bar show the wait, so neither of them can own it.
   const [waiting, setWaiting] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  // A count rather than a flag: the same press twice has to reach the frame twice.
+  const [toggles, setToggles] = useState(0);
   // The sheet's own position, not a step in the flow, so it stays out of the machine.
   const [raised, setRaised] = useState(false);
   const showsPlayer = inside(state.view.name);
@@ -85,6 +88,8 @@ export function App() {
               lesson={state.lesson}
               collapsed={raised}
               onWaiting={setWaiting}
+              onPlaying={setPlaying}
+              toggles={toggles}
               dispatch={dispatch}
             />
           </motion.div>
@@ -128,7 +133,15 @@ export function App() {
           </div>
         </div>
 
-        {showsPlayer && state.lesson && <NowPlaying lesson={state.lesson} waiting={waiting} />}
+        {showsPlayer && state.lesson && (
+          <NowPlaying
+            lesson={state.lesson}
+            waiting={waiting}
+            playing={playing}
+            onToggle={() => setToggles((n) => n + 1)}
+            dispatch={dispatch}
+          />
+        )}
       </div>
     </div>
   );
@@ -146,7 +159,7 @@ function renderView(state: AppState, dispatch: Dispatch<Action>, backdropReady: 
     case 'indexingCourses':
       return <IndexingCourses dispatch={dispatch} />;
     case 'home':
-      return <Home dispatch={dispatch} />;
+      return <Home lesson={lesson} dispatch={dispatch} />;
     case 'search':
       return <Search view={view} lesson={lesson} dispatch={dispatch} />;
     // One component for both: the loading line flashed for a frame on a warm cache.

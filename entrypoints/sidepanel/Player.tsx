@@ -33,6 +33,8 @@ export function Player({
   lesson,
   collapsed,
   onWaiting,
+  onPlaying,
+  toggles,
   dispatch,
 }: {
   lesson: Loaded | null;
@@ -40,6 +42,9 @@ export function Player({
   collapsed: boolean;
   /** The bar outside this component shows the same wait. */
   onWaiting: (waiting: boolean) => void;
+  onPlaying: (playing: boolean) => void;
+  /** Rises when the bar's play button is pressed; the frame owns the actual state. */
+  toggles: number;
   dispatch: Dispatch<Action>;
 }) {
   const { courses, lessonsFor, markWatched } = useLibrary();
@@ -137,6 +142,10 @@ export function Player({
   useEffect(() => onWaiting(waiting), [waiting, onWaiting]);
 
   useEffect(() => {
+    if (toggles > 0) send({ ztm: 'toggle' });
+  }, [toggles, send]);
+
+  useEffect(() => {
     const heard = (event: MessageEvent) => {
       if (event.origin !== FRAME_ORIGIN) return;
       const message = fromFrame(event.data);
@@ -151,10 +160,12 @@ export function Player({
 
         case 'playing':
           rolling.current = true;
+          onPlaying(true);
           return setStatus({ kind: 'playing' });
 
         case 'paused':
           rolling.current = false;
+          onPlaying(false);
           return setStatus((was) => (was.kind === 'playing' ? { kind: 'holding' } : was));
 
         case 'progress':
@@ -180,7 +191,7 @@ export function Player({
 
     addEventListener('message', heard);
     return () => removeEventListener('message', heard);
-  }, [dispatch, lesson, lessons, markWatched, send]);
+  }, [dispatch, lesson, lessons, markWatched, onPlaying, send]);
 
   if (!lesson) {
     return (

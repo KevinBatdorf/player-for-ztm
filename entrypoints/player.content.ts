@@ -246,6 +246,11 @@ export default defineContentScript({
       if (request?.ztm === 'swap') swap(request);
       // A popped-out video is still on screen, so it keeps playing.
       if (request?.ztm === 'pause' && !document.pictureInPictureElement) video?.pause();
+      if (request?.ztm === 'toggle' && video) {
+        // Their document has to have been played in once before it will play unprompted.
+        if (video.paused) void start();
+        else video.pause();
+      }
     });
 
     attach();

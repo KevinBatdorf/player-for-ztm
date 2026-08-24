@@ -1,4 +1,4 @@
-import { Play } from 'lucide-react';
+import { Music2, Play } from 'lucide-react';
 import type { Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { useHoverPrefetch } from '../prefetch';
@@ -6,9 +6,9 @@ import { Screen } from '../Screen';
 import { Button } from '@/components/ui/button';
 import { byUpdated, type Course } from '@/lib/courses';
 import { runtimeOf } from '@/lib/lessons';
-import type { Action } from '@/lib/machine';
+import type { Action, Loaded } from '@/lib/machine';
 
-export function Home({ dispatch }: { dispatch: Dispatch<Action> }) {
+export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Dispatch<Action> }) {
   const { courses } = useLibrary();
   const hover = useHoverPrefetch();
   const list = byUpdated(courses ?? []);
@@ -25,7 +25,13 @@ export function Home({ dispatch }: { dispatch: Dispatch<Action> }) {
 
       <div className="flex flex-col gap-2">
         {list.map((course) => (
-          <Card key={course.id} course={course} dispatch={dispatch} {...hover(course.id)} />
+          <Card
+            key={course.id}
+            course={course}
+            playing={lesson?.courseId === course.id}
+            dispatch={dispatch}
+            {...hover(course.id)}
+          />
         ))}
       </div>
     </Screen>
@@ -34,11 +40,13 @@ export function Home({ dispatch }: { dispatch: Dispatch<Action> }) {
 
 function Card({
   course,
+  playing,
   dispatch,
   onPointerEnter,
   onPointerLeave,
 }: {
   course: Course;
+  playing: boolean;
   dispatch: Dispatch<Action>;
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
@@ -60,6 +68,12 @@ function Card({
       onPointerLeave={onPointerLeave}
       className="group rule relative overflow-hidden rounded-panel bg-card transition-colors duration-150 ease-panel hover:bg-card-hover"
     >
+      {playing && (
+        <span className="pointer-events-none absolute top-2 right-2 z-10 flex items-center gap-1 rounded-panel bg-paper/85 px-1.5 py-0.5 font-mono text-caption text-ink">
+          <Music2 className="size-2.5" aria-hidden />
+          now playing
+        </span>
+      )}
       {/* Their CDN art is the only image in the app; a missing one leaves the card plain. */}
       {course.image && (
         <div className="relative">
