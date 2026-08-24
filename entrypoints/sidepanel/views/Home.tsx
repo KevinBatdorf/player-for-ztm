@@ -1,3 +1,4 @@
+import { Play } from 'lucide-react';
 import type { Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { useHoverPrefetch } from '../prefetch';
@@ -77,6 +78,7 @@ function Card({
               dispatch({ type: 'lessonPicked', courseId: course.id, lessonId: resume.id })
             }
           >
+            <Play size={10} fill="currentColor" strokeWidth={0} aria-hidden />
             {started ? 'continue' : 'start'}
           </Button>
         )}

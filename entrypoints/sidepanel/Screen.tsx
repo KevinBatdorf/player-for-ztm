@@ -101,11 +101,9 @@ export function Button({
       type="button"
       onClick={onClick}
       className={cn(
-        'rule rounded-panel px-2.5 py-1.5 text-caption transition-colors duration-150 ease-panel',
+        'rule inline-flex items-center gap-1 rounded-panel bg-paper/80 px-2 py-1 text-caption transition-colors duration-150 ease-panel',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-        primary
-          ? 'bg-accent text-accent-ink shadow-panel'
-          : 'bg-card text-ink-soft hover:text-ink',
+        primary ? 'font-medium text-accent-text hover:bg-paper' : 'text-ink-soft hover:text-ink',
       )}
     >
       {children}
