@@ -247,7 +247,7 @@ const Waiting = ({ show }: { show: boolean }) => (
         bandWidth={0.22}
         warp={1}
         tilt={0.15}
-        gain={1.6}
+        gain={1.15}
         contrast={1}
         vignette={0.1}
         drift={0.6}
