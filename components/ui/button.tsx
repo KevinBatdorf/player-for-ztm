@@ -12,12 +12,14 @@ const buttonVariants = cva(
         default: "bg-accent text-accent-ink hover:bg-accent/90",
         outline: "rule bg-surface text-ink hover:bg-raised",
         secondary: "bg-paper/80 text-ink hover:bg-paper",
+        silver:
+          "shimmer border border-ink-faint/70 bg-gradient-to-b from-raised to-surface text-ink shadow-panel hover:border-ink-soft",
         ghost: "text-ink-soft hover:bg-raised hover:text-ink",
         link: "text-accent-text underline-offset-4 hover:underline",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        xs: "h-5 gap-1 px-1.5 text-caption has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-2.5",
+        xs: "h-6 gap-1 px-2 text-caption has-[>svg]:px-2 [&_svg:not([class*='size-'])]:size-2.5",
         sm: "h-7 gap-1.5 px-2.5 text-caption has-[>svg]:px-2",
         lg: "h-10 px-6 has-[>svg]:px-4",
         icon: "size-9",

@@ -145,10 +145,10 @@ export function TextRow({
       <span className="shrink-0 font-mono text-caption text-ink-faint">text</span>
 
       <div className="pointer-events-none absolute inset-0 flex items-center gap-1.5 rounded-panel bg-card-hover px-3 opacity-0 transition-opacity duration-150 ease-panel group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
-        <Button variant="secondary" size="xs" onClick={onRead}>
+        <Button variant="silver" size="xs" onClick={onRead}>
           read here
         </Button>
-        <Button variant="secondary" size="xs" onClick={onOpenTab}>
+        <Button variant="silver" size="xs" onClick={onOpenTab}>
           open tab
         </Button>
       </div>

@@ -80,14 +80,17 @@ function Card({
             )}
 
             <div className="mt-1.5 flex gap-1.5">
-              <Button variant="secondary" size="xs" className="flex-1" onClick={() => dispatch({ type: 'coursePicked', courseId: course.id })}>
+              <Button
+                variant="silver"
+                size="xs"
+                onClick={() => dispatch({ type: 'coursePicked', courseId: course.id })}
+              >
                 view
               </Button>
               {resume && (
                 <Button
-                  variant="secondary"
+                  variant="silver"
                   size="xs"
-                  className="flex-1"
                   onClick={() =>
                     dispatch({ type: 'lessonPicked', courseId: course.id, lessonId: resume.id })
                   }
