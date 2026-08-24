@@ -43,6 +43,7 @@ type LibraryApi = {
   readLesson: (courseId: CourseId, lessonId: LessonId) => void;
   bodyFor: (courseId: CourseId, lessonId: LessonId) => string | undefined;
   seen: (courseId: CourseId, lessonId: LessonId) => boolean;
+  watchedCount: (courseId: CourseId) => number;
   markWatched: (courseId: CourseId, lessonId: LessonId) => void;
   resumeIn: (courseId: CourseId) => Lesson | null;
 };
@@ -248,6 +249,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       readLesson,
       bodyFor: (courseId, lessonId) => text[courseId]?.bodies[lessonId],
       seen: (courseId, lessonId) => !!watched[courseId]?.[lessonId],
+      watchedCount: (courseId) => Object.keys(watched[courseId] ?? {}).length,
       markWatched,
       resumeIn: (courseId) => resumeOf(index[courseId]?.lessons ?? NONE, watched[courseId]),
     }),

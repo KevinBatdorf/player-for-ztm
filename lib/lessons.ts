@@ -77,6 +77,25 @@ export async function fetchCurriculum(slug: string): Promise<Lesson[]> {
   return lessons;
 }
 
+/** Null until a course has been opened, since the catalogue carries no durations. */
+export function runtimeOf(lessons: Lesson[]): string | null {
+  let seconds = 0;
+
+  for (const lesson of lessons) {
+    const parts = lesson.duration?.split(':').map(Number);
+    // "1:02:33" and "12:34" both appear; anything else is skipped rather than guessed at.
+    if (!parts || parts.length < 2 || parts.length > 3 || parts.some(Number.isNaN)) continue;
+    const [a = 0, b = 0, c] = parts;
+    seconds += c === undefined ? a * 60 + b : a * 3600 + b * 60 + c;
+  }
+
+  if (!seconds) return null;
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.round((seconds % 3600) / 60);
+  return hours ? `${hours}h ${minutes}m` : `${minutes}m`;
+}
+
 /** Null at the end of the course, which is what sends `playing` back to `course`. */
 export function nextOf(lessons: Lesson[], lessonId: LessonId): Lesson | null {
   const at = lessons.findIndex((lesson) => lesson.id === lessonId);
