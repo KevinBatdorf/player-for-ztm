@@ -20,6 +20,7 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
       byUpdated(courses ?? []).map((course) => ({
         course,
         hay: haystackOf(course.title, lessonsFor(course.id)),
+        titled: haystackOf(course.title, []),
       })),
     [courses, lessonsFor],
   );
@@ -33,7 +34,17 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
   }, [catalog, shelf]);
 
   const term = query.trim();
-  const list = shelf.filter((row) => hits(row.hay, term)).map((row) => row.course);
+
+  const list = useMemo(() => {
+    const found = shelf.filter((row) => hits(row.hay, term));
+    if (!term) return found.map((row) => row.course);
+
+    return found
+      .map((row) => ({ row, rank: hits(row.titled, term) ? 0 : 1 }))
+      // Stable sort, so newest-first still holds inside each rank.
+      .sort((a, b) => a.rank - b.rank)
+      .map(({ row }) => row.course);
+  }, [shelf, term]);
 
   const rest = term
     ? unstarted.filter((row) => hits(row.hay, term)).map((row) => row.entry)
@@ -55,8 +66,8 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
 
       <p className="font-mono text-caption text-ink-faint">
         {term
-          ? `${list.length} of ${shelf.length} started · ${rest.length} of ${unstarted.length} not`
-          : `${shelf.length} started · ${unstarted.length} not`}
+          ? `${list.length} of ${shelf.length} courses · ${rest.length} of ${unstarted.length} not started`
+          : `${shelf.length} courses · ${unstarted.length} not started`}
       </p>
 
       <div className="flex flex-col gap-2">
