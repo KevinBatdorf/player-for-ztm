@@ -1,5 +1,4 @@
 import { lazy } from 'react';
-import { ZTM_PINK } from '@/lib/brand';
 
 const Landscape = lazy(() => import('@/components/react-bits/landscape'));
 
@@ -32,7 +31,8 @@ export const NORMAL: Level = {
   vignette: 0.32,
   color: '#05070A',
   farColor: '#05070A',
-  ringColor: ZTM_PINK,
+  /** Their pink taken well down: at full strength the ridges blow out to white. */
+  ringColor: '#8E0C3B',
 };
 
 /** One colour across all three ramps, which is what takes the scene down to a texture. */
