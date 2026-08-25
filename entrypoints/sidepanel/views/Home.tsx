@@ -13,7 +13,7 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
   const hover = useHoverPrefetch();
   const [query, setQuery] = useState('');
 
-  const term = query.trim().toLowerCase();
+  const term = flatten(query);
   const list = byUpdated(courses ?? []).filter((course) =>
     shows(course, lessonsFor(course.id), term),
   );
@@ -45,11 +45,14 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
   );
 }
 
+/** Their titles space and punctuate as they like: "Web Assembly" has to answer to "webassembly". */
+const flatten = (text: string) => text.toLowerCase().replace(/[^a-z0-9]/g, '');
+
 /** A lesson title is worth matching, but what the list holds is courses. */
 const shows = (course: Course, lessons: Lesson[], term: string) =>
   !term ||
-  course.title.toLowerCase().includes(term) ||
-  lessons.some((lesson) => lesson.title.toLowerCase().includes(term));
+  flatten(course.title).includes(term) ||
+  lessons.some((lesson) => flatten(lesson.title).includes(term));
 
 function Card({
   course,
