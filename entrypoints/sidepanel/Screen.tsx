@@ -21,9 +21,9 @@ export function Screen({
   return (
     <div className="flex h-full flex-col">
       {(title || onBack) && (
-        <header className="rule-b flex shrink-0 items-center gap-3 px-6 py-3.5">
+        <header className="rule-b shrink-0 px-6 pt-3.5 pb-4">
           {onBack && (
-            <Button variant="silver" size="xs" onClick={onBack}>
+            <Button variant="silver" size="xs" onClick={onBack} className="mb-3">
               <ArrowLeft aria-hidden />
               back
             </Button>
@@ -91,6 +91,7 @@ export function Row({
   title,
   meta,
   onClick,
+  onPlay,
   onQueue,
   /** Picking a lesson does not change screen, so the list shows which one is loaded. */
   active = false,
@@ -103,6 +104,7 @@ export function Row({
   title: string;
   meta?: string;
   onClick: () => void;
+  onPlay: () => void;
   onQueue: () => void;
   active?: boolean;
   done?: boolean;
@@ -148,7 +150,7 @@ export function Row({
       <div className={cn('relative', DRAWER)}>
         <div className="overflow-hidden">
           <div className="flex gap-1.5 pt-2">
-            <Button variant="silver" size="xs" onClick={onClick}>
+            <Button variant="silver" size="xs" onClick={onPlay}>
               play
             </Button>
             <Button variant="silver" size="xs" onClick={onQueue} disabled={!canQueue}>

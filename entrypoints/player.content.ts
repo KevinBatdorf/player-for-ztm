@@ -54,6 +54,7 @@ export default defineContentScript({
     const overlay = document.createElement('div');
     const corner = document.createElement('div');
     // The panel's stylesheet does not reach this document, so the silver button is hand-rolled.
+    const ring = document.createElement('div');
     const pill = document.createElement('div');
     const divider = document.createElement('span');
     const play = document.createElement('button');
@@ -77,15 +78,21 @@ export default defineContentScript({
     overlay.style.cssText =
       'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgb(10 11 13 / 0.55)';
     corner.style.cssText = 'position:fixed;top:8px;right:8px;z-index:2147483647';
+    ring.style.cssText = [
+      'display:inline-block',
+      'padding:1px',
+      'border-radius:11px',
+      // The panel's ring is a masked gradient; this document gets a padded one instead.
+      'background:radial-gradient(130% 130% at 100% 100%, rgb(230 232 235 / 0.5), rgb(155 161 172 / 0.05) 55%)',
+      'box-shadow:0 1px 2px 0 rgb(0 0 0 / 0.4)',
+    ].join(';');
     pill.style.cssText = [
-      'display:inline-flex',
+      'display:flex',
       'align-items:center',
       'gap:2px',
       'padding:3px',
-      'border:1px solid #2a2e37',
       'border-radius:10px',
       'background:linear-gradient(to bottom, #16181d, #101216)',
-      'box-shadow:0 1px 2px 0 rgb(0 0 0 / 0.4)',
     ].join(';');
     divider.style.cssText = 'width:1px;height:14px;background:#2a2e37';
     play.style.cssText = TAP;
@@ -100,6 +107,7 @@ export default defineContentScript({
       ),
     );
     pill.append(play, divider, popOut);
+    ring.append(pill);
 
     for (const tap of [play, popOut]) {
       tap.addEventListener('pointerenter', () => tap.style.setProperty('background', '#1e2127'));
@@ -109,7 +117,7 @@ export default defineContentScript({
     /** Once it plays the native bar takes over, so only popping out is left. */
     const paint = () => {
       const home = started ? corner : overlay;
-      if (pill.parentElement !== home) home.append(pill);
+      if (ring.parentElement !== home) home.append(ring);
       play.style.display = started ? 'none' : 'inline-flex';
       divider.style.display = started ? 'none' : 'block';
       overlay.style.display = started ? 'none' : 'flex';

@@ -33,6 +33,8 @@ export type AppState = {
   lesson: Loaded | null;
   /** Jumps the queue when the playing lesson ends, in place of the one that follows it. */
   queued: Loaded | null;
+  /** Rises on every asked-for play; the player reads the change, never the number. */
+  insist: number;
   heading: Heading;
 };
 
@@ -45,6 +47,7 @@ export type Action =
   | { type: 'coursePicked'; courseId: CourseId }
   | { type: 'courseReady'; courseId: CourseId }
   | { type: 'lessonPicked'; courseId: CourseId; lessonId: LessonId }
+  | { type: 'lessonPlayed'; courseId: CourseId; lessonId: LessonId }
   | { type: 'lessonQueued'; courseId: CourseId; lessonId: LessonId }
   | { type: 'lessonEnded'; nextLessonId: LessonId | null }
   | { type: 'wentHome' };
@@ -55,6 +58,7 @@ export const initialState: AppState = {
   backdrop: 'normal',
   lesson: null,
   queued: null,
+  insist: 0,
   heading: 'none',
 };
 
@@ -113,6 +117,14 @@ export function reduce(state: AppState, action: Action): AppState {
       // Playing the queued one by hand is the queue spent, not a queue still waiting.
       const queued = held && held.lessonId === lesson.lessonId ? null : held;
       return { ...state, lesson, queued };
+    }
+
+    case 'lessonPlayed': {
+      if (!from(view, 'home', 'course')) return state;
+      const lesson = { courseId: action.courseId, lessonId: action.lessonId };
+      const held = state.queued;
+      const queued = held && held.lessonId === lesson.lessonId ? null : held;
+      return { ...state, lesson, queued, insist: state.insist + 1 };
     }
 
     case 'lessonQueued': {

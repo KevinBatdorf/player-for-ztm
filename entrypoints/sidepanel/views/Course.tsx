@@ -86,6 +86,9 @@ export function Course({
                   onClick={() =>
                     dispatch({ type: 'lessonPicked', courseId: view.courseId, lessonId: row.id })
                   }
+                  onPlay={() =>
+                    dispatch({ type: 'lessonPlayed', courseId: view.courseId, lessonId: row.id })
+                  }
                   onQueue={() =>
                     dispatch({ type: 'lessonQueued', courseId: view.courseId, lessonId: row.id })
                   }

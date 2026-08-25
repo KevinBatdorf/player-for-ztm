@@ -83,6 +83,7 @@ export function App() {
             <Player
               lesson={state.lesson}
               queuedLesson={state.queued}
+              insist={state.insist}
               collapsed={raised}
               onWaiting={setWaiting}
               dispatch={dispatch}

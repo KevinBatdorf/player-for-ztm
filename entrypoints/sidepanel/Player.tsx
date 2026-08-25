@@ -32,6 +32,7 @@ type Status =
 export function Player({
   lesson,
   queuedLesson,
+  insist,
   collapsed,
   onWaiting,
   dispatch,
@@ -39,6 +40,8 @@ export function Player({
   lesson: Loaded | null;
   /** Only to know whether an ending lesson has somewhere to go. */
   queuedLesson: Loaded | null;
+  /** Rises when a play was asked for rather than a lesson merely picked. */
+  insist: number;
   /** The frame stays mounted and audible while the canvas is collapsed. */
   collapsed: boolean;
   /** The bar outside this component shows the same wait. */
@@ -138,6 +141,13 @@ export function Player({
   const waiting = busy || dwelling;
 
   useEffect(() => onWaiting(waiting), [waiting, onWaiting]);
+
+  // The outgoing lesson would otherwise keep playing for the whole signing round trip.
+  useEffect(() => {
+    if (insist === 0) return;
+    advancing.current = true;
+    send({ ztm: 'pause' });
+  }, [insist, send]);
 
 
   useEffect(() => {
@@ -263,10 +273,10 @@ const Waiting = ({ show }: { show: boolean }) => (
 /** The dot grid runs under this type, so it needs its own ground to stay legible. */
 const SCRIM = { textShadow: '0 1px 9px rgba(var(--t-scrim), 0.95)' };
 
-/** No background of its own; the dot layer is what shows through. */
+/** A transparent frame shows the field through wherever the picture does not reach. */
 const Frame = ({ children }: { children: ReactNode }) => (
   // `relative` or it paints under the backdrop, which is absolute and earlier in the DOM.
-  <div className="relative aspect-video w-full">{children}</div>
+  <div className="relative aspect-video w-full bg-canvas">{children}</div>
 );
 
 const Note = ({ children }: { children: ReactNode }) => (
