@@ -95,6 +95,8 @@ export type Library = {
   lessons: Record<CourseId, Lesson[]>;
   /** Tiles each page of the shelf gave up, so a short read can be seen rather than guessed at. */
   pages: number[];
+  /** Their whole published list. The shelf is only what has been started. */
+  catalog: CatalogEntry[];
 };
 
 /** A catalogue failure costs the order and the lessons, not the list. */
@@ -112,10 +114,11 @@ async function fetchEnrolled(): Promise<{ held: Enrolled[]; pages: number[] }> {
       signal: AbortSignal.timeout(REACH_MS),
     });
 
+    const off = !res.ok || !new URL(res.url).pathname.startsWith('/courses/enrolled');
+    // Only the first page speaks for the session; a later one refusing is just the end.
+    if (off && page > 1) break;
     if (!res.ok) throw new Error(`Enrolled came back ${res.status}.`);
-    if (!new URL(res.url).pathname.startsWith('/courses/enrolled')) {
-      throw new Error('Enrolled redirected to the public catalogue, so the session is gone.');
-    }
+    if (off) throw new Error('Enrolled redirected to the public catalogue, so the session is gone.');
 
     const rows = parseEnrolled(await res.text());
     // A page past the end repeats the last one on some of their layouts, so ids decide.
@@ -147,7 +150,7 @@ export async function fetchLibrary(): Promise<Library> {
     return { ...course, slug: hit?.slug ?? null, updated: hit?.updated || null };
   });
 
-  return { courses, lessons, pages };
+  return { courses, lessons, pages, catalog };
 }
 
 /** Newest edit first; the tiles with no catalogue match sort last. */

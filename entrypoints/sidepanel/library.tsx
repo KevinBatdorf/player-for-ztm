@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import type { CatalogEntry } from '@/lib/algolia';
 import { fetchLibrary, type Course } from '@/lib/courses';
 import { fetchCurriculum, mergeIndex, type Lesson, type LessonIndex } from '@/lib/lessons';
 import { fetchLectureBody } from '@/lib/lecture';
@@ -15,6 +16,7 @@ import { read, write } from '@/lib/store';
 import { mark, resumeOf, type Watched } from '@/lib/watched';
 
 const COURSES = 'courses';
+const CATALOG = 'catalog';
 const LESSONS = 'lessons';
 const WATCHED = 'watched';
 const LAST = 'last';
@@ -52,6 +54,7 @@ type LibraryApi = {
   resumeIn: (courseId: CourseId) => Lesson | null;
   /** What each page of the shelf gave up on the last fetch. */
   pages: number[];
+  catalog: CatalogEntry[];
   /** Null until the cache is read, so the card does not flash in and out on boot. */
   lastPlayed: Playing | null;
   remember: (courseId: CourseId, lessonId: LessonId) => void;
@@ -72,6 +75,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   const [watched, setWatched] = useState<Watched>({});
   const [lastPlayed, setLastPlayed] = useState<Playing | null>(null);
   const [pages, setPages] = useState<number[]>([]);
+  const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
   const record = useRef<Watched>({});
   const sweeping = useRef<CourseId | null>(null);
   const reading = useRef(new Set<LessonId>());
@@ -89,8 +93,10 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       const fresh = await fetchLibrary();
       setCourses(fresh.courses);
       setPages(fresh.pages);
+      setCatalog(fresh.catalog);
       setError(null);
       void write(COURSES, fresh.courses);
+      void write(CATALOG, fresh.catalog);
 
       put(mergeIndex(latest.current, fresh.courses, fresh.lessons));
       return true;
@@ -106,14 +112,17 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     if (inflight.current) return inflight.current;
 
     const run = (async () => {
-      const [cachedCourses, cachedIndex, cachedWatched, cachedLast] = await Promise.all([
-        read<Course[]>(COURSES),
-        read<LessonIndex>(LESSONS),
-        read<Watched>(WATCHED),
-        read<Playing>(LAST),
-      ]);
+      const [cachedCourses, cachedIndex, cachedWatched, cachedLast, cachedCatalog] =
+        await Promise.all([
+          read<Course[]>(COURSES),
+          read<LessonIndex>(LESSONS),
+          read<Watched>(WATCHED),
+          read<Playing>(LAST),
+          read<CatalogEntry[]>(CATALOG),
+        ]);
 
       if (cachedLast) setLastPlayed(cachedLast);
+      if (cachedCatalog) setCatalog(cachedCatalog);
 
       if (cachedIndex) {
         latest.current = cachedIndex;
@@ -274,6 +283,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       markWatched,
       resumeIn: (courseId) => resumeOf(index[courseId]?.lessons ?? NONE, watched[courseId]),
       pages,
+      catalog,
       lastPlayed,
       remember,
     }),
@@ -289,6 +299,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       watched,
       markWatched,
       pages,
+      catalog,
       lastPlayed,
       remember,
     ],

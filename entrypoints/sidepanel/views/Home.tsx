@@ -1,5 +1,6 @@
 import { Music2, Play } from 'lucide-react';
 import { useMemo, useState, type Dispatch } from 'react';
+import { browser } from '#imports';
 import { useLibrary } from '../library';
 import { useHoverPrefetch } from '../prefetch';
 import { Screen } from '../Screen';
@@ -10,7 +11,7 @@ import type { Action, Loaded } from '@/lib/machine';
 import { haystackOf, hits } from '@/lib/search';
 
 export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Dispatch<Action> }) {
-  const { courses, lessonsFor, pages } = useLibrary();
+  const { courses, lessonsFor, catalog } = useLibrary();
   const hover = useHoverPrefetch();
   const [query, setQuery] = useState('');
 
@@ -26,6 +27,15 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
   const term = query.trim();
   const list = shelf.filter((row) => hits(row.hay, term)).map((row) => row.course);
 
+  // The shelf is what has been started; the rest of their catalogue is a tab away.
+  const started = new Set(shelf.map((row) => row.course.slug));
+  const rest = term
+    ? catalog
+        .filter((entry) => !started.has(entry.slug))
+        .filter((entry) => hits(haystackOf({ title: entry.title } as Course, []), term))
+        .slice(0, 6)
+    : [];
+
   return (
     <Screen>
       <input
@@ -39,8 +49,7 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
       {term && !list.length && <p className="text-body text-ink-soft">No matches.</p>}
 
       <p className="font-mono text-caption text-ink-faint">
-        {term ? `${list.length} of ${shelf.length} courses` : `${shelf.length} courses`}
-        {pages.length > 0 && ` · pages ${pages.join('/')}`}
+        {term ? `${list.length} of ${shelf.length} started` : `${shelf.length} started`}
       </p>
 
       <div className="flex flex-col gap-2">
@@ -54,6 +63,36 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
           />
         ))}
       </div>
+
+      {rest.length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          <p className="font-mono text-caption text-ink-faint">not started yet</p>
+
+          {rest.map((entry) => (
+            <div
+              key={entry.slug}
+              className="rule flex items-center justify-between gap-2 rounded-panel bg-card/60 px-3 py-2.5"
+            >
+              <span className="min-w-0 flex-1 truncate text-body leading-snug text-ink-soft">
+                {entry.title}
+              </span>
+
+              <Button
+                variant="silver"
+                size="xs"
+                className="shrink-0"
+                onClick={() =>
+                  void browser.tabs.create({
+                    url: `https://academy.zerotomastery.io/courses/${entry.slug}`,
+                  })
+                }
+              >
+                open on ZTM
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
     </Screen>
   );
 }
