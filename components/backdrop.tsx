@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { ZTM_GREEN, ZTM_PINK } from '@/lib/brand';
+import { ZTM_PINK } from '@/lib/brand';
 
 const Landscape = lazy(() => import('@/components/react-bits/landscape'));
 
@@ -30,8 +30,8 @@ export const NORMAL: Level = {
   opacity: 1,
   speed: 0.45,
   vignette: 0.32,
-  color: '#06331F',
-  farColor: ZTM_GREEN,
+  color: '#05070A',
+  farColor: '#05070A',
   ringColor: ZTM_PINK,
 };
 
@@ -40,9 +40,9 @@ export const MUTED: Level = {
   opacity: 0.34,
   speed: 0.05,
   vignette: 0.18,
-  color: '#052E1B',
-  farColor: '#052E1B',
-  ringColor: '#052E1B',
+  color: '#05070A',
+  farColor: '#05070A',
+  ringColor: '#120A10',
 };
 
 const channels = (hex: string): [number, number, number] => {
@@ -55,7 +55,7 @@ const hex = (rgb: [number, number, number]) =>
 
 const mixNumber = (a: number, b: number, t: number) => a + (b - a) * t;
 
-export const mixColor = (a: string, b: string, t: number) => {
+const mixColor = (a: string, b: string, t: number) => {
   const from = channels(a);
   const to = channels(b);
   return hex([

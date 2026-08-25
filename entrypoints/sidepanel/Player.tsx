@@ -243,8 +243,8 @@ const Waiting = ({ show }: { show: boolean }) => (
         height="100%"
         color="#33dd88"
         backgroundColor="#000000"
-        columns={153}
-        rows={136}
+        columns={80}
+        rows={60}
         speed={15}
         rowBias={0.35}
         fillThreshold={0.6}
