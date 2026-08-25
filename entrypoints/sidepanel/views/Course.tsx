@@ -16,7 +16,7 @@ export function Course({
   queued: Loaded | null;
   dispatch: Dispatch<Action>;
 }) {
-  const { courses, lessonsFor, openCourse, sweepText, seen, resumeIn } = useLibrary();
+  const { courses, lessonsFor, openCourse, sweepText, seen } = useLibrary();
   const reader = useReader();
 
   const course = courses?.find((c) => c.id === view.courseId);
@@ -41,9 +41,8 @@ export function Course({
     if (courses) sweepText(view.courseId);
   }, [courses, sweepText, view.courseId]);
 
-  const playing = lesson?.courseId === view.courseId ? lesson.lessonId : null;
-  // The lesson to land on: the one playing, else the one that would play next.
-  const land = playing ?? resumeIn(view.courseId)?.id ?? null;
+  // Only the lesson being played is worth moving the list for; everything else opens at the top.
+  const land = lesson?.courseId === view.courseId ? lesson.lessonId : null;
   const landed = useRef<string | null>(null);
 
   // Once per course: auto-advance moves the playing lesson, and that must not yank the list.
