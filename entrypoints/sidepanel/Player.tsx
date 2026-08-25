@@ -160,6 +160,11 @@ export function Player({
         case 'ready':
           listening.current = true;
           if (queued.current) return send(queued.current);
+          // A cold frame never swaps, so an insisted play has to be handed to it here.
+          if (advancing.current) {
+            advancing.current = false;
+            send({ ztm: 'play' });
+          }
           // A swap reports `playing` before this, so it must not be read as a stop.
           return setStatus((was) => (was.kind === 'playing' ? was : { kind: 'holding' }));
 

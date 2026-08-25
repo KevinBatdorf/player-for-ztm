@@ -23,23 +23,30 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
   return (
     <Screen>
       {back && (
-        <button
-          type="button"
-          onClick={() =>
-            dispatch({
-              type: 'lessonPlayed',
-              courseId: back.courseId,
-              lessonId: back.lessonId,
-            })
-          }
-          className="group rule relative w-full overflow-hidden rounded-panel bg-card px-3 py-2.5 text-left transition-colors duration-150 ease-panel hover:bg-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        >
-          <span className="block font-mono text-caption text-ink-faint">
-            pick up where you left off
-          </span>
-          <span className="mt-1 block truncate text-body leading-snug text-ink">{back.lesson}</span>
-          <span className="mt-0.5 block truncate text-caption text-ink-soft">{back.course}</span>
-        </button>
+        <div>
+          <p className="mb-1.5 font-mono text-caption text-ink-faint">pick up where you left off</p>
+
+          <div className="rule rounded-panel bg-card px-3 py-2.5">
+            <p className="truncate text-body leading-snug text-ink">{back.lesson}</p>
+            <p className="mt-0.5 truncate text-caption text-ink-soft">{back.course}</p>
+
+            <div className="mt-2 flex">
+              <Button
+                variant="silver"
+                size="xs"
+                onClick={() =>
+                  dispatch({
+                    type: 'lessonPlayed',
+                    courseId: back.courseId,
+                    lessonId: back.lessonId,
+                  })
+                }
+              >
+                play
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
       <input

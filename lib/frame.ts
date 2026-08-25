@@ -13,7 +13,9 @@ export type Swap = { ztm: 'swap'; lessonId: LessonId; src: string; play: boolean
 export type ToFrame =
   | Swap
   /** The frame ignores it while the video is popped out. */
-  | { ztm: 'pause' };
+  | { ztm: 'pause' }
+  /** A frame that has just loaded holds on its first frame until this arrives. */
+  | { ztm: 'play' };
 
 export type FromFrame =
   | { ztm: 'ready'; lessonId: LessonId }

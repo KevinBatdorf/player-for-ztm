@@ -254,6 +254,7 @@ export default defineContentScript({
       if (request?.ztm === 'swap') swap(request);
       // A popped-out video is still on screen, so it keeps playing.
       if (request?.ztm === 'pause' && !document.pictureInPictureElement) video?.pause();
+      if (request?.ztm === 'play') void start();
     });
 
     attach();
