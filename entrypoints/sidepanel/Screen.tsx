@@ -31,7 +31,10 @@ export function Screen({
           {title && <h1 className="text-heading leading-snug font-medium text-ink">{title}</h1>}
         </header>
       )}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 pt-4 pb-6">{children}</div>
+      {/* Children of a flex column shrink by default, which crushes a card into its own text. */}
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 pt-4 pb-6 [&>*]:shrink-0">
+        {children}
+      </div>
     </div>
   );
 }

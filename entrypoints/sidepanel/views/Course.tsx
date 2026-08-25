@@ -48,7 +48,7 @@ export function Course({
         {resume && resume.id !== lesson?.lessonId && (
           <Cta
             onClick={() =>
-              dispatch({ type: 'lessonPicked', courseId: view.courseId, lessonId: resume.id })
+              dispatch({ type: 'lessonPlayed', courseId: view.courseId, lessonId: resume.id })
             }
           >
             <span className="block truncate">

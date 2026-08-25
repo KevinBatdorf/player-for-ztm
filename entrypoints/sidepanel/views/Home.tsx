@@ -27,7 +27,7 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
           type="button"
           onClick={() =>
             dispatch({
-              type: 'lessonPicked',
+              type: 'lessonPlayed',
               courseId: back.courseId,
               lessonId: back.lessonId,
             })
@@ -164,7 +164,7 @@ function Card({
                   variant="silver"
                   size="xs"
                   onClick={() =>
-                    dispatch({ type: 'lessonPicked', courseId: course.id, lessonId: resume.id })
+                    dispatch({ type: 'lessonPlayed', courseId: course.id, lessonId: resume.id })
                   }
                 >
                   {watched ? 'continue' : 'start'}
