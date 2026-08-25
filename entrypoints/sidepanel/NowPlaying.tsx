@@ -14,11 +14,16 @@ const EDGE = `linear-gradient(to right, #000 calc(100% - ${FADE}px), transparent
 const EDGES = `linear-gradient(to right, transparent, #000 ${FADE}px, #000 calc(100% - ${FADE}px), transparent)`;
 
 export function NowPlaying({ lesson, waiting }: { lesson: Loaded; waiting: boolean }) {
-  const { courses, lessonsFor } = useLibrary();
+  const { courses, lessonsFor, remember } = useLibrary();
   const [reading, setReading] = useState(false);
   const course = courses?.find((c) => c.id === lesson.courseId);
   const lessons = lessonsFor(lesson.courseId);
   const current = lessons.find((l) => l.id === lesson.lessonId);
+
+  // Written from here because this renders for exactly as long as a lesson is loaded.
+  useEffect(() => {
+    remember(lesson.courseId, lesson.lessonId);
+  }, [lesson.courseId, lesson.lessonId, remember]);
 
   return (
     // `relative`, or the dot field is positioned and paints over the whole bar.

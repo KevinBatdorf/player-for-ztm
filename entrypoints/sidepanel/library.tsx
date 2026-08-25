@@ -17,6 +17,7 @@ import { mark, resumeOf, type Watched } from '@/lib/watched';
 const COURSES = 'courses';
 const LESSONS = 'lessons';
 const WATCHED = 'watched';
+const LAST = 'last';
 
 /** Per course, so opening one reads its own bodies instead of every course's. */
 const bodyKey = (courseId: CourseId) => `text:${courseId}`;
@@ -26,6 +27,9 @@ const SWEEP_GAP_MS = 1200;
 
 /** A second failure in a row is the host saying no, not one bad lecture. */
 const GIVE_UP_AFTER = 2;
+
+/** What the player had loaded when the panel last closed. */
+export type Playing = { courseId: CourseId; lessonId: LessonId };
 
 type Bodies = { digest: string | null; bodies: Record<LessonId, string> };
 
@@ -46,6 +50,9 @@ type LibraryApi = {
   watchedCount: (courseId: CourseId) => number;
   markWatched: (courseId: CourseId, lessonId: LessonId) => void;
   resumeIn: (courseId: CourseId) => Lesson | null;
+  /** Null until the cache is read, so the card does not flash in and out on boot. */
+  lastPlayed: Playing | null;
+  remember: (courseId: CourseId, lessonId: LessonId) => void;
 };
 
 const LibraryContext = createContext<LibraryApi | null>(null);
@@ -61,6 +68,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   const opening = useRef(new Map<CourseId, Promise<void>>());
   const [text, setText] = useState<Record<CourseId, Bodies>>({});
   const [watched, setWatched] = useState<Watched>({});
+  const [lastPlayed, setLastPlayed] = useState<Playing | null>(null);
   const record = useRef<Watched>({});
   const sweeping = useRef<CourseId | null>(null);
   const reading = useRef(new Set<LessonId>());
@@ -94,11 +102,14 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     if (inflight.current) return inflight.current;
 
     const run = (async () => {
-      const [cachedCourses, cachedIndex, cachedWatched] = await Promise.all([
+      const [cachedCourses, cachedIndex, cachedWatched, cachedLast] = await Promise.all([
         read<Course[]>(COURSES),
         read<LessonIndex>(LESSONS),
         read<Watched>(WATCHED),
+        read<Playing>(LAST),
       ]);
+
+      if (cachedLast) setLastPlayed(cachedLast);
 
       if (cachedIndex) {
         latest.current = cachedIndex;
@@ -238,6 +249,12 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     void write(WATCHED, next);
   }, []);
 
+  const remember = useCallback((courseId: CourseId, lessonId: LessonId) => {
+    const playing = { courseId, lessonId };
+    setLastPlayed(playing);
+    void write(LAST, playing);
+  }, []);
+
   const api = useMemo<LibraryApi>(
     () => ({
       courses,
@@ -252,8 +269,23 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       watchedCount: (courseId) => Object.keys(watched[courseId] ?? {}).length,
       markWatched,
       resumeIn: (courseId) => resumeOf(index[courseId]?.lessons ?? NONE, watched[courseId]),
+      lastPlayed,
+      remember,
     }),
-    [courses, error, load, index, openCourse, sweepText, readLesson, text, watched, markWatched],
+    [
+      courses,
+      error,
+      load,
+      index,
+      openCourse,
+      sweepText,
+      readLesson,
+      text,
+      watched,
+      markWatched,
+      lastPlayed,
+      remember,
+    ],
   );
 
   return <LibraryContext.Provider value={api}>{children}</LibraryContext.Provider>;

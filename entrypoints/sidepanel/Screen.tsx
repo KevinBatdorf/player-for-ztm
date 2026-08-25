@@ -164,7 +164,7 @@ export function Row({
 /** The title stays readable under it, which a solid panel did not allow. */
 const WASH = [
   'pointer-events-none absolute inset-0 flex items-center gap-1.5 rounded-panel px-3',
-  'bg-gradient-to-t from-card-hover from-70% to-transparent',
+  'bg-gradient-to-t from-card-hover from-10% via-card-hover/70 via-60% to-transparent',
   'opacity-0 transition-opacity duration-150 ease-panel',
   'group-hover:pointer-events-auto group-hover:opacity-100',
   // A click leaves focus behind, and focus-within would hold the wash open after the pointer goes.
