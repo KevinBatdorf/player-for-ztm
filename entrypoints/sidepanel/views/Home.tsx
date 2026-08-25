@@ -65,9 +65,7 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
       )}
 
       <p className="font-mono text-caption text-ink-faint">
-        {term
-          ? `${list.length} of ${shelf.length} courses · ${rest.length} of ${unstarted.length} not started`
-          : `${shelf.length} courses · ${unstarted.length} not started`}
+        {term ? `${list.length} of ${shelf.length} courses` : `${shelf.length} courses`}
       </p>
 
       <div className="flex flex-col gap-2">
