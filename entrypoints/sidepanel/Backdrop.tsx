@@ -1,8 +1,8 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
-import { blend, Landscape, landscapeProps, MUTED, NORMAL } from '@/components/backdrop';
+import { blend, MUTED, NORMAL, Squares, squaresProps } from '@/components/backdrop';
 import type { BackdropLevel } from '@/lib/machine';
 
-/** Landscape reports no first frame of its own, so the mark comes up on this. */
+/** The field reports no first frame of its own, so the mark comes up on this. */
 const READY_DEADLINE_MS = 900;
 
 /** Only one level change happens per session. */
@@ -35,7 +35,7 @@ export function Backdrop({ level, onReady }: { level: BackdropLevel; onReady: ()
           style={{ opacity: drawn ? 1 : 0 }}
         >
           {/* Its root sets no size, so without this the fiber canvas falls back to 300x150. */}
-          <Landscape className="h-full w-full" {...landscapeProps(field)} />
+          <Squares className="h-full w-full" {...squaresProps(field)} />
         </div>
 
         {/* The scene moves, so the mark's contrast cannot depend on what is under it. */}
