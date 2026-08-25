@@ -30,7 +30,7 @@ export const NORMAL: Level = {
   opacity: 1,
   speed: 0.45,
   vignette: 0.32,
-  color: '#0B5233',
+  color: '#06331F',
   farColor: ZTM_GREEN,
   ringColor: ZTM_PINK,
 };
@@ -55,7 +55,7 @@ const hex = (rgb: [number, number, number]) =>
 
 const mixNumber = (a: number, b: number, t: number) => a + (b - a) * t;
 
-const mixColor = (a: string, b: string, t: number) => {
+export const mixColor = (a: string, b: string, t: number) => {
   const from = channels(a);
   const to = channels(b);
   return hex([
