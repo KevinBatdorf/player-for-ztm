@@ -19,21 +19,24 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
     () =>
       byUpdated(courses ?? []).map((course) => ({
         course,
-        hay: haystackOf(course, lessonsFor(course.id)),
+        hay: haystackOf(course.title, lessonsFor(course.id)),
       })),
     [courses, lessonsFor],
   );
 
+  // The shelf is what has been started; the rest of their catalogue is a tab away.
+  const unstarted = useMemo(() => {
+    const started = new Set(shelf.map((row) => row.course.slug));
+    return catalog
+      .filter((entry) => !started.has(entry.slug))
+      .map((entry) => ({ entry, hay: haystackOf(entry.title, []) }));
+  }, [catalog, shelf]);
+
   const term = query.trim();
   const list = shelf.filter((row) => hits(row.hay, term)).map((row) => row.course);
 
-  // The shelf is what has been started; the rest of their catalogue is a tab away.
-  const started = new Set(shelf.map((row) => row.course.slug));
   const rest = term
-    ? catalog
-        .filter((entry) => !started.has(entry.slug))
-        .filter((entry) => hits(haystackOf({ title: entry.title } as Course, []), term))
-        .slice(0, 6)
+    ? unstarted.filter((row) => hits(row.hay, term)).map((row) => row.entry)
     : [];
 
   return (
@@ -46,10 +49,14 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
         className="rule w-full rounded-panel bg-surface px-3 py-2 text-body text-ink placeholder:text-ink-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       />
 
-      {term && !list.length && <p className="text-body text-ink-soft">No matches.</p>}
+      {term && !list.length && !rest.length && (
+        <p className="text-body text-ink-soft">No matches.</p>
+      )}
 
       <p className="font-mono text-caption text-ink-faint">
-        {term ? `${list.length} of ${shelf.length} started` : `${shelf.length} started`}
+        {term
+          ? `${list.length} of ${shelf.length} started · ${rest.length} of ${unstarted.length} not`
+          : `${shelf.length} started · ${unstarted.length} not`}
       </p>
 
       <div className="flex flex-col gap-2">

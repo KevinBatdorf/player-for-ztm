@@ -1,4 +1,3 @@
-import type { Course } from '@/lib/courses';
 import type { Lesson } from '@/lib/lessons';
 
 /** Their titles space and punctuate as they like: "Web Assembly" has to answer to "webassembly". */
@@ -55,8 +54,8 @@ const within = (a: string, b: string, allowed: number): boolean => {
 export type Haystack = { blob: string; words: string[] };
 
 /** A course and everything under it, flattened once so a keystroke does not rebuild it. */
-export const haystackOf = (course: Course, lessons: Lesson[]): Haystack => {
-  const titles = [course.title, ...lessons.map((lesson) => lesson.title)];
+export const haystackOf = (title: string, lessons: Lesson[]): Haystack => {
+  const titles = [title, ...lessons.map((lesson) => lesson.title)];
   return {
     blob: titles.map(flatten).join(' '),
     words: titles
