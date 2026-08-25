@@ -32,7 +32,7 @@ export const NORMAL: Level = {
   color: '#05070A',
   farColor: '#05070A',
   /** Their pink taken well down: at full strength the ridges blow out to white. */
-  ringColor: '#8E0C3B',
+  ringColor: '#590826',
 };
 
 /** One colour across all three ramps, which is what takes the scene down to a texture. */
