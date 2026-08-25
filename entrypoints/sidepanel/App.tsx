@@ -82,6 +82,7 @@ export function App() {
           >
             <Player
               lesson={state.lesson}
+              queuedLesson={state.queued}
               collapsed={raised}
               onWaiting={setWaiting}
               dispatch={dispatch}
@@ -135,7 +136,7 @@ export function App() {
 
 /** Exhaustive by the compiler: a new union member breaks this switch. */
 function renderView(state: AppState, dispatch: Dispatch<Action>, backdropReady: boolean) {
-  const { view, awaitingLogin, lesson } = state;
+  const { view, awaitingLogin, lesson, queued } = state;
 
   switch (view.name) {
     case 'boot':
@@ -149,6 +150,6 @@ function renderView(state: AppState, dispatch: Dispatch<Action>, backdropReady: 
     // One component for both: the loading line flashed for a frame on a warm cache.
     case 'courseLoading':
     case 'course':
-      return <Course view={view} lesson={lesson} dispatch={dispatch} />;
+      return <Course view={view} lesson={lesson} queued={queued} dispatch={dispatch} />;
   }
 }

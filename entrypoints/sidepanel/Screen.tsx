@@ -1,4 +1,4 @@
-import { FileText, Play } from 'lucide-react';
+import { Check, FileText } from 'lucide-react';
 import { lazy, Suspense, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -87,58 +87,82 @@ export function Row({
   title,
   meta,
   onClick,
+  onQueue,
   /** Picking a lesson does not change screen, so the list shows which one is loaded. */
   active = false,
   done = false,
+  queued = false,
   onPointerEnter,
   onPointerLeave,
 }: {
   title: string;
   meta?: string;
   onClick: () => void;
+  onQueue: () => void;
   active?: boolean;
   done?: boolean;
+  queued?: boolean;
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <div
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
-      className={cn(
-        'group rule relative flex w-full items-center justify-between gap-2 rounded-panel bg-card px-3 py-2.5 text-left transition-colors duration-150 ease-panel',
-        'hover:bg-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-      )}
+      className="group rule relative flex w-full items-center justify-between gap-2 rounded-panel bg-card px-3 py-2.5 text-left transition-colors duration-150 ease-panel hover:bg-card-hover"
     >
+      {/* Under the actions rather than around them: a button cannot hold another. */}
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={title}
+        className="absolute inset-0 rounded-panel focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
+      />
+
       <span
         className={cn(
-          'min-w-0 flex-1 text-body leading-snug',
+          'pointer-events-none relative min-w-0 flex-1 truncate text-body leading-snug',
           active ? 'font-medium text-accent-text' : 'text-ink',
         )}
       >
         {title}
       </span>
+      {queued && (
+        <span className="pointer-events-none relative shrink-0 font-mono text-caption text-ink-soft">
+          queued
+        </span>
+      )}
       {done && (
-        <span className="shrink-0 font-mono text-caption text-accent-text" title="Watched">
+        <span
+          className="pointer-events-none relative shrink-0 font-mono text-caption text-accent-text"
+          title="Watched"
+        >
           &#10003;
         </span>
       )}
-      {meta && <span className="shrink-0 font-mono text-caption text-ink-faint">{meta}</span>}
+      {meta && (
+        <span className="pointer-events-none relative shrink-0 font-mono text-caption text-ink-faint">
+          {meta}
+        </span>
+      )}
 
-      {/* The row is the control, so this is a mark rather than a second button. */}
-      <span className={WASH} aria-hidden>
-        <Play className="size-3.5 text-ink" fill="currentColor" strokeWidth={0} />
-      </span>
-    </button>
+      <div className={WASH}>
+        <Button variant="silver" size="xs" onClick={onClick}>
+          play
+        </Button>
+        <Button variant="silver" size="xs" onClick={onQueue}>
+          {queued && <Check aria-hidden />}
+          {queued ? 'queued' : 'play next'}
+        </Button>
+      </div>
+    </div>
   );
 }
 
 /** The title stays readable under it, which a solid panel did not allow. */
 const WASH = [
-  'pointer-events-none absolute inset-y-0 left-0 flex items-center gap-1.5 rounded-panel',
-  'bg-gradient-to-r from-card-hover from-60% to-transparent pr-10 pl-3',
+  'pointer-events-none absolute inset-0 flex items-end gap-1.5 rounded-panel px-3 pb-1.5',
+  'bg-gradient-to-t from-card-hover from-55% to-transparent',
   'opacity-0 transition-opacity duration-150 ease-panel',
   'group-hover:pointer-events-auto group-hover:opacity-100',
   'group-focus-within:pointer-events-auto group-focus-within:opacity-100',

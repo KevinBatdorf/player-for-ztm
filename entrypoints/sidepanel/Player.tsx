@@ -31,11 +31,14 @@ type Status =
 /** Not a screen: Picture-in-Picture and the sticky activation die with the document. */
 export function Player({
   lesson,
+  queuedLesson,
   collapsed,
   onWaiting,
   dispatch,
 }: {
   lesson: Loaded | null;
+  /** Only to know whether an ending lesson has somewhere to go. */
+  queuedLesson: Loaded | null;
   /** The frame stays mounted and audible while the canvas is collapsed. */
   collapsed: boolean;
   /** The bar outside this component shows the same wait. */
@@ -169,7 +172,7 @@ export function Player({
           markWatched(lesson.courseId, message.lessonId);
           const nextLessonId = nextOf(lessons, message.lessonId)?.id ?? null;
           // The viewer did not pick this one, so the play carries over.
-          advancing.current = nextLessonId !== null;
+          advancing.current = nextLessonId !== null || queuedLesson !== null;
           rolling.current = false;
           return dispatch({ type: 'lessonEnded', nextLessonId });
         }
@@ -181,7 +184,7 @@ export function Player({
 
     addEventListener('message', heard);
     return () => removeEventListener('message', heard);
-  }, [dispatch, lesson, lessons, markWatched, send]);
+  }, [dispatch, lesson, lessons, markWatched, queuedLesson, send]);
 
   if (!lesson) {
     return (

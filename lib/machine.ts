@@ -31,6 +31,8 @@ export type AppState = {
   backdrop: BackdropLevel;
   // Ambient so a screen change cannot clear a loaded lesson.
   lesson: Loaded | null;
+  /** Jumps the queue when the playing lesson ends, in place of the one that follows it. */
+  queued: Loaded | null;
   heading: Heading;
 };
 
@@ -43,6 +45,7 @@ export type Action =
   | { type: 'coursePicked'; courseId: CourseId }
   | { type: 'courseReady'; courseId: CourseId }
   | { type: 'lessonPicked'; courseId: CourseId; lessonId: LessonId }
+  | { type: 'lessonQueued'; courseId: CourseId; lessonId: LessonId }
   | { type: 'lessonEnded'; nextLessonId: LessonId | null }
   | { type: 'wentHome' };
 
@@ -51,6 +54,7 @@ export const initialState: AppState = {
   awaitingLogin: false,
   backdrop: 'normal',
   lesson: null,
+  queued: null,
   heading: 'none',
 };
 
@@ -102,16 +106,32 @@ export function reduce(state: AppState, action: Action): AppState {
         : state;
 
     // Loads the player and leaves the screen alone; the list is still worth reading.
-    case 'lessonPicked':
-      return from(view, 'home', 'course')
-        ? { ...state, lesson: { courseId: action.courseId, lessonId: action.lessonId } }
-        : state;
+    case 'lessonPicked': {
+      if (!from(view, 'home', 'course')) return state;
+      const lesson = { courseId: action.courseId, lessonId: action.lessonId };
+      const held = state.queued;
+      // Playing the queued one by hand is the queue spent, not a queue still waiting.
+      const queued = held && held.lessonId === lesson.lessonId ? null : held;
+      return { ...state, lesson, queued };
+    }
+
+    case 'lessonQueued': {
+      const held = state.queued;
+      const same = held?.courseId === action.courseId && held.lessonId === action.lessonId;
+      return {
+        ...state,
+        queued: same ? null : { courseId: action.courseId, lessonId: action.lessonId },
+      };
+    }
 
     // No next lesson means the video rests on its last frame; there is nowhere to send anyone.
-    case 'lessonEnded':
-      return state.lesson && action.nextLessonId
-        ? { ...state, lesson: { ...state.lesson, lessonId: action.nextLessonId } }
-        : state;
+    case 'lessonEnded': {
+      if (!state.lesson) return state;
+      const after =
+        state.queued ??
+        (action.nextLessonId ? { ...state.lesson, lessonId: action.nextLessonId } : null);
+      return after ? { ...state, lesson: after, queued: null } : state;
+    }
 
     case 'wentHome':
       return from(view, 'courseLoading', 'course')

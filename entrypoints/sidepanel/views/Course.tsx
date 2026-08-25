@@ -8,10 +8,12 @@ import type { Action, Loaded, ViewOf } from '@/lib/machine';
 export function Course({
   view,
   lesson,
+  queued,
   dispatch,
 }: {
   view: ViewOf<'course'> | ViewOf<'courseLoading'>;
   lesson: Loaded | null;
+  queued: Loaded | null;
   dispatch: Dispatch<Action>;
 }) {
   const { courses, lessonsFor, openCourse, sweepText, seen, resumeIn } = useLibrary();
@@ -79,8 +81,12 @@ export function Course({
                   meta={row.duration ?? undefined}
                   active={lesson?.courseId === view.courseId && lesson.lessonId === row.id}
                   done={seen(view.courseId, row.id)}
+                  queued={queued?.courseId === view.courseId && queued.lessonId === row.id}
                   onClick={() =>
                     dispatch({ type: 'lessonPicked', courseId: view.courseId, lessonId: row.id })
+                  }
+                  onQueue={() =>
+                    dispatch({ type: 'lessonQueued', courseId: view.courseId, lessonId: row.id })
                   }
                 />
               ),
