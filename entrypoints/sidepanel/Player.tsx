@@ -281,8 +281,8 @@ const SCRIM = { textShadow: '0 1px 9px rgba(var(--t-scrim), 0.95)' };
 /** A transparent picture shows the field through wherever it does not reach. */
 const Frame = ({ children }: { children: ReactNode }) => (
   // `relative` or it paints under the backdrop, which is absolute and earlier in the DOM.
-  <div className="relative w-full p-0.5">
-    <div className="relative aspect-video w-full overflow-hidden rounded-panel bg-canvas">
+  <div className="relative w-full p-1">
+    <div className="relative aspect-video w-full overflow-hidden rounded-[6px] bg-canvas">
       {children}
     </div>
   </div>
