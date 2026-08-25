@@ -115,7 +115,14 @@ function Card({
               >
                 view
               </Button>
-              {resume && (
+              {resume && playing && (
+                <Button variant="silver" size="xs" disabled>
+                  playing
+                  <Music2 aria-hidden />
+                </Button>
+              )}
+
+              {resume && !playing && (
                 <Button
                   variant="silver"
                   size="xs"
