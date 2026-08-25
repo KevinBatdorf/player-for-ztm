@@ -93,18 +93,37 @@ function match(title: string, catalog: CatalogEntry[]): CatalogEntry | null {
 export type Library = { courses: Course[]; lessons: Record<CourseId, Lesson[]> };
 
 /** A catalogue failure costs the order and the lessons, not the list. */
-export async function fetchLibrary(): Promise<Library> {
-  const res = await fetch(ENROLLED, {
-    credentials: 'include',
-    signal: AbortSignal.timeout(REACH_MS),
-  });
+/** Their shelf paginates, so a single read is only ever the first page of it. */
+const PAGES = 20;
 
-  if (!res.ok) throw new Error(`Enrolled came back ${res.status}.`);
-  if (!new URL(res.url).pathname.startsWith('/courses/enrolled')) {
-    throw new Error('Enrolled redirected to the public catalogue, so the session is gone.');
+async function fetchEnrolled(): Promise<Enrolled[]> {
+  const held: Enrolled[] = [];
+  const seen = new Set<CourseId>();
+
+  for (let page = 1; page <= PAGES; page++) {
+    const res = await fetch(page === 1 ? ENROLLED : `${ENROLLED}?page=${page}`, {
+      credentials: 'include',
+      signal: AbortSignal.timeout(REACH_MS),
+    });
+
+    if (!res.ok) throw new Error(`Enrolled came back ${res.status}.`);
+    if (!new URL(res.url).pathname.startsWith('/courses/enrolled')) {
+      throw new Error('Enrolled redirected to the public catalogue, so the session is gone.');
+    }
+
+    // A page past the end repeats the last one on some of their layouts, so ids decide.
+    const fresh = parseEnrolled(await res.text()).filter((course) => !seen.has(course.id));
+    if (!fresh.length) break;
+
+    for (const course of fresh) seen.add(course.id);
+    held.push(...fresh);
   }
 
-  const enrolled = parseEnrolled(await res.text());
+  return held;
+}
+
+export async function fetchLibrary(): Promise<Library> {
+  const enrolled = await fetchEnrolled();
   if (!enrolled.length) throw new Error('Enrolled parsed to nothing, so their markup moved.');
 
   const catalog = await fetchCatalog().catch(() => [] as CatalogEntry[]);
