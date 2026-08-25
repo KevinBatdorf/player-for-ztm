@@ -227,7 +227,7 @@ function faultIn(status: Status, slug: string | null): string | null {
   return status.kind === 'failed' ? status.message : null;
 }
 
-const Blinds = lazy(() => import('@/components/react-bits/rolling-blinds'));
+const Field = lazy(() => import('@/components/react-bits/squares-terminal'));
 
 /** Opaque, or the lesson being swapped away from sits there looking like a fault. */
 const Waiting = ({ show }: { show: boolean }) => (
@@ -238,19 +238,17 @@ const Waiting = ({ show }: { show: boolean }) => (
     )}
   >
     <Suspense fallback={null}>
-      <Blinds
-        // Its root carries no size of its own, and a canvas with no height draws nothing.
-        className="h-full w-full"
-        color="#0d1014"
-        hotColor="#5a626e"
+      <Field
+        width="100%"
+        height="100%"
+        color="#3f8f68"
         backgroundColor="#000000"
-        bandWidth={0.22}
-        warp={1}
-        tilt={0.15}
-        gain={1.15}
-        contrast={1}
-        vignette={0.1}
-        drift={0.6}
+        columns={64}
+        rows={64}
+        speed={7}
+        glow={0.35}
+        vignette={0.5}
+        opacity={0.75}
         cursorInteraction={false}
       />
     </Suspense>
