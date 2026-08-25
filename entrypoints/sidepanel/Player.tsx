@@ -241,15 +241,23 @@ const Waiting = ({ show }: { show: boolean }) => (
       <Field
         width="100%"
         height="100%"
-        color="#3f8f68"
+        color="#33dd88"
         backgroundColor="#000000"
-        columns={64}
-        rows={64}
-        speed={7}
-        glow={0.35}
+        columns={153}
+        rows={136}
+        speed={15}
+        rowBias={0.35}
+        fillThreshold={0.6}
+        dashHead={0.38}
+        dashTail={1.02}
+        rowFloor={0.52}
+        curvature={0.8}
+        glow={1.25}
         vignette={0.5}
-        opacity={0.75}
-        cursorInteraction={false}
+        opacity={1}
+        alternateRows
+        cursorRadius={0.5}
+        cursorIntensity={1}
       />
     </Suspense>
   </div>
