@@ -92,6 +92,7 @@ export function Row({
   active = false,
   done = false,
   queued = false,
+  canQueue = true,
   onPointerEnter,
   onPointerLeave,
 }: {
@@ -102,6 +103,7 @@ export function Row({
   active?: boolean;
   done?: boolean;
   queued?: boolean;
+  canQueue?: boolean;
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
 }) {
@@ -150,7 +152,7 @@ export function Row({
         <Button variant="silver" size="xs" onClick={onClick}>
           play
         </Button>
-        <Button variant="silver" size="xs" onClick={onQueue}>
+        <Button variant="silver" size="xs" onClick={onQueue} disabled={!canQueue}>
           {queued && <Check aria-hidden />}
           {queued ? 'queued' : 'play next'}
         </Button>
@@ -161,11 +163,12 @@ export function Row({
 
 /** The title stays readable under it, which a solid panel did not allow. */
 const WASH = [
-  'pointer-events-none absolute inset-0 flex items-end gap-1.5 rounded-panel px-3 pb-1.5',
-  'bg-gradient-to-t from-card-hover from-55% to-transparent',
+  'pointer-events-none absolute inset-0 flex items-center gap-1.5 rounded-panel px-3',
+  'bg-gradient-to-t from-card-hover from-70% to-transparent',
   'opacity-0 transition-opacity duration-150 ease-panel',
   'group-hover:pointer-events-auto group-hover:opacity-100',
-  'group-focus-within:pointer-events-auto group-focus-within:opacity-100',
+  // A click leaves focus behind, and focus-within would hold the wash open after the pointer goes.
+  'group-has-[:focus-visible]:pointer-events-auto group-has-[:focus-visible]:opacity-100',
 ].join(' ');
 
 /** Focus-within is what keeps the two actions reachable without a pointer. */

@@ -82,6 +82,7 @@ export function Course({
                   active={lesson?.courseId === view.courseId && lesson.lessonId === row.id}
                   done={seen(view.courseId, row.id)}
                   queued={queued?.courseId === view.courseId && queued.lessonId === row.id}
+                  canQueue={lesson !== null}
                   onClick={() =>
                     dispatch({ type: 'lessonPicked', courseId: view.courseId, lessonId: row.id })
                   }
