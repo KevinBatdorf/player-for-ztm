@@ -1,6 +1,6 @@
 import { Music2, Play } from 'lucide-react';
 import { useState, type Dispatch } from 'react';
-import { useLibrary, type Playing } from '../library';
+import { useLibrary } from '../library';
 import { useHoverPrefetch } from '../prefetch';
 import { Screen } from '../Screen';
 import { Button } from '@/components/ui/button';
@@ -9,12 +9,10 @@ import { runtimeOf, type Lesson } from '@/lib/lessons';
 import type { Action, Loaded } from '@/lib/machine';
 
 export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Dispatch<Action> }) {
-  const { courses, lessonsFor, lastPlayed } = useLibrary();
+  const { courses, lessonsFor } = useLibrary();
   const hover = useHoverPrefetch();
   const [query, setQuery] = useState('');
 
-  // Only worth offering when nothing is loaded: with a player up, the bar already says it.
-  const back = lesson ? null : pickUp(lastPlayed, courses, lessonsFor);
   const term = query.trim().toLowerCase();
   const list = byUpdated(courses ?? []).filter((course) =>
     shows(course, lessonsFor(course.id), term),
@@ -22,33 +20,6 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
 
   return (
     <Screen>
-      {back && (
-        <div>
-          <p className="mb-1.5 font-mono text-caption text-ink-faint">pick up where you left off</p>
-
-          <div className="rule rounded-panel bg-card px-3 py-2.5">
-            <p className="truncate text-body leading-snug text-ink">{back.lesson}</p>
-            <p className="mt-0.5 truncate text-caption text-ink-soft">{back.course}</p>
-
-            <div className="mt-2 flex">
-              <Button
-                variant="silver"
-                size="xs"
-                onClick={() =>
-                  dispatch({
-                    type: 'lessonPlayed',
-                    courseId: back.courseId,
-                    lessonId: back.lessonId,
-                  })
-                }
-              >
-                play
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <input
         type="search"
         value={query}
@@ -72,21 +43,6 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
       </div>
     </Screen>
   );
-}
-
-/** Null unless the lesson is still in the catalogue and still a video. */
-function pickUp(
-  last: Playing | null,
-  courses: Course[] | null,
-  lessonsFor: (courseId: string) => Lesson[],
-) {
-  if (!last || !courses) return null;
-
-  const course = courses.find((c) => c.id === last.courseId);
-  const lesson = lessonsFor(last.courseId).find((l) => l.id === last.lessonId);
-  if (!course || !lesson || lesson.video === false) return null;
-
-  return { ...last, course: course.title, lesson: lesson.title };
 }
 
 /** A lesson title is worth matching, but what the list holds is courses. */

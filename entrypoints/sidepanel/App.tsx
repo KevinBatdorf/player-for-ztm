@@ -129,7 +129,9 @@ export function App() {
           </div>
         </div>
 
-        {showsPlayer && state.lesson && <NowPlaying lesson={state.lesson} waiting={waiting} />}
+        {showsPlayer && (
+          <NowPlaying lesson={state.lesson} waiting={waiting} dispatch={dispatch} />
+        )}
       </div>
     </div>
   );
