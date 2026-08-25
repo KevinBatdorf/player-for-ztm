@@ -82,14 +82,6 @@ export const Cta = ({ children, onClick }: { children: ReactNode; onClick: () =>
   </Button>
 );
 
-/** Zero to one fraction rather than a height, so the row opens without a measurement. */
-const DRAWER = [
-  'grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-panel',
-  'group-hover:grid-rows-[1fr]',
-  // A click leaves focus behind, and focus-within would hold the row open after the pointer goes.
-  'group-has-[:focus-visible]:grid-rows-[1fr]',
-].join(' ');
-
 export function Row({
   title,
   meta,
@@ -134,7 +126,7 @@ export function Row({
         <span
           className={cn(
             'min-w-0 flex-1 truncate text-body leading-snug',
-            active ? 'font-medium text-accent-text' : 'text-ink',
+            active ? 'font-medium text-playing' : 'text-ink',
           )}
         >
           {title}
@@ -150,18 +142,14 @@ export function Row({
         {meta && <span className="shrink-0 font-mono text-caption text-ink-faint">{meta}</span>}
       </div>
 
-      <div className={cn('relative', DRAWER)}>
-        <div className="overflow-hidden">
-          <div className="flex gap-1.5 pt-2">
-            <Button variant="silver" size="xs" onClick={onPlay}>
-              play
-            </Button>
-            <Button variant="silver" size="xs" onClick={onQueue} disabled={!canQueue}>
-              {queued && <Check aria-hidden />}
-              {queued ? 'queued' : 'play next'}
-            </Button>
-          </div>
-        </div>
+      <div className="relative flex gap-1.5 pt-2">
+        <Button variant="silver" size="xs" onClick={onPlay} disabled={active}>
+          play
+        </Button>
+        <Button variant="silver" size="xs" onClick={onQueue} disabled={active || !canQueue}>
+          {queued && <Check aria-hidden />}
+          {queued ? 'queued' : 'play next'}
+        </Button>
       </div>
     </div>
   );
@@ -190,17 +178,13 @@ export function TextRow({
         <FileText className="size-3.5 shrink-0 text-ink-faint" aria-label="Text lesson" />
       </div>
 
-      <div className={DRAWER}>
-        <div className="overflow-hidden">
-          <div className="flex gap-1.5 pt-2">
-            <Button variant="silver" size="xs" onClick={onRead}>
-              read here
-            </Button>
-            <Button variant="silver" size="xs" onClick={onOpenTab}>
-              open tab
-            </Button>
-          </div>
-        </div>
+      <div className="flex gap-1.5 pt-2">
+        <Button variant="silver" size="xs" onClick={onRead}>
+          read here
+        </Button>
+        <Button variant="silver" size="xs" onClick={onOpenTab}>
+          open tab
+        </Button>
       </div>
     </div>
   );
