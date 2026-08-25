@@ -1,3 +1,4 @@
+import { FileText } from 'lucide-react';
 import { lazy, Suspense, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -132,19 +133,26 @@ export function Row({
 /** Focus-within is what keeps the two actions reachable without a pointer. */
 export function TextRow({
   title,
+  done = false,
   onRead,
   onOpenTab,
 }: {
   title: string;
+  done?: boolean;
   onRead: () => void;
   onOpenTab: () => void;
 }) {
   return (
-    <div className="group rule relative flex w-full items-baseline justify-between gap-2 rounded-panel bg-card/60 px-3 py-2.5">
+    <div className="group rule relative flex w-full items-center justify-between gap-2 rounded-panel bg-card/60 px-3 py-2.5">
       <span className="min-w-0 flex-1 text-body leading-snug text-ink-soft">{title}</span>
-      <span className="shrink-0 font-mono text-caption text-ink-faint">text</span>
+      {done && (
+        <span className="shrink-0 font-mono text-caption text-accent-text" title="Read">
+          &#10003;
+        </span>
+      )}
+      <FileText className="size-3.5 shrink-0 text-ink-faint" aria-label="Text lesson" />
 
-      <div className="pointer-events-none absolute inset-0 flex items-center gap-1.5 rounded-panel bg-card-hover px-3 opacity-0 transition-opacity duration-150 ease-panel group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center gap-1.5 rounded-panel bg-card-hover px-3 opacity-0 transition-opacity duration-150 ease-panel group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
         <Button variant="silver" size="xs" onClick={onRead}>
           read here
         </Button>

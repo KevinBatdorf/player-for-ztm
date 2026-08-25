@@ -68,6 +68,7 @@ export function Course({
                 <TextRow
                   key={row.id}
                   title={titled(at + 1, row.title)}
+                  done={seen(view.courseId, row.id)}
                   onRead={() => reader.open(view.courseId, row.id, row.title)}
                   onOpenTab={() => reader.openTab(view.courseId, row.id)}
                 />

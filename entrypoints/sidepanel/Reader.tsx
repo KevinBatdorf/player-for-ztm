@@ -1,7 +1,9 @@
 import { browser } from '#imports';
+import { X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useLibrary } from './library';
 import { Markdown } from './markdown';
+import { Button } from '@/components/ui/button';
 import { lectureUrl } from '@/lib/lecture';
 import type { CourseId, LessonId } from '@/lib/machine';
 
@@ -9,7 +11,7 @@ type At = { courseId: CourseId; lessonId: LessonId; title: string; slug: string 
 
 /** `node` must render as a sibling of `Screen`; inside its scroller it is clipped. */
 export function useReader() {
-  const { courses, bodyFor, readLesson } = useLibrary();
+  const { courses, bodyFor, readLesson, markWatched } = useLibrary();
   const [at, setAt] = useState<At | null>(null);
 
   const open = useCallback(
@@ -18,14 +20,21 @@ export function useReader() {
       setAt({ courseId, lessonId, title, slug: course?.slug ?? null });
       // The sweep may not have reached this one yet.
       readLesson(courseId, lessonId);
+      // Nothing else can mark a text lesson: there is no player to report an end.
+      markWatched(courseId, lessonId);
     },
-    [courses, readLesson],
+    [courses, markWatched, readLesson],
   );
 
-  const openTab = useCallback((courseId: CourseId, lessonId: LessonId) => {
-    const course = courses?.find((c) => c.id === courseId);
-    if (course?.slug) void browser.tabs.create({ url: lectureUrl(course.slug, lessonId) });
-  }, [courses]);
+  const openTab = useCallback(
+    (courseId: CourseId, lessonId: LessonId) => {
+      const course = courses?.find((c) => c.id === courseId);
+      if (!course?.slug) return;
+      markWatched(courseId, lessonId);
+      void browser.tabs.create({ url: lectureUrl(course.slug, lessonId) });
+    },
+    [courses, markWatched],
+  );
 
   const node = at ? (
     <Reader
@@ -60,25 +69,18 @@ export function Reader({
 
   return (
     <div className="absolute inset-0 z-40 flex flex-col bg-sheet">
-      <header className="rule-b flex shrink-0 items-center gap-3 px-6 py-3.5">
-        <h1 className="min-w-0 flex-1 text-heading leading-snug font-medium text-ink">{title}</h1>
+      <header className="rule-b shrink-0 px-6 py-3.5">
+        <h1 className="text-heading leading-snug font-medium text-ink">{title}</h1>
 
-        <button
-          type="button"
-          onClick={onOpenTab}
-          className="rule shrink-0 rounded-panel px-1.5 py-0.5 font-mono text-caption text-ink-soft transition-colors duration-150 ease-panel hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        >
-          open tab
-        </button>
-
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          className="rule shrink-0 rounded-panel px-1.5 py-0.5 font-mono text-caption text-ink-faint transition-colors duration-150 ease-panel hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        >
-          ✕
-        </button>
+        <div className="mt-2.5 flex gap-1.5">
+          <Button variant="silver" size="xs" onClick={onClose}>
+            <X aria-hidden />
+            close
+          </Button>
+          <Button variant="silver" size="xs" onClick={onOpenTab}>
+            open tab
+          </Button>
+        </div>
       </header>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pt-4 pb-6">
