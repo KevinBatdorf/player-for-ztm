@@ -1,4 +1,4 @@
-import { FileText } from 'lucide-react';
+import { FileText, Play } from 'lucide-react';
 import { lazy, Suspense, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -108,7 +108,7 @@ export function Row({
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
       className={cn(
-        'rule flex w-full items-baseline justify-between gap-2 rounded-panel bg-card px-3 py-2.5 text-left transition-colors duration-150 ease-panel',
+        'group rule relative flex w-full items-center justify-between gap-2 rounded-panel bg-card px-3 py-2.5 text-left transition-colors duration-150 ease-panel',
         'hover:bg-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
       )}
     >
@@ -126,9 +126,23 @@ export function Row({
         </span>
       )}
       {meta && <span className="shrink-0 font-mono text-caption text-ink-faint">{meta}</span>}
+
+      {/* The row is the control, so this is a mark rather than a second button. */}
+      <span className={WASH} aria-hidden>
+        <Play className="size-3.5 text-ink" fill="currentColor" strokeWidth={0} />
+      </span>
     </button>
   );
 }
+
+/** The title stays readable under it, which a solid panel did not allow. */
+const WASH = [
+  'pointer-events-none absolute inset-y-0 left-0 flex items-center gap-1.5 rounded-panel',
+  'bg-gradient-to-r from-card-hover from-60% to-transparent pr-10 pl-3',
+  'opacity-0 transition-opacity duration-150 ease-panel',
+  'group-hover:pointer-events-auto group-hover:opacity-100',
+  'group-focus-within:pointer-events-auto group-focus-within:opacity-100',
+].join(' ');
 
 /** Focus-within is what keeps the two actions reachable without a pointer. */
 export function TextRow({
@@ -152,7 +166,7 @@ export function TextRow({
       )}
       <FileText className="size-3.5 shrink-0 text-ink-faint" aria-label="Text lesson" />
 
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center gap-1.5 rounded-panel bg-card-hover px-3 opacity-0 transition-opacity duration-150 ease-panel group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
+      <div className={WASH}>
         <Button variant="silver" size="xs" onClick={onRead}>
           read here
         </Button>
