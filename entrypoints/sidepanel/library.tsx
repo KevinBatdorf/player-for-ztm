@@ -50,6 +50,8 @@ type LibraryApi = {
   watchedCount: (courseId: CourseId) => number;
   markWatched: (courseId: CourseId, lessonId: LessonId) => void;
   resumeIn: (courseId: CourseId) => Lesson | null;
+  /** What each page of the shelf gave up on the last fetch. */
+  pages: number[];
   /** Null until the cache is read, so the card does not flash in and out on boot. */
   lastPlayed: Playing | null;
   remember: (courseId: CourseId, lessonId: LessonId) => void;
@@ -69,6 +71,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   const [text, setText] = useState<Record<CourseId, Bodies>>({});
   const [watched, setWatched] = useState<Watched>({});
   const [lastPlayed, setLastPlayed] = useState<Playing | null>(null);
+  const [pages, setPages] = useState<number[]>([]);
   const record = useRef<Watched>({});
   const sweeping = useRef<CourseId | null>(null);
   const reading = useRef(new Set<LessonId>());
@@ -85,6 +88,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     try {
       const fresh = await fetchLibrary();
       setCourses(fresh.courses);
+      setPages(fresh.pages);
       setError(null);
       void write(COURSES, fresh.courses);
 
@@ -269,6 +273,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       watchedCount: (courseId) => Object.keys(watched[courseId] ?? {}).length,
       markWatched,
       resumeIn: (courseId) => resumeOf(index[courseId]?.lessons ?? NONE, watched[courseId]),
+      pages,
       lastPlayed,
       remember,
     }),
@@ -283,6 +288,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       text,
       watched,
       markWatched,
+      pages,
       lastPlayed,
       remember,
     ],

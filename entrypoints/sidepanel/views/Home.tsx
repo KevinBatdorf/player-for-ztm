@@ -10,7 +10,7 @@ import type { Action, Loaded } from '@/lib/machine';
 import { haystackOf, hits } from '@/lib/search';
 
 export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Dispatch<Action> }) {
-  const { courses, lessonsFor } = useLibrary();
+  const { courses, lessonsFor, pages } = useLibrary();
   const hover = useHoverPrefetch();
   const [query, setQuery] = useState('');
 
@@ -40,6 +40,7 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
 
       <p className="font-mono text-caption text-ink-faint">
         {term ? `${list.length} of ${shelf.length} courses` : `${shelf.length} courses`}
+        {pages.length > 0 && ` · pages ${pages.join('/')}`}
       </p>
 
       <div className="flex flex-col gap-2">

@@ -90,15 +90,21 @@ function match(title: string, catalog: CatalogEntry[]): CatalogEntry | null {
 }
 
 /** Every enrolled course's lessons, keyed the way the views hold a course. */
-export type Library = { courses: Course[]; lessons: Record<CourseId, Lesson[]> };
+export type Library = {
+  courses: Course[];
+  lessons: Record<CourseId, Lesson[]>;
+  /** Tiles each page of the shelf gave up, so a short read can be seen rather than guessed at. */
+  pages: number[];
+};
 
 /** A catalogue failure costs the order and the lessons, not the list. */
 /** Their shelf paginates, so a single read is only ever the first page of it. */
 const PAGES = 20;
 
-async function fetchEnrolled(): Promise<Enrolled[]> {
+async function fetchEnrolled(): Promise<{ held: Enrolled[]; pages: number[] }> {
   const held: Enrolled[] = [];
   const seen = new Set<CourseId>();
+  const pages: number[] = [];
 
   for (let page = 1; page <= PAGES; page++) {
     const res = await fetch(page === 1 ? ENROLLED : `${ENROLLED}?page=${page}`, {
@@ -114,6 +120,7 @@ async function fetchEnrolled(): Promise<Enrolled[]> {
     const rows = parseEnrolled(await res.text());
     // A page past the end repeats the last one on some of their layouts, so ids decide.
     const fresh = rows.filter((course) => !seen.has(course.id));
+    pages.push(fresh.length);
     console.info(`[ztm] enrolled page ${page}: ${rows.length} tiles, ${fresh.length} new`);
     if (!fresh.length) break;
 
@@ -121,11 +128,11 @@ async function fetchEnrolled(): Promise<Enrolled[]> {
     held.push(...fresh);
   }
 
-  return held;
+  return { held, pages };
 }
 
 export async function fetchLibrary(): Promise<Library> {
-  const enrolled = await fetchEnrolled();
+  const { held: enrolled, pages } = await fetchEnrolled();
   if (!enrolled.length) throw new Error('Enrolled parsed to nothing, so their markup moved.');
 
   const catalog = await fetchCatalog().catch(() => [] as CatalogEntry[]);
@@ -140,7 +147,7 @@ export async function fetchLibrary(): Promise<Library> {
     return { ...course, slug: hit?.slug ?? null, updated: hit?.updated || null };
   });
 
-  return { courses, lessons };
+  return { courses, lessons, pages };
 }
 
 /** Newest edit first; the tiles with no catalogue match sort last. */
