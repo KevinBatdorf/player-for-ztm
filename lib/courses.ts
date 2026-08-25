@@ -111,8 +111,10 @@ async function fetchEnrolled(): Promise<Enrolled[]> {
       throw new Error('Enrolled redirected to the public catalogue, so the session is gone.');
     }
 
+    const rows = parseEnrolled(await res.text());
     // A page past the end repeats the last one on some of their layouts, so ids decide.
-    const fresh = parseEnrolled(await res.text()).filter((course) => !seen.has(course.id));
+    const fresh = rows.filter((course) => !seen.has(course.id));
+    console.info(`[ztm] enrolled page ${page}: ${rows.length} tiles, ${fresh.length} new`);
     if (!fresh.length) break;
 
     for (const course of fresh) seen.add(course.id);

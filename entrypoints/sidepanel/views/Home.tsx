@@ -38,6 +38,10 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
 
       {term && !list.length && <p className="text-body text-ink-soft">No matches.</p>}
 
+      <p className="font-mono text-caption text-ink-faint">
+        {term ? `${list.length} of ${shelf.length} courses` : `${shelf.length} courses`}
+      </p>
+
       <div className="flex flex-col gap-2">
         {list.map((course) => (
           <Card
