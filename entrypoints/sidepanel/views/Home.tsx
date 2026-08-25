@@ -1,22 +1,30 @@
 import { Music2, Play } from 'lucide-react';
-import { useState, type Dispatch } from 'react';
+import { useMemo, useState, type Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { useHoverPrefetch } from '../prefetch';
 import { Screen } from '../Screen';
 import { Button } from '@/components/ui/button';
 import { byUpdated, type Course } from '@/lib/courses';
-import { runtimeOf, type Lesson } from '@/lib/lessons';
+import { runtimeOf } from '@/lib/lessons';
 import type { Action, Loaded } from '@/lib/machine';
+import { haystackOf, hits } from '@/lib/search';
 
 export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Dispatch<Action> }) {
   const { courses, lessonsFor } = useLibrary();
   const hover = useHoverPrefetch();
   const [query, setQuery] = useState('');
 
-  const term = flatten(query);
-  const list = byUpdated(courses ?? []).filter((course) =>
-    shows(course, lessonsFor(course.id), term),
+  const shelf = useMemo(
+    () =>
+      byUpdated(courses ?? []).map((course) => ({
+        course,
+        hay: haystackOf(course, lessonsFor(course.id)),
+      })),
+    [courses, lessonsFor],
   );
+
+  const term = query.trim();
+  const list = shelf.filter((row) => hits(row.hay, term)).map((row) => row.course);
 
   return (
     <Screen>
@@ -44,15 +52,6 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
     </Screen>
   );
 }
-
-/** Their titles space and punctuate as they like: "Web Assembly" has to answer to "webassembly". */
-const flatten = (text: string) => text.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-/** A lesson title is worth matching, but what the list holds is courses. */
-const shows = (course: Course, lessons: Lesson[], term: string) =>
-  !term ||
-  flatten(course.title).includes(term) ||
-  lessons.some((lesson) => flatten(lesson.title).includes(term));
 
 function Card({
   course,
