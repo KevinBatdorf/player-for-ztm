@@ -8,7 +8,6 @@ import { Boot } from './views/Boot';
 import { Course } from './views/Course';
 import { Home } from './views/Home';
 import { IndexingCourses } from './views/IndexingCourses';
-import { Search } from './views/Search';
 import { SignedOut } from './views/SignedOut';
 import {
   inside,
@@ -147,8 +146,6 @@ function renderView(state: AppState, dispatch: Dispatch<Action>, backdropReady: 
       return <IndexingCourses dispatch={dispatch} />;
     case 'home':
       return <Home lesson={lesson} dispatch={dispatch} />;
-    case 'search':
-      return <Search view={view} lesson={lesson} dispatch={dispatch} />;
     // One component for both: the loading line flashed for a frame on a warm cache.
     case 'courseLoading':
     case 'course':

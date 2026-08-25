@@ -1,27 +1,34 @@
 import { Music2, Play } from 'lucide-react';
-import type { Dispatch } from 'react';
+import { useState, type Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { useHoverPrefetch } from '../prefetch';
 import { Screen } from '../Screen';
 import { Button } from '@/components/ui/button';
 import { byUpdated, type Course } from '@/lib/courses';
-import { runtimeOf } from '@/lib/lessons';
+import { runtimeOf, type Lesson } from '@/lib/lessons';
 import type { Action, Loaded } from '@/lib/machine';
 
 export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Dispatch<Action> }) {
-  const { courses } = useLibrary();
+  const { courses, lessonsFor } = useLibrary();
   const hover = useHoverPrefetch();
-  const list = byUpdated(courses ?? []);
+  const [query, setQuery] = useState('');
+
+  const term = query.trim().toLowerCase();
+  const list = byUpdated(courses ?? []).filter((course) =>
+    shows(course, lessonsFor(course.id), term),
+  );
 
   return (
     <Screen>
-      {/* Focus is the transition: search is its own view, never a filter over this one. */}
       <input
         type="search"
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
         placeholder="Search courses and lessons"
-        onFocus={() => dispatch({ type: 'searchOpened' })}
         className="rule w-full rounded-panel bg-surface px-3 py-2 text-body text-ink placeholder:text-ink-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       />
+
+      {term && !list.length && <p className="text-body text-ink-soft">No matches.</p>}
 
       <div className="flex flex-col gap-2">
         {list.map((course) => (
@@ -37,6 +44,12 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
     </Screen>
   );
 }
+
+/** A lesson title is worth matching, but what the list holds is courses. */
+const shows = (course: Course, lessons: Lesson[], term: string) =>
+  !term ||
+  course.title.toLowerCase().includes(term) ||
+  lessons.some((lesson) => lesson.title.toLowerCase().includes(term));
 
 function Card({
   course,

@@ -7,7 +7,6 @@ export type View =
   | { name: 'signedOut' }
   | { name: 'indexingCourses' }
   | { name: 'home' }
-  | { name: 'search'; query: string }
   | { name: 'courseLoading'; courseId: CourseId }
   | { name: 'course'; courseId: CourseId };
 
@@ -15,7 +14,7 @@ export type ViewName = View['name'];
 
 /** The screens reached after sign-in. The player mounts on these; the backdrop mutes on them. */
 export const inside = (name: ViewName): boolean =>
-  name === 'home' || name === 'search' || name === 'courseLoading' || name === 'course';
+  name === 'home' || name === 'courseLoading' || name === 'course';
 
 export type BackdropLevel = 'normal' | 'muted';
 
@@ -41,9 +40,6 @@ export type Action =
   | { type: 'loginOpened' }
   | { type: 'signedIn' }
   | { type: 'courseListReady' }
-  | { type: 'searchOpened' }
-  | { type: 'searchChanged'; query: string }
-  | { type: 'searchClosed' }
   | { type: 'coursePicked'; courseId: CourseId }
   | { type: 'courseReady'; courseId: CourseId }
   | { type: 'lessonPicked'; courseId: CourseId; lessonId: LessonId }
@@ -94,17 +90,8 @@ export function reduce(state: AppState, action: Action): AppState {
         ? { ...go(state, { name: 'home' }), backdrop: 'muted' }
         : state;
 
-    case 'searchOpened':
-      return view.name === 'home' ? go(state, { name: 'search', query: '' }, 'in') : state;
-
-    case 'searchChanged':
-      return view.name === 'search' ? go(state, { name: 'search', query: action.query }) : state;
-
-    case 'searchClosed':
-      return view.name === 'search' ? go(state, { name: 'home' }, 'out') : state;
-
     case 'coursePicked':
-      return from(view, 'home', 'search')
+      return view.name === 'home'
         ? go(state, { name: 'courseLoading', courseId: action.courseId }, 'in')
         : state;
 
@@ -116,7 +103,7 @@ export function reduce(state: AppState, action: Action): AppState {
 
     // Loads the player and leaves the screen alone; the list is still worth reading.
     case 'lessonPicked':
-      return from(view, 'home', 'search', 'course')
+      return from(view, 'home', 'course')
         ? { ...state, lesson: { courseId: action.courseId, lessonId: action.lessonId } }
         : state;
 
@@ -127,7 +114,7 @@ export function reduce(state: AppState, action: Action): AppState {
         : state;
 
     case 'wentHome':
-      return from(view, 'search', 'courseLoading', 'course')
+      return from(view, 'courseLoading', 'course')
         ? go(state, { name: 'home' }, 'out')
         : state;
   }
