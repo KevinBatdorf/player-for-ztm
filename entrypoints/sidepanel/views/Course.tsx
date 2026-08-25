@@ -1,8 +1,8 @@
 import { useEffect, type Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { useReader } from '../Reader';
-import { Cta, Row, Screen, TextRow } from '../Screen';
-import { numberOf, titled } from '@/lib/lessons';
+import { Row, Screen, TextRow } from '../Screen';
+import { titled } from '@/lib/lessons';
 import type { Action, Loaded, ViewOf } from '@/lib/machine';
 
 export function Course({
@@ -16,13 +16,12 @@ export function Course({
   queued: Loaded | null;
   dispatch: Dispatch<Action>;
 }) {
-  const { courses, lessonsFor, openCourse, sweepText, seen, resumeIn } = useLibrary();
+  const { courses, lessonsFor, openCourse, sweepText, seen } = useLibrary();
   const reader = useReader();
 
   const course = courses?.find((c) => c.id === view.courseId);
   const lessons = lessonsFor(view.courseId);
   const pending = view.name === 'courseLoading';
-  const resume = resumeIn(view.courseId);
 
   // Titles are already in hand from the catalogue; this fetch is only durations and type.
   useEffect(() => {
@@ -45,18 +44,6 @@ export function Course({
   return (
     <>
       <Screen title={course?.title ?? view.courseId} onBack={() => dispatch({ type: 'wentHome' })}>
-        {resume && resume.id !== lesson?.lessonId && (
-          <Cta
-            onClick={() =>
-              dispatch({ type: 'lessonPlayed', courseId: view.courseId, lessonId: resume.id })
-            }
-          >
-            <span className="block truncate">
-              Resume — {titled(numberOf(lessons, resume.id), resume.title)}
-            </span>
-          </Cta>
-        )}
-
         {lessons.length === 0 ? (
           <p className="text-body text-ink-soft">
             {course && !course.slug

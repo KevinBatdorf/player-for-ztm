@@ -278,10 +278,14 @@ const Waiting = ({ show }: { show: boolean }) => (
 /** The dot grid runs under this type, so it needs its own ground to stay legible. */
 const SCRIM = { textShadow: '0 1px 9px rgba(var(--t-scrim), 0.95)' };
 
-/** A transparent frame shows the field through wherever the picture does not reach. */
+/** A transparent picture shows the field through wherever it does not reach. */
 const Frame = ({ children }: { children: ReactNode }) => (
   // `relative` or it paints under the backdrop, which is absolute and earlier in the DOM.
-  <div className="relative aspect-video w-full bg-canvas">{children}</div>
+  <div className="relative w-full p-0.5">
+    <div className="relative aspect-video w-full overflow-hidden rounded-panel bg-canvas">
+      {children}
+    </div>
+  </div>
 );
 
 const Note = ({ children }: { children: ReactNode }) => (
