@@ -1,4 +1,4 @@
-import { Check, FileText } from 'lucide-react';
+import { ArrowLeft, Check, FileText } from 'lucide-react';
 import { lazy, Suspense, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -23,14 +23,10 @@ export function Screen({
       {(title || onBack) && (
         <header className="rule-b flex shrink-0 items-center gap-3 px-6 py-3.5">
           {onBack && (
-            <button
-              type="button"
-              onClick={onBack}
-              aria-label="Back"
-              className="rule rounded-panel px-1.5 py-0.5 text-caption text-ink-soft transition-colors duration-150 ease-panel hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-            >
-              &larr;
-            </button>
+            <Button variant="silver" size="xs" onClick={onBack}>
+              <ArrowLeft aria-hidden />
+              back
+            </Button>
           )}
           {title && <h1 className="text-heading leading-snug font-medium text-ink">{title}</h1>}
         </header>
@@ -83,6 +79,14 @@ export const Cta = ({ children, onClick }: { children: ReactNode; onClick: () =>
   </Button>
 );
 
+/** Zero to one fraction rather than a height, so the row opens without a measurement. */
+const DRAWER = [
+  'grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-panel',
+  'group-hover:grid-rows-[1fr]',
+  // A click leaves focus behind, and focus-within would hold the row open after the pointer goes.
+  'group-has-[:focus-visible]:grid-rows-[1fr]',
+].join(' ');
+
 export function Row({
   title,
   meta,
@@ -111,7 +115,7 @@ export function Row({
     <div
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
-      className="group rule relative flex w-full items-center justify-between gap-2 rounded-panel bg-card px-3 py-2.5 text-left transition-colors duration-150 ease-panel hover:bg-card-hover"
+      className="group rule relative flex w-full flex-col rounded-panel bg-card px-3 py-2.5 text-left transition-colors duration-150 ease-panel hover:bg-card-hover"
     >
       {/* Under the actions rather than around them: a button cannot hold another. */}
       <button
@@ -121,57 +125,43 @@ export function Row({
         className="absolute inset-0 rounded-panel focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
       />
 
-      <span
-        className={cn(
-          'pointer-events-none relative min-w-0 flex-1 truncate text-body leading-snug',
-          active ? 'font-medium text-accent-text' : 'text-ink',
-        )}
-      >
-        {title}
-      </span>
-      {queued && (
-        <span className="pointer-events-none relative shrink-0 font-mono text-caption text-ink-soft">
-          queued
-        </span>
-      )}
-      {done && (
+      <div className="pointer-events-none relative flex items-center justify-between gap-2">
         <span
-          className="pointer-events-none relative shrink-0 font-mono text-caption text-accent-text"
-          title="Watched"
+          className={cn(
+            'min-w-0 flex-1 truncate text-body leading-snug',
+            active ? 'font-medium text-accent-text' : 'text-ink',
+          )}
         >
-          &#10003;
+          {title}
         </span>
-      )}
-      {meta && (
-        <span className="pointer-events-none relative shrink-0 font-mono text-caption text-ink-faint">
-          {meta}
-        </span>
-      )}
+        {queued && (
+          <span className="shrink-0 font-mono text-caption text-ink-soft">queued</span>
+        )}
+        {done && (
+          <span className="shrink-0 font-mono text-caption text-accent-text" title="Watched">
+            &#10003;
+          </span>
+        )}
+        {meta && <span className="shrink-0 font-mono text-caption text-ink-faint">{meta}</span>}
+      </div>
 
-      <div className={WASH}>
-        <Button variant="silver" size="xs" onClick={onClick}>
-          play
-        </Button>
-        <Button variant="silver" size="xs" onClick={onQueue} disabled={!canQueue}>
-          {queued && <Check aria-hidden />}
-          {queued ? 'queued' : 'play next'}
-        </Button>
+      <div className={cn('relative', DRAWER)}>
+        <div className="overflow-hidden">
+          <div className="flex gap-1.5 pt-2">
+            <Button variant="silver" size="xs" onClick={onClick}>
+              play
+            </Button>
+            <Button variant="silver" size="xs" onClick={onQueue} disabled={!canQueue}>
+              {queued && <Check aria-hidden />}
+              {queued ? 'queued' : 'play next'}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-/** The title stays readable under it, which a solid panel did not allow. */
-const WASH = [
-  'pointer-events-none absolute inset-0 flex items-center gap-1.5 rounded-panel px-3',
-  'bg-gradient-to-t from-card-hover from-10% via-card-hover/70 via-60% to-transparent',
-  'opacity-0 transition-opacity duration-150 ease-panel',
-  'group-hover:pointer-events-auto group-hover:opacity-100',
-  // A click leaves focus behind, and focus-within would hold the wash open after the pointer goes.
-  'group-has-[:focus-visible]:pointer-events-auto group-has-[:focus-visible]:opacity-100',
-].join(' ');
-
-/** Focus-within is what keeps the two actions reachable without a pointer. */
 export function TextRow({
   title,
   done = false,
@@ -184,22 +174,28 @@ export function TextRow({
   onOpenTab: () => void;
 }) {
   return (
-    <div className="group rule relative flex w-full items-center justify-between gap-2 rounded-panel bg-card/60 px-3 py-2.5">
-      <span className="min-w-0 flex-1 text-body leading-snug text-ink-soft">{title}</span>
-      {done && (
-        <span className="shrink-0 font-mono text-caption text-accent-text" title="Read">
-          &#10003;
-        </span>
-      )}
-      <FileText className="size-3.5 shrink-0 text-ink-faint" aria-label="Text lesson" />
+    <div className="group rule flex w-full flex-col rounded-panel bg-card/60 px-3 py-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <span className="min-w-0 flex-1 truncate text-body leading-snug text-ink-soft">{title}</span>
+        {done && (
+          <span className="shrink-0 font-mono text-caption text-accent-text" title="Read">
+            &#10003;
+          </span>
+        )}
+        <FileText className="size-3.5 shrink-0 text-ink-faint" aria-label="Text lesson" />
+      </div>
 
-      <div className={WASH}>
-        <Button variant="silver" size="xs" onClick={onRead}>
-          read here
-        </Button>
-        <Button variant="silver" size="xs" onClick={onOpenTab}>
-          open tab
-        </Button>
+      <div className={DRAWER}>
+        <div className="overflow-hidden">
+          <div className="flex gap-1.5 pt-2">
+            <Button variant="silver" size="xs" onClick={onRead}>
+              read here
+            </Button>
+            <Button variant="silver" size="xs" onClick={onOpenTab}>
+              open tab
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

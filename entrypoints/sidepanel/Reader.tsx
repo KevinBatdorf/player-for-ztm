@@ -70,13 +70,21 @@ export function Reader({
   return (
     <div className="absolute inset-0 z-40 flex flex-col bg-sheet">
       <header className="rule-b shrink-0 px-6 py-3.5">
-        <h1 className="text-heading leading-snug font-medium text-ink">{title}</h1>
+        <div className="flex items-start gap-3">
+          <h1 className="min-w-0 flex-1 text-heading leading-snug font-medium text-ink">{title}</h1>
+
+          <Button
+            variant="silver"
+            size="icon-sm"
+            onClick={onClose}
+            aria-label="Close"
+            className="shrink-0"
+          >
+            <X aria-hidden />
+          </Button>
+        </div>
 
         <div className="mt-2.5 flex gap-1.5">
-          <Button variant="silver" size="xs" onClick={onClose}>
-            <X aria-hidden />
-            close
-          </Button>
           <Button variant="silver" size="xs" onClick={onOpenTab}>
             open tab
           </Button>
