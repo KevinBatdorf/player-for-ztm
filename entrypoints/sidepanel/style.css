@@ -122,17 +122,17 @@
   --t-dot: #161a20;
   --t-sheet: #15181e;
   --t-card: #0c0e12;
-  /* Red a shade over green, or the tint reads blue rather than purple. */
-  --t-card-hover: #07050d;
+  /* Green a shade over the rest, or the tint reads blue rather than green. */
+  --t-card-hover: #050d09;
   --t-line: #1e2127;
   --t-line-strong: #2a2e37;
   --t-line-w: 1px;
   --t-ink: #e6e8eb;
   --t-ink-soft: #9ba1ac;
   --t-ink-faint: #6b7280;
-  --t-accent: #c792ea;
+  --t-accent: #32dd88;
   --t-accent-ink: #0a0b0d;
-  --t-accent-text: #c792ea;
+  --t-accent-text: #32dd88;
 
   --t-font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
   --t-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
@@ -148,7 +148,7 @@
   --t-shadow-lift: 0 -6px 16px -10px rgb(0 0 0 / 0.5);
   --t-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
-  --rb-accent: #c792ea;
+  --rb-accent: #32dd88;
   --rb-accent-fg: #0a0b0d;
   --rb-radius: 8px;
 }

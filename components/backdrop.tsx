@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+import { ZTM_GREEN } from '@/lib/brand';
 
 const Landscape = lazy(() => import('@/components/react-bits/landscape'));
 
@@ -29,9 +30,9 @@ export const NORMAL: Level = {
   opacity: 1,
   speed: 0.45,
   vignette: 0.32,
-  color: '#2E1065',
-  farColor: '#D946EF',
-  ringColor: '#A855F7',
+  color: '#052E1B',
+  farColor: ZTM_GREEN,
+  ringColor: '#10B981',
 };
 
 /** One colour across all three ramps, which is what takes the scene down to a texture. */
@@ -39,9 +40,9 @@ export const MUTED: Level = {
   opacity: 0.34,
   speed: 0.05,
   vignette: 0.18,
-  color: '#2E1065',
-  farColor: '#2E1065',
-  ringColor: '#2E1065',
+  color: '#052E1B',
+  farColor: '#052E1B',
+  ringColor: '#052E1B',
 };
 
 const channels = (hex: string): [number, number, number] => {
