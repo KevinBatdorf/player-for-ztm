@@ -1,5 +1,6 @@
 import { ArrowLeft, Check, FileText } from 'lucide-react';
-import { lazy, Suspense, type ReactNode } from 'react';
+import { lazy, Suspense, useState, type ReactNode } from 'react';
+import { Slide } from './slide';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -82,6 +83,10 @@ export const Cta = ({ children, onClick }: { children: ReactNode; onClick: () =>
   </Button>
 );
 
+/** A list of rows at full strength reads as a wall of buttons. */
+const DIM =
+  'opacity-40 transition-opacity duration-150 ease-panel group-hover:opacity-100 group-has-[:focus-visible]:opacity-100';
+
 export function Row({
   title,
   meta,
@@ -108,10 +113,18 @@ export function Row({
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
 }) {
+  const [reading, setReading] = useState(false);
+
   return (
     <div
-      onPointerEnter={onPointerEnter}
-      onPointerLeave={onPointerLeave}
+      onPointerEnter={() => {
+        setReading(true);
+        onPointerEnter?.();
+      }}
+      onPointerLeave={() => {
+        setReading(false);
+        onPointerLeave?.();
+      }}
       className="group rule relative flex w-full flex-col rounded-panel bg-card px-3 py-2.5 text-left transition-colors duration-150 ease-panel hover:bg-card-hover"
     >
       {/* Under the actions rather than around them: a button cannot hold another. */}
@@ -123,14 +136,16 @@ export function Row({
       />
 
       <div className="pointer-events-none relative flex items-center justify-between gap-2">
-        <span
-          className={cn(
-            'min-w-0 flex-1 truncate text-body leading-snug',
-            active ? 'font-medium text-playing' : 'text-ink',
-          )}
-        >
-          {title}
-        </span>
+        <div className="min-w-0 flex-1">
+          <Slide
+            text={title}
+            reading={reading}
+            className={cn(
+              'text-body leading-snug',
+              active ? 'font-medium text-playing' : 'text-ink',
+            )}
+          />
+        </div>
         {queued && (
           <span className="shrink-0 font-mono text-caption text-ink-soft">queued</span>
         )}
@@ -142,7 +157,7 @@ export function Row({
         {meta && <span className="shrink-0 font-mono text-caption text-ink-faint">{meta}</span>}
       </div>
 
-      <div className="relative flex gap-1.5 pt-2">
+      <div className={cn('relative flex gap-1.5 pt-2', DIM)}>
         <Button variant="silver" size="xs" onClick={onPlay} disabled={active}>
           play
         </Button>
@@ -166,10 +181,18 @@ export function TextRow({
   onRead: () => void;
   onOpenTab: () => void;
 }) {
+  const [reading, setReading] = useState(false);
+
   return (
-    <div className="group rule flex w-full flex-col rounded-panel bg-card/60 px-3 py-2.5">
+    <div
+      onPointerEnter={() => setReading(true)}
+      onPointerLeave={() => setReading(false)}
+      className="group rule flex w-full flex-col rounded-panel bg-card/60 px-3 py-2.5"
+    >
       <div className="flex items-center justify-between gap-2">
-        <span className="min-w-0 flex-1 truncate text-body leading-snug text-ink-soft">{title}</span>
+        <div className="min-w-0 flex-1">
+          <Slide text={title} reading={reading} className="text-body leading-snug text-ink-soft" />
+        </div>
         {done && (
           <span className="shrink-0 font-mono text-caption text-accent-text" title="Read">
             &#10003;
@@ -178,7 +201,7 @@ export function TextRow({
         <FileText className="size-3.5 shrink-0 text-ink-faint" aria-label="Text lesson" />
       </div>
 
-      <div className="flex gap-1.5 pt-2">
+      <div className={cn('flex gap-1.5 pt-2', DIM)}>
         <Button variant="silver" size="xs" onClick={onRead}>
           read here
         </Button>
