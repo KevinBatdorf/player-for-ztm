@@ -100,6 +100,7 @@ export function Row({
   canQueue = true,
   onPointerEnter,
   onPointerLeave,
+  anchor,
 }: {
   title: string;
   meta?: string;
@@ -112,11 +113,13 @@ export function Row({
   canQueue?: boolean;
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
+  anchor?: (node: HTMLDivElement | null) => void;
 }) {
   const [reading, setReading] = useState(false);
 
   return (
     <div
+      ref={anchor}
       onPointerEnter={() => {
         setReading(true);
         onPointerEnter?.();
@@ -157,7 +160,8 @@ export function Row({
         {meta && <span className="shrink-0 font-mono text-caption text-ink-faint">{meta}</span>}
       </div>
 
-      <div className={cn('relative flex gap-1.5 pt-2', DIM)}>
+      {/* Dim for good on the playing row: both are dead there, so hover has nothing to offer. */}
+      <div className={cn('relative flex gap-1.5 pt-2', active ? 'opacity-40' : DIM)}>
         <Button variant="silver" size="xs" onClick={onPlay} disabled={active}>
           play
         </Button>

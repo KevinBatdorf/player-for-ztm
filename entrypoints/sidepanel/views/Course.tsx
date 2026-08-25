@@ -1,4 +1,4 @@
-import { useEffect, type Dispatch } from 'react';
+import { useEffect, useRef, type Dispatch } from 'react';
 import { useLibrary } from '../library';
 import { useReader } from '../Reader';
 import { Row, Screen, TextRow } from '../Screen';
@@ -16,7 +16,7 @@ export function Course({
   queued: Loaded | null;
   dispatch: Dispatch<Action>;
 }) {
-  const { courses, lessonsFor, openCourse, sweepText, seen } = useLibrary();
+  const { courses, lessonsFor, openCourse, sweepText, seen, resumeIn } = useLibrary();
   const reader = useReader();
 
   const course = courses?.find((c) => c.id === view.courseId);
@@ -40,6 +40,18 @@ export function Course({
   useEffect(() => {
     if (courses) sweepText(view.courseId);
   }, [courses, sweepText, view.courseId]);
+
+  const playing = lesson?.courseId === view.courseId ? lesson.lessonId : null;
+  // The lesson to land on: the one playing, else the one that would play next.
+  const land = playing ?? resumeIn(view.courseId)?.id ?? null;
+  const landed = useRef<string | null>(null);
+
+  // Once per course: auto-advance moves the playing lesson, and that must not yank the list.
+  const anchor = (node: HTMLDivElement | null) => {
+    if (!node || !land || landed.current === view.courseId) return;
+    landed.current = view.courseId;
+    node.scrollIntoView({ block: 'center' });
+  };
 
   return (
     <>
@@ -79,6 +91,7 @@ export function Course({
                   onQueue={() =>
                     dispatch({ type: 'lessonQueued', courseId: view.courseId, lessonId: row.id })
                   }
+                  anchor={row.id === land ? anchor : undefined}
                 />
               ),
             )}
