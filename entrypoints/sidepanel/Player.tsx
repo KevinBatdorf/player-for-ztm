@@ -1,10 +1,16 @@
 import { lazy, Suspense, useCallback, useEffect, type Dispatch, type ReactNode } from 'react';
+import { browser } from '#imports';
 import { useLibrary } from './library';
 import type { Action, LessonId, Loaded } from '@/lib/machine';
 import { useFramePlayer, type Status } from '@/lib/player';
 import { cn } from '@/lib/utils';
 
 const NONE: never[] = [];
+
+const watchUrl = (lesson: Loaded) =>
+  browser.runtime.getURL(
+    `/watch.html?course=${encodeURIComponent(lesson.courseId)}&lesson=${encodeURIComponent(lesson.lessonId)}`,
+  );
 
 /** Not a screen: Picture-in-Picture and the sticky activation die with the document. */
 export function Player({
@@ -36,6 +42,12 @@ export function Player({
     [dispatch],
   );
 
+  const onBigger = useCallback(() => {
+    if (!lesson) return;
+    void browser.tabs.create({ url: watchUrl(lesson) });
+    dispatch({ type: 'lessonHandedOff' });
+  }, [lesson, dispatch]);
+
   const { frame, source, status, waiting } = useFramePlayer({
     lesson,
     slug: course?.slug ?? null,
@@ -45,6 +57,7 @@ export function Player({
     queued: queuedLesson !== null,
     onWatched: markWatched,
     onEnded,
+    onBigger,
   });
 
   useEffect(() => onWaiting(waiting), [waiting, onWaiting]);

@@ -35,6 +35,7 @@ export function useFramePlayer({
   queued,
   onWatched,
   onEnded,
+  onBigger,
 }: {
   lesson: Held | null;
   /** An onboarding tile has no course page, so there is nothing to sign against. */
@@ -48,6 +49,8 @@ export function useFramePlayer({
   queued: boolean;
   onWatched: (courseId: CourseId, lessonId: LessonId) => void;
   onEnded: (nextLessonId: LessonId | null) => void;
+  /** Its presence is what puts the button in the frame. */
+  onBigger?: (lessonId: LessonId) => void;
 }): FramePlayer {
   const [source, setSource] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>({ kind: 'empty' });
@@ -108,7 +111,7 @@ export function useFramePlayer({
           send({ ztm: 'swap', lessonId, src: signed.src, play });
           return;
         }
-        loaded.current = framed(signed.embed, lessonId);
+        loaded.current = framed(signed.embed, lessonId, !!onBigger);
         setSource(loaded.current);
       })
       .catch((cause: unknown) => {
@@ -120,7 +123,7 @@ export function useFramePlayer({
           message: cause instanceof Error ? cause.message : String(cause),
         });
       });
-  }, [lesson, slug, send]);
+  }, [lesson, slug, onBigger, send]);
 
   useEffect(() => {
     if (pause) send({ ztm: 'pause' });
@@ -182,6 +185,9 @@ export function useFramePlayer({
           return onEnded(nextLessonId);
         }
 
+        case 'bigger':
+          return onBigger?.(message.lessonId);
+
         case 'failed':
           return setStatus({ kind: 'failed', message: message.message });
       }
@@ -189,7 +195,7 @@ export function useFramePlayer({
 
     addEventListener('message', heard);
     return () => removeEventListener('message', heard);
-  }, [lesson, lessons, onEnded, onWatched, queued, send]);
+  }, [lesson, lessons, onBigger, onEnded, onWatched, queued, send]);
 
   return { frame, source, status, waiting: busy || dwelling };
 }

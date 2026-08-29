@@ -1,4 +1,4 @@
-import { lessonInHash, type FromFrame, type Swap, type ToFrame } from '@/lib/frame';
+import { canGrowInHash, lessonInHash, type FromFrame, type Swap, type ToFrame } from '@/lib/frame';
 
 /**
  * The player is a page object an isolated world cannot see, and Picture-in-Picture can only
@@ -20,6 +20,7 @@ export default defineContentScript({
     const SWAP_MS = 10_000;
 
     let lesson = lessonInHash(location.hash);
+    const canGrow = canGrowInHash(location.hash);
     let video: HTMLVideoElement | null = null;
     // The embed calls play() on load; nothing plays until a button in here asks for it.
     let wanted = false;
@@ -57,8 +58,10 @@ export default defineContentScript({
     const ring = document.createElement('div');
     const pill = document.createElement('div');
     const divider = document.createElement('span');
+    const bigDivider = document.createElement('span');
     const play = document.createElement('button');
     const popOut = document.createElement('button');
+    const bigger = document.createElement('button');
 
     const TAP = [
       'display:inline-flex',
@@ -95,10 +98,13 @@ export default defineContentScript({
       'background:linear-gradient(to bottom, #16181d, #101216)',
     ].join(';');
     divider.style.cssText = 'width:1px;height:14px;background:#2a2e37';
+    bigDivider.style.cssText = divider.style.cssText;
     play.style.cssText = TAP;
     popOut.style.cssText = TAP;
+    bigger.style.cssText = TAP;
     play.setAttribute('aria-label', 'Play');
     popOut.setAttribute('aria-label', 'Pop out');
+    bigger.setAttribute('aria-label', 'Open in a tab');
     play.append(icon(shape('polygon', { points: '7 4 20 12 7 20 7 4', fill: 'currentColor' })));
     popOut.append(
       icon(
@@ -106,10 +112,19 @@ export default defineContentScript({
         shape('rect', { width: '10', height: '7', x: '12', y: '13', rx: '2' }),
       ),
     );
+    bigger.append(
+      icon(
+        shape('path', { d: 'M15 3h6v6' }),
+        shape('path', { d: 'M9 21H3v-6' }),
+        shape('path', { d: 'm21 3-7 7' }),
+        shape('path', { d: 'm3 21 7-7' }),
+      ),
+    );
     pill.append(play, divider, popOut);
+    if (canGrow) pill.append(bigDivider, bigger);
     ring.append(pill);
 
-    for (const tap of [play, popOut]) {
+    for (const tap of canGrow ? [play, popOut, bigger] : [play, popOut]) {
       tap.addEventListener('pointerenter', () => tap.style.setProperty('background', '#1e2127'));
       tap.addEventListener('pointerleave', () => tap.style.setProperty('background', 'transparent'));
     }
@@ -139,6 +154,8 @@ export default defineContentScript({
     };
 
     play.addEventListener('click', () => void start());
+
+    bigger.addEventListener('click', () => post({ ztm: 'bigger', lessonId: lesson }));
 
     popOut.addEventListener('click', () => {
       if (!video) return;

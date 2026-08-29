@@ -1,16 +1,9 @@
-import { Maximize2 } from 'lucide-react';
 import { useEffect, useState, type Dispatch, type ReactNode } from 'react';
-import { browser } from '#imports';
 import { useLibrary } from './library';
 import { Slide } from './slide';
 import { Button } from '@/components/ui/button';
 import { numberOf, titled } from '@/lib/lessons';
 import type { Action, Loaded } from '@/lib/machine';
-
-const watchUrl = (lesson: Loaded) =>
-  browser.runtime.getURL(
-    `/watch.html?course=${encodeURIComponent(lesson.courseId)}&lesson=${encodeURIComponent(lesson.lessonId)}`,
-  );
 
 export function NowPlaying({
   lesson,
@@ -29,21 +22,13 @@ export function NowPlaying({
   }, [lesson, remember]);
 
   return lesson ? (
-    <Playing lesson={lesson} waiting={waiting} dispatch={dispatch} />
+    <Playing lesson={lesson} waiting={waiting} />
   ) : (
     <PickUp dispatch={dispatch} />
   );
 }
 
-function Playing({
-  lesson,
-  waiting,
-  dispatch,
-}: {
-  lesson: Loaded;
-  waiting: boolean;
-  dispatch: Dispatch<Action>;
-}) {
+function Playing({ lesson, waiting }: { lesson: Loaded; waiting: boolean }) {
   const { courses, lessonsFor } = useLibrary();
   const [reading, setReading] = useState(false);
 
@@ -51,38 +36,22 @@ function Playing({
   const lessons = lessonsFor(lesson.courseId);
   const current = lessons.find((l) => l.id === lesson.lessonId);
 
-  const handOff = () => {
-    void browser.tabs.create({ url: watchUrl(lesson) });
-    dispatch({ type: 'lessonHandedOff' });
-  };
-
   return (
     <Bar onReading={setReading}>
-      <div className="flex items-center gap-2.5">
-        <div className="min-w-0 flex-1 space-y-0.5">
-          <Slide
-            text={course?.title ?? lesson.courseId}
-            reading={reading}
-            className="font-mono text-caption text-ink-faint"
-          />
-          <Slide
-            text={
-              waiting
-                ? 'Loading…'
-                : titled(numberOf(lessons, lesson.lessonId), current?.title ?? lesson.lessonId)
-            }
-            reading={reading}
-            className="text-body leading-snug text-ink"
-          />
-        </div>
-
-        {course?.slug && (
-          <Button variant="silver" size="xs" className="shrink-0" onClick={handOff}>
-            bigger
-            <Maximize2 aria-hidden />
-          </Button>
-        )}
-      </div>
+      <Slide
+        text={course?.title ?? lesson.courseId}
+        reading={reading}
+        className="font-mono text-caption text-ink-faint"
+      />
+      <Slide
+        text={
+          waiting
+            ? 'Loading…'
+            : titled(numberOf(lessons, lesson.lessonId), current?.title ?? lesson.lessonId)
+        }
+        reading={reading}
+        className="text-body leading-snug text-ink"
+      />
     </Bar>
   );
 }
