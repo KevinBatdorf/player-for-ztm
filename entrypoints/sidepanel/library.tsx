@@ -13,14 +13,8 @@ import { fetchLibrary, type Course } from '@/lib/courses';
 import { fetchCurriculum, mergeIndex, type Lesson, type LessonIndex } from '@/lib/lessons';
 import { fetchLectureBody } from '@/lib/lecture';
 import type { CourseId, LessonId } from '@/lib/machine';
-import { read, write } from '@/lib/store';
+import { KEYS, read, write } from '@/lib/store';
 import { mark, resumeOf, type Watched } from '@/lib/watched';
-
-const COURSES = 'courses';
-const CATALOG = 'catalog';
-const LESSONS = 'lessons';
-const WATCHED = 'watched';
-const LAST = 'last';
 
 /** Per course, so opening one reads its own bodies instead of every course's. */
 const bodyKey = (courseId: CourseId) => `text:${courseId}`;
@@ -97,7 +91,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   const put = useCallback((next: LessonIndex) => {
     latest.current = next;
     setIndex(next);
-    void write(LESSONS, next);
+    void write(KEYS.lessons, next);
   }, []);
 
   const refresh = useCallback(
@@ -133,8 +127,8 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
         setError(null);
         setArriving(false);
         setLanded(fresher.map((course) => course.id));
-        void write(COURSES, fresh.courses);
-        void write(CATALOG, fresh.catalog);
+        void write(KEYS.courses, fresh.courses);
+        void write(KEYS.catalog, fresh.catalog);
 
         put(mergeIndex(latest.current, fresh.courses, fresh.lessons));
         return true;
@@ -162,11 +156,11 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     const run = (async () => {
       const [cachedCourses, cachedIndex, cachedWatched, cachedLast, cachedCatalog] =
         await Promise.all([
-          read<Course[]>(COURSES),
-          read<LessonIndex>(LESSONS),
-          read<Watched>(WATCHED),
-          read<Playing>(LAST),
-          read<CatalogEntry[]>(CATALOG),
+          read<Course[]>(KEYS.courses),
+          read<LessonIndex>(KEYS.lessons),
+          read<Watched>(KEYS.watched),
+          read<Playing>(KEYS.last),
+          read<CatalogEntry[]>(KEYS.catalog),
         ]);
 
       if (cachedLast) setLastPlayed(cachedLast);
@@ -305,13 +299,13 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     const next = mark(record.current, courseId, lessonId);
     record.current = next;
     setWatched(next);
-    void write(WATCHED, next);
+    void write(KEYS.watched, next);
   }, []);
 
   const remember = useCallback((courseId: CourseId, lessonId: LessonId) => {
     const playing = { courseId, lessonId };
     setLastPlayed(playing);
-    void write(LAST, playing);
+    void write(KEYS.last, playing);
   }, []);
 
   const api = useMemo<LibraryApi>(

@@ -2,7 +2,7 @@ import { Component, type ErrorInfo, type ReactNode } from 'react';
 
 type State = { fault: string | null };
 
-/** A thrown render leaves an empty panel and no way to see what threw. */
+/** A thrown render leaves an empty screen and no way to see what threw. */
 export class Boundary extends Component<{ children: ReactNode }, State> {
   override state: State = { fault: null };
 
@@ -19,7 +19,7 @@ export class Boundary extends Component<{ children: ReactNode }, State> {
 
     return (
       <div className="flex h-screen flex-col gap-3 overflow-y-auto bg-paper px-6 py-6 font-sans">
-        <p className="text-heading font-medium text-ink">The panel stopped.</p>
+        <p className="text-heading font-medium text-ink">This screen stopped.</p>
         <pre className="font-mono text-caption leading-relaxed whitespace-pre-wrap text-ink-soft">
           {this.state.fault}
         </pre>

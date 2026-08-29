@@ -2,9 +2,9 @@
 @import 'tw-animate-css';
 
 /* Auto-detection walks up from this file and misses these. */
-@source '../../components';
-@source '../../entrypoints';
-@source '../../lib';
+@source '../components';
+@source '../entrypoints';
+@source '../lib';
 
 @custom-variant dark (&:is(.dark *));
 

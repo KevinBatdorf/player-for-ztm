@@ -3,6 +3,15 @@ const DB_NAME = 'ztm';
 const DB_VERSION = 1;
 const STORE = 'cache';
 
+/** Two documents read these; a drifting name is a silent cache miss. */
+export const KEYS = {
+  courses: 'courses',
+  catalog: 'catalog',
+  lessons: 'lessons',
+  watched: 'watched',
+  last: 'last',
+} as const;
+
 /** A blocked upgrade fires neither callback, so the open needs its own deadline. */
 const OPEN_MS = 5_000;
 

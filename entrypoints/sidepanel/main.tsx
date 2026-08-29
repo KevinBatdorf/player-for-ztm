@@ -2,9 +2,9 @@ import { MotionConfig } from 'motion/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
-import { Boundary } from './Boundary';
+import { Boundary } from '@/components/Boundary';
 import { LibraryProvider } from './library';
-import './style.css';
+import '@/assets/style.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

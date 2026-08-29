@@ -50,6 +50,7 @@ export type Action =
   | { type: 'lessonPlayed'; courseId: CourseId; lessonId: LessonId }
   | { type: 'lessonQueued'; courseId: CourseId; lessonId: LessonId }
   | { type: 'lessonEnded'; nextLessonId: LessonId | null }
+  | { type: 'lessonHandedOff' }
   | { type: 'wentHome' };
 
 export const initialState: AppState = {
@@ -144,6 +145,10 @@ export function reduce(state: AppState, action: Action): AppState {
         (action.nextLessonId ? { ...state.lesson, lessonId: action.nextLessonId } : null);
       return after ? { ...state, lesson: after, queued: null } : state;
     }
+
+    // Two documents on one lesson play it twice, so the panel lets go.
+    case 'lessonHandedOff':
+      return { ...state, lesson: null, queued: null };
 
     case 'wentHome':
       return from(view, 'courseLoading', 'course')
