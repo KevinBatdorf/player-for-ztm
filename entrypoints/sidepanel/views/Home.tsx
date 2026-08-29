@@ -1,4 +1,5 @@
-import { Music2, Play } from 'lucide-react';
+import { LoaderCircle, Music2, Play } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useMemo, useState, type Dispatch } from 'react';
 import { browser } from '#imports';
 import { useLibrary } from '../library';
@@ -10,8 +11,13 @@ import { runtimeOf } from '@/lib/lessons';
 import type { Action, Loaded } from '@/lib/machine';
 import { haystackOf, hits } from '@/lib/search';
 
+/** Copied from the screen slide; App imports this file, so it cannot be shared. */
+const CURVE = [0.32, 0.72, 0, 1] as const;
+
+const LAND = 0.5;
+
 export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Dispatch<Action> }) {
-  const { courses, lessonsFor, catalog } = useLibrary();
+  const { courses, lessonsFor, catalog, arriving, landed } = useLibrary();
   const hover = useHoverPrefetch();
   const [query, setQuery] = useState('');
 
@@ -69,14 +75,41 @@ export function Home({ lesson, dispatch }: { lesson: Loaded | null; dispatch: Di
       </p>
 
       <div className="flex flex-col gap-2">
+        {/* Its collapse and the cards' entrance share one slot, so the list never jumps. */}
+        <AnimatePresence initial={false}>
+          {arriving && (
+            <motion.p
+              key="arriving"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: CURVE }}
+              className="overflow-hidden font-mono text-caption text-ink-faint"
+            >
+              <span className="flex items-center gap-1.5 py-1">
+                <LoaderCircle className="size-3 animate-spin" aria-hidden />
+                new courses
+              </span>
+            </motion.p>
+          )}
+        </AnimatePresence>
+
         {list.map((course) => (
-          <Card
+          // Height on the wrapper, clipped: the card keeps its own height throughout.
+          <motion.div
             key={course.id}
-            course={course}
-            playing={lesson?.courseId === course.id}
-            dispatch={dispatch}
-            {...hover(course.id)}
-          />
+            initial={landed.includes(course.id) ? { height: 0, opacity: 0 } : false}
+            animate={{ height: 'auto', opacity: 1 }}
+            transition={{ duration: LAND, ease: CURVE }}
+            className="overflow-hidden"
+          >
+            <Card
+              course={course}
+              playing={lesson?.courseId === course.id}
+              dispatch={dispatch}
+              {...hover(course.id)}
+            />
+          </motion.div>
         ))}
       </div>
 

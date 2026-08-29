@@ -103,10 +103,17 @@ export type Library = {
 /** Their shelf paginates, so a single read is only ever the first page of it. */
 const PAGES = 20;
 
-async function fetchEnrolled(): Promise<{ held: Enrolled[]; pages: number[] }> {
+export type Watch = {
+  known: Set<CourseId>;
+  /** Fires once per read, on the first page holding an id outside `known`. */
+  onArrival: () => void;
+};
+
+async function fetchEnrolled(watch?: Watch): Promise<{ held: Enrolled[]; pages: number[] }> {
   const held: Enrolled[] = [];
   const seen = new Set<CourseId>();
   const pages: number[] = [];
+  let told = false;
 
   for (let page = 1; page <= PAGES; page++) {
     const res = await fetch(page === 1 ? ENROLLED : `${ENROLLED}?page=${page}`, {
@@ -127,6 +134,11 @@ async function fetchEnrolled(): Promise<{ held: Enrolled[]; pages: number[] }> {
     console.info(`[ztm] enrolled page ${page}: ${rows.length} tiles, ${fresh.length} new`);
     if (!fresh.length) break;
 
+    if (watch && !told && fresh.some((course) => !watch.known.has(course.id))) {
+      told = true;
+      watch.onArrival();
+    }
+
     for (const course of fresh) seen.add(course.id);
     held.push(...fresh);
   }
@@ -134,8 +146,8 @@ async function fetchEnrolled(): Promise<{ held: Enrolled[]; pages: number[] }> {
   return { held, pages };
 }
 
-export async function fetchLibrary(): Promise<Library> {
-  const { held: enrolled, pages } = await fetchEnrolled();
+export async function fetchLibrary(watch?: Watch): Promise<Library> {
+  const { held: enrolled, pages } = await fetchEnrolled(watch);
   if (!enrolled.length) throw new Error('Enrolled parsed to nothing, so their markup moved.');
 
   const catalog = await fetchCatalog().catch(() => [] as CatalogEntry[]);

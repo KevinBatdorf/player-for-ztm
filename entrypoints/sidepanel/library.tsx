@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -30,6 +31,11 @@ const SWEEP_GAP_MS = 1200;
 /** A second failure in a row is the host saying no, not one bad lecture. */
 const GIVE_UP_AFTER = 2;
 
+/** A floor, not a duration: the shelf read usually holds the notice up far longer. */
+const ARRIVAL_FLOOR_MS = 3000;
+
+const ARRIVAL_HOLD_MS = 900;
+
 /** What the player had loaded when the panel last closed. */
 export type Playing = { courseId: CourseId; lessonId: LessonId };
 
@@ -52,6 +58,10 @@ type LibraryApi = {
   watchedCount: (courseId: CourseId) => number;
   markWatched: (courseId: CourseId, lessonId: LessonId) => void;
   resumeIn: (courseId: CourseId) => Lesson | null;
+  /** Up from the page that first gives up an unheld course until its card has landed. */
+  arriving: boolean;
+  /** The ids that just landed, for as long as their entrance runs. */
+  landed: CourseId[];
   /** What each page of the shelf gave up on the last fetch. */
   pages: number[];
   catalog: CatalogEntry[];
@@ -75,6 +85,8 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   const [watched, setWatched] = useState<Watched>({});
   const [lastPlayed, setLastPlayed] = useState<Playing | null>(null);
   const [pages, setPages] = useState<number[]>([]);
+  const [arriving, setArriving] = useState(false);
+  const [landed, setLanded] = useState<CourseId[]>([]);
   const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
   const record = useRef<Watched>({});
   const sweeping = useRef<CourseId | null>(null);
@@ -88,25 +100,61 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     void write(LESSONS, next);
   }, []);
 
-  const refresh = useCallback(async () => {
-    try {
-      const fresh = await fetchLibrary();
-      setCourses(fresh.courses);
-      setPages(fresh.pages);
-      setCatalog(fresh.catalog);
-      setError(null);
-      void write(COURSES, fresh.courses);
-      void write(CATALOG, fresh.catalog);
+  const refresh = useCallback(
+    async (known: CourseId[]) => {
+      const shelf = new Set(known);
+      let noticed: number | null = null;
 
-      put(mergeIndex(latest.current, fresh.courses, fresh.lessons));
-      return true;
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : String(cause));
-      return false;
-    } finally {
-      inflight.current = null;
-    }
-  }, [put]);
+      try {
+        const fresh = await fetchLibrary(
+          // A first-ever read has nothing to compare against, so none of it is an arrival.
+          shelf.size
+            ? {
+                known: shelf,
+                onArrival: () => {
+                  noticed = Date.now();
+                  setArriving(true);
+                },
+              }
+            : undefined,
+        );
+
+        const fresher = shelf.size ? fresh.courses.filter((course) => !shelf.has(course.id)) : [];
+
+        // Held back on purpose: the cards must not land while the notice is still up.
+        if (noticed !== null) {
+          const left = ARRIVAL_FLOOR_MS - (Date.now() - noticed);
+          if (left > 0) await new Promise((done) => setTimeout(done, left));
+        }
+
+        setCourses(fresh.courses);
+        setPages(fresh.pages);
+        setCatalog(fresh.catalog);
+        setError(null);
+        setArriving(false);
+        setLanded(fresher.map((course) => course.id));
+        void write(COURSES, fresh.courses);
+        void write(CATALOG, fresh.catalog);
+
+        put(mergeIndex(latest.current, fresh.courses, fresh.lessons));
+        return true;
+      } catch (cause) {
+        setArriving(false);
+        setError(cause instanceof Error ? cause.message : String(cause));
+        return false;
+      } finally {
+        inflight.current = null;
+      }
+    },
+    [put],
+  );
+
+  // Cleared, or a card remounting out of a search filter replays the entrance.
+  useEffect(() => {
+    if (!landed.length) return;
+    const timer = setTimeout(() => setLanded([]), ARRIVAL_HOLD_MS);
+    return () => clearTimeout(timer);
+  }, [landed]);
 
   const load = useCallback(() => {
     if (inflight.current) return inflight.current;
@@ -134,16 +182,14 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
         setWatched(cachedWatched);
       }
 
-      const warm = Array.isArray(cachedCourses) && cachedCourses.length > 0;
-
       // Courses get added and titles edited, so a cached list is shown and then replaced.
-      if (warm) {
+      if (Array.isArray(cachedCourses) && cachedCourses.length > 0) {
         setCourses(cachedCourses);
-        void refresh();
+        void refresh(cachedCourses.map((course) => course.id));
         return true;
       }
 
-      return refresh();
+      return refresh([]);
     })();
 
     inflight.current = run;
@@ -282,6 +328,8 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       watchedCount: (courseId) => Object.keys(watched[courseId] ?? {}).length,
       markWatched,
       resumeIn: (courseId) => resumeOf(index[courseId]?.lessons ?? NONE, watched[courseId]),
+      arriving,
+      landed,
       pages,
       catalog,
       lastPlayed,
@@ -298,6 +346,8 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       text,
       watched,
       markWatched,
+      arriving,
+      landed,
       pages,
       catalog,
       lastPlayed,
